@@ -1,3 +1,7 @@
+# Code::Blocks files
+scorepress-gtk.depend
+scorepress-gtk.layout
+
 # Compiled Object files
 *.slo
 *.lo
