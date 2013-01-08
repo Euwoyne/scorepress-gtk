@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="scorepress-gtk" />
+		<Option makefile_is_custom="1" />
+		<Option execution_dir="/home/dominik/sources/cpp/score/scorepress-gtk" />
+		<Option pch_mode="0" />
+		<Option default_target="install" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="build">
+				<Option output="$(BUILDDIR)/$(BINFILE)" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="$(BUILDDIR)" />
+				<Option object_output="build/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-ggdb -O0" />
+				</Compiler>
+				<MakeCommands>
+					<Build command="$make -f $makefile $target" />
+					<CompileFile command="$make -f $makefile $file" />
+					<Clean command="$make -f $makefile clean$target" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q -f $makefile $target" />
+					<SilentBuild command="$make -f $makefile $target" />
+				</MakeCommands>
+			</Target>
+			<Target title="install">
+				<Option output="$(BINDIR)/$(BINFILE)" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="$(BINDIR)" />
+				<Option object_output="build/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="dist-clean">
+				<Option type="4" />
+				<Option compiler="gcc" />
+			</Target>
+			<Target title="uninstall">
+				<Option type="4" />
+				<Option compiler="gcc" />
+			</Target>
+			<Target title="clear">
+				<Option type="4" />
+				<Option compiler="gcc" />
+			</Target>
+			<Environment>
+				<Variable name="BUILDDIR" value="build" />
+				<Variable name="BINFILE" value="score" />
+				<Variable name="BINDIR" value=".." />
+			</Environment>
+		</Build>
+		<VirtualTargets>
+			<Add alias="default" targets="build;install;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="`pkg-config gtkmm-3.0 --cflags`" />
+			<Add option="`pkg-config librsvg-2.0 --cflags`" />
+			<Add option="`pkg-config libxml-2.0 --cflags`" />
+			<Add directory="/home/dominik/sources/cpp/score/libscorepress/src" />
+		</Compiler>
+		<Linker>
+			<Add option="`pkg-config gtkmm-3.0 --libs`" />
+			<Add option="`pkg-config librsvg-2.0 --libs`" />
+			<Add option="`pkg-config libxml-2.0 --libs`" />
+			<Add library="libscorepress" />
+			<Add directory="/home/dominik/sources/cpp/score/libscorepress" />
+		</Linker>
+		<Unit filename="Makefile">
+			<Option target="build" />
+			<Option target="install" />
+			<Option target="dist-clean" />
+		</Unit>
+		<Unit filename="src/application.cpp">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/application.hh">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/cmdline_options.cpp">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/cmdline_options.hh">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/configuration.cpp">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/configuration.hh">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/controller.cpp">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/controller.hh">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/i18n.hh">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/icon_manager.cpp">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/icon_manager.hh">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/key_listener.cpp">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/key_listener.hh">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/key_map.cpp">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/key_map.hh">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/main.cpp">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/mainwnd.cpp">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/mainwnd.hh">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/rsvg_renderer.cpp">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/rsvg_renderer.hh">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/score_widget.cpp">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/score_widget.hh">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/version.cpp">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Unit filename="src/version.hh">
+			<Option target="build" />
+			<Option target="install" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+			<envvars />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
