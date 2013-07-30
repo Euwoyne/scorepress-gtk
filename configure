@@ -3034,7 +3034,9 @@ else
     LIBSCOREPRESS_LIBS=-lscorepress
 
 fi
-CFLAGS="$LIBSCOREPRESS_CFLAGS $CFLAGS_ORI"
+CFLAGS="$CFLAGS_ORI $LIBSCOREPRESS_CFLAGS"
+LDFLAGS="$LIBS_ORI $LIBSCOREPRESS_LIBS"
+LIBS="$LIBS_ORI $LIBSCOREPRESS_LIBS"
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lscorepress" >&5
 $as_echo_n "checking for main in -lscorepress... " >&6; }

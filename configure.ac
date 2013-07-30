@@ -73,7 +73,9 @@ else
     AC_SUBST([LIBSCOREPRESS_CFLAGS], [-I/usr/include/libscorepress])
     AC_SUBST([LIBSCOREPRESS_LIBS], [-lscorepress])
 fi
-CFLAGS="$LIBSCOREPRESS_CFLAGS $CFLAGS_ORI"
+CFLAGS="$CFLAGS_ORI $LIBSCOREPRESS_CFLAGS"
+LDFLAGS="$LIBS_ORI $LIBSCOREPRESS_LIBS"
+LIBS="$LIBS_ORI $LIBSCOREPRESS_LIBS"
 AC_CHECK_LIB([scorepress], [main],, AC_MSG_ERROR([cannot find library '$scorepress_pkg']))
 
 #   libgtkmm
