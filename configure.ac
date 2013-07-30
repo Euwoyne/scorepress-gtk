@@ -13,6 +13,7 @@ AC_DEFINE([SCOREPRESS_VERSION_STRING], ["AC_PACKAGE_VERSION"])
 
 # save user flags
 CFLAGS_ORI="$CFLAGS"
+LDFLAGS_ORI="$LDFLAGS"
 LIBS_ORI="$LIBS"
 
 # package names (for use with pkg-config)
@@ -73,8 +74,9 @@ else
     AC_SUBST([LIBSCOREPRESS_CFLAGS], [-I/usr/include/libscorepress])
     AC_SUBST([LIBSCOREPRESS_LIBS], [-lscorepress])
 fi
+
 CFLAGS="$CFLAGS_ORI $LIBSCOREPRESS_CFLAGS"
-LDFLAGS="$LIBS_ORI $LIBSCOREPRESS_LIBS"
+LDFLAGS="$LDFLAGS_ORI $LIBSCOREPRESS_LIBS"
 LIBS="$LIBS_ORI $LIBSCOREPRESS_LIBS"
 AC_CHECK_LIB([scorepress], [main],, AC_MSG_ERROR([cannot find library '$scorepress_pkg']))
 
@@ -83,7 +85,10 @@ AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $gtkmm_pkg; echo $?` -ne 0],
     AC_MSG_ERROR([pkg-config cannot find library '$gtkmm_pkg']))
 AC_SUBST([LIBGTKMM_CFLAGS], [`$PKGCONFIG $gtkmm_pkg --cflags`])
 AC_SUBST([LIBGTKMM_LIBS], [`$PKGCONFIG $gtkmm_pkg --libs`])
-CFLAGS="$LIBGTKMM_CFLAGS $CFLAGS_ORI"
+
+CFLAGS="$CFLAGS_ORI $LIBGTKMM_CFLAGS"
+LDFLAGS="$LDFLAGS_ORI $LIBGTKMM_LIBS"
+LIBS="$LIBS_ORI $LIBGTKMM_LIBS"
 AC_CHECK_LIB([$gtkmm_pkg], [_init],, AC_MSG_ERROR([cannot find library '$gtkmm_pkg']))
 
 #   libcairomm
@@ -91,7 +96,10 @@ AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $cairomm_pkg; echo $?` -ne 0
     AC_MSG_ERROR([pkg-config cannot find library '$cairomm_pkg']))
 AC_SUBST([LIBCAIROMM_CFLAGS], [`$PKGCONFIG $cairomm_pkg --cflags`])
 AC_SUBST([LIBCAIROMM_LIBS], [`$PKGCONFIG $cairomm_pkg --libs`])
-CFLAGS="$LIBCAIROMM_CFLAGS $CFLAGS_ORI"
+
+CFLAGS="$CFLAGS_ORI $LIBCAIROMM_CFLAGS"
+LDFLAGS="$LDFLAGS_ORI $LIBCAIROMM_LIBS"
+LIBS="$LIBS_ORI $LIBCAIROMM_LIBS"
 AC_CHECK_LIB([$cairomm_pkg], [_init],, AC_MSG_ERROR([cannot find library '$cairomm_pkg']))
 
 #   libpango
@@ -99,7 +107,10 @@ AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $pango_pkg; echo $?` -ne 0],
     AC_MSG_ERROR([pkg-config cannot find library '$pango_pkg']))
 AC_SUBST([LIBPANGO_CFLAGS], [`$PKGCONFIG $pango_pkg --cflags`])
 AC_SUBST([LIBPANGO_LIBS], [`$PKGCONFIG $pango_pkg --libs`])
-CFLAGS="$LIBPANGO_CFLAGS $CFLAGS_ORI"
+
+CFLAGS="$CFLAGS_ORI $LIBPANGO_CFLAGS"
+LDFLAGS="$LDFLAGS_ORI $LIBPANGO_LIBS"
+LIBS="$LIBS_ORI $LIBPANGO_LIBS"
 AC_CHECK_LIB([pango-1.0], [pango_context_new],, AC_MSG_ERROR([cannot find library 'pango-1.0']))
 AC_CHECK_LIB([pangocairo-1.0], [pango_cairo_create_context],, AC_MSG_ERROR([cannot find library 'pangocairo']))
 
@@ -108,7 +119,10 @@ AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $rsvg_pkg; echo $?` -ne 0],
     AC_MSG_ERROR([pkg-config cannot find library '$rsvg_pkg']))
 AC_SUBST([LIBRSVG_CFLAGS], [`$PKGCONFIG $rsvg_pkg --cflags`])
 AC_SUBST([LIBRSVG_LIBS], [`$PKGCONFIG $rsvg_pkg --libs`])
-CFLAGS="$LIBRSVG_CFLAGS $CFLAGS_ORI"
+
+CFLAGS="$CFLAGS_ORI $LIBRSVG_CFLAGS"
+LDFLAGS="$LDFLAGS_ORI $LIBRSVG_LIBS"
+LIBS="$LIBS_ORI $LIBRSVG_LIBS"
 AC_CHECK_LIB([rsvg-2], [rsvg_handle_new],, AC_MSG_ERROR([cannot find library '$rsvg_pkg']))
 
 #   libxml
@@ -122,7 +136,10 @@ else
     AC_SUBST([LIBXML_CFLAGS], [-I/usr/include/libxml2])
     AC_SUBST([LIBXML_LIBS], [-lxml2])
 fi
-CFLAGS="$LIBXML_CFLAGS $CFLAGS_ORI"
+
+CFLAGS="$CFLAGS_ORI $LIBXML_CFLAGS"
+LDFLAGS="$LDFLAGS_ORI $LIBXML_LIBS"
+LIBS="$LIBS_ORI $LIBXML_LIBS"
 AC_CHECK_LIB([xml2], [xmlReaderForFile],, AC_MSG_ERROR([cannot find library 'libxml2']))
 
 # check headers
@@ -139,38 +156,43 @@ AC_CHECK_HEADER([deque],,    AC_MSG_ERROR([Failed to find <deque> header.]))
 AC_CHECK_HEADER([map],,      AC_MSG_ERROR([Failed to find <map> header.]))
 AC_CHECK_HEADER([set],,      AC_MSG_ERROR([Failed to find <set> header.]))
 
-CPPFLAGS="$LIBSCOREPRESS_CFLAGS $CFLAGS_ORI"
-CFLAGS="$LIBSCOREPRESS_CFLAGS $CFLAGS_ORI"
+CPPFLAGS="$CFLAGS_ORI $LIBSCOREPRESS_CFLAGS"
+CFLAGS="$CFLAGS_ORI $LIBSCOREPRESS_CFLAGS"
 AC_CHECK_HEADER([scorepress/engine.hh],, AC_MSG_ERROR([Failed to find <scorepress/engine.hh>]))
 AC_CHECK_HEADER([scorepress/engraver.hh],, AC_MSG_ERROR([Failed to find <scorepress/engraver.hh>]))
 
-CPPFLAGS="$LIBPANGO_CFLAGS $LIBCAIROMM_CFLAGS $CFLAGS_ORI"
-CFLAGS="$LIBPANGO_CFLAGS $LIBCAIROMM_CFLAGS $CFLAGS_ORI"
+CPPFLAGS="$CFLAGS_ORI $LIBPANGO_CFLAGS $LIBCAIROMM_CFLAGS"
+CFLAGS="$CFLAGS_ORI $LIBPANGO_CFLAGS $LIBCAIROMM_CFLAGS"
 AC_CHECK_HEADER([pango/pangocairo.h],, AC_MSG_ERROR([Failed to find <pango/pangocairo.h>]))
 
-CPPFLAGS="$LIBRSVG_CFLAGS $CFLAGS_ORI"
-CFLAGS="$LIBRSVG_CFLAGS $CFLAGS_ORI"
+CPPFLAGS="$CFLAGS_ORI $LIBRSVG_CFLAGS"
+CFLAGS="$CFLAGS_ORI $LIBRSVG_CFLAGS"
 AC_CHECK_HEADER([librsvg/rsvg.h],,      AC_MSG_ERROR([Failed to find <librsvg/rsvg.h>]))
 AC_CHECK_HEADER([librsvg/rsvg-cairo.h],,AC_MSG_ERROR([Failed to find <librsvg/rsvg-cairo.h>]), [#include <librsvg/rsvg.h>])
 
-CPPFLAGS="$LIBXML_CFLAGS $CFLAGS_ORI"
-CFLAGS="$LIBXML_CFLAGS $CFLAGS_ORI"
+CPPFLAGS="$CFLAGS_ORI $LIBXML_CFLAGS"
+CFLAGS="$CFLAGS_ORI $LIBXML_CFLAGS"
 AC_CHECK_HEADER([libxml/xmlreader.h],, AC_MSG_ERROR([Failed to find <libxml/xmlreader.h>]))
 
 # check types
 AC_TYPE_SIZE_T
 
 # check functions
-CFLAGS="$LIBRSVG_CFLAGS $CFLAGS_ORI"
+CFLAGS="$CFLAGS_ORI $LIBRSVG_CFLAGS"
+LDFLAGS="$LDFLAGS_ORI $LIBRSVG_LIBS"
+LIBS="$LIBS_ORI $LIBRSVG_LIBS"
 AC_CHECK_FUNC([rsvg_handle_get_position_sub],, AC_MSG_ERROR([library '$rsvg_pkg' cannot get subpath positions]))
 AC_CHECK_FUNC([rsvg_handle_get_dimensions_sub],, AC_MSG_ERROR([library '$rsvg_pkg' cannot get subpath dimensions]))
 
-CPPFLAGS="$LIBXML_CFLAGS $CFLAGS_ORI"
+CFLAGS="$CFLAGS_ORI $LIBXML_CFLAGS"
+LDFLAGS="$LDFLAGS_ORI $LIBXML_LIBS"
+LIBS="$LIBS_ORI $LIBXML_LIBS"
 AC_CHECK_FUNC([xmlReaderForFile],, AC_MSG_ERROR([library 'libxml2' does not provide the 'xmlReader' interface]))
 AC_CHECK_FUNC([xmlReaderForMemory],, AC_MSG_ERROR([library 'libxml2' does not provide the 'xmlReader' interface]))
 
 # generate output
 AC_SUBST([CFLAGS],[$CFLAGS_ORI])
+AC_SUBST([LDFLAGS],[$LDFLAGS_ORI])
 AC_SUBST([LIBS],[$LIBS_ORI])
 AC_CONFIG_FILES([Makefile:Makefile.ac])
 AC_OUTPUT()

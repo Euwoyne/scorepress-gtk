@@ -2191,6 +2191,7 @@ $as_echo "#define SCOREPRESS_VERSION_STRING \"0.1.0\"" >>confdefs.h
 
 # save user flags
 CFLAGS_ORI="$CFLAGS"
+LDFLAGS_ORI="$LDFLAGS"
 LIBS_ORI="$LIBS"
 
 # package names (for use with pkg-config)
@@ -3034,8 +3035,9 @@ else
     LIBSCOREPRESS_LIBS=-lscorepress
 
 fi
+
 CFLAGS="$CFLAGS_ORI $LIBSCOREPRESS_CFLAGS"
-LDFLAGS="$LIBS_ORI $LIBSCOREPRESS_LIBS"
+LDFLAGS="$LDFLAGS_ORI $LIBSCOREPRESS_LIBS"
 LIBS="$LIBS_ORI $LIBSCOREPRESS_LIBS"
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lscorepress" >&5
@@ -3088,7 +3090,10 @@ LIBGTKMM_CFLAGS=`$PKGCONFIG $gtkmm_pkg --cflags`
 
 LIBGTKMM_LIBS=`$PKGCONFIG $gtkmm_pkg --libs`
 
-CFLAGS="$LIBGTKMM_CFLAGS $CFLAGS_ORI"
+
+CFLAGS="$CFLAGS_ORI $LIBGTKMM_CFLAGS"
+LDFLAGS="$LDFLAGS_ORI $LIBGTKMM_LIBS"
+LIBS="$LIBS_ORI $LIBGTKMM_LIBS"
 as_ac_Lib=`$as_echo "ac_cv_lib_$gtkmm_pkg''__init" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for _init in -l$gtkmm_pkg" >&5
 $as_echo_n "checking for _init in -l$gtkmm_pkg... " >&6; }
@@ -3147,7 +3152,10 @@ LIBCAIROMM_CFLAGS=`$PKGCONFIG $cairomm_pkg --cflags`
 
 LIBCAIROMM_LIBS=`$PKGCONFIG $cairomm_pkg --libs`
 
-CFLAGS="$LIBCAIROMM_CFLAGS $CFLAGS_ORI"
+
+CFLAGS="$CFLAGS_ORI $LIBCAIROMM_CFLAGS"
+LDFLAGS="$LDFLAGS_ORI $LIBCAIROMM_LIBS"
+LIBS="$LIBS_ORI $LIBCAIROMM_LIBS"
 as_ac_Lib=`$as_echo "ac_cv_lib_$cairomm_pkg''__init" | $as_tr_sh`
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for _init in -l$cairomm_pkg" >&5
 $as_echo_n "checking for _init in -l$cairomm_pkg... " >&6; }
@@ -3206,7 +3214,10 @@ LIBPANGO_CFLAGS=`$PKGCONFIG $pango_pkg --cflags`
 
 LIBPANGO_LIBS=`$PKGCONFIG $pango_pkg --libs`
 
-CFLAGS="$LIBPANGO_CFLAGS $CFLAGS_ORI"
+
+CFLAGS="$CFLAGS_ORI $LIBPANGO_CFLAGS"
+LDFLAGS="$LDFLAGS_ORI $LIBPANGO_LIBS"
+LIBS="$LIBS_ORI $LIBPANGO_LIBS"
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pango_context_new in -lpango-1.0" >&5
 $as_echo_n "checking for pango_context_new in -lpango-1.0... " >&6; }
 if ${ac_cv_lib_pango_1_0_pango_context_new+:} false; then :
@@ -3310,7 +3321,10 @@ LIBRSVG_CFLAGS=`$PKGCONFIG $rsvg_pkg --cflags`
 
 LIBRSVG_LIBS=`$PKGCONFIG $rsvg_pkg --libs`
 
-CFLAGS="$LIBRSVG_CFLAGS $CFLAGS_ORI"
+
+CFLAGS="$CFLAGS_ORI $LIBRSVG_CFLAGS"
+LDFLAGS="$LDFLAGS_ORI $LIBRSVG_LIBS"
+LIBS="$LIBS_ORI $LIBRSVG_LIBS"
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for rsvg_handle_new in -lrsvg-2" >&5
 $as_echo_n "checking for rsvg_handle_new in -lrsvg-2... " >&6; }
 if ${ac_cv_lib_rsvg_2_rsvg_handle_new+:} false; then :
@@ -3376,7 +3390,10 @@ else
     LIBXML_LIBS=-lxml2
 
 fi
-CFLAGS="$LIBXML_CFLAGS $CFLAGS_ORI"
+
+CFLAGS="$CFLAGS_ORI $LIBXML_CFLAGS"
+LDFLAGS="$LDFLAGS_ORI $LIBXML_LIBS"
+LIBS="$LIBS_ORI $LIBXML_LIBS"
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for xmlReaderForFile in -lxml2" >&5
 $as_echo_n "checking for xmlReaderForFile in -lxml2... " >&6; }
 if ${ac_cv_lib_xml2_xmlReaderForFile+:} false; then :
@@ -3916,8 +3933,8 @@ fi
 
 
 
-CPPFLAGS="$LIBSCOREPRESS_CFLAGS $CFLAGS_ORI"
-CFLAGS="$LIBSCOREPRESS_CFLAGS $CFLAGS_ORI"
+CPPFLAGS="$CFLAGS_ORI $LIBSCOREPRESS_CFLAGS"
+CFLAGS="$CFLAGS_ORI $LIBSCOREPRESS_CFLAGS"
 ac_fn_cxx_check_header_mongrel "$LINENO" "scorepress/engine.hh" "ac_cv_header_scorepress_engine_hh" "$ac_includes_default"
 if test "x$ac_cv_header_scorepress_engine_hh" = xyes; then :
 
@@ -3935,8 +3952,8 @@ fi
 
 
 
-CPPFLAGS="$LIBPANGO_CFLAGS $LIBCAIROMM_CFLAGS $CFLAGS_ORI"
-CFLAGS="$LIBPANGO_CFLAGS $LIBCAIROMM_CFLAGS $CFLAGS_ORI"
+CPPFLAGS="$CFLAGS_ORI $LIBPANGO_CFLAGS $LIBCAIROMM_CFLAGS"
+CFLAGS="$CFLAGS_ORI $LIBPANGO_CFLAGS $LIBCAIROMM_CFLAGS"
 ac_fn_cxx_check_header_mongrel "$LINENO" "pango/pangocairo.h" "ac_cv_header_pango_pangocairo_h" "$ac_includes_default"
 if test "x$ac_cv_header_pango_pangocairo_h" = xyes; then :
 
@@ -3946,8 +3963,8 @@ fi
 
 
 
-CPPFLAGS="$LIBRSVG_CFLAGS $CFLAGS_ORI"
-CFLAGS="$LIBRSVG_CFLAGS $CFLAGS_ORI"
+CPPFLAGS="$CFLAGS_ORI $LIBRSVG_CFLAGS"
+CFLAGS="$CFLAGS_ORI $LIBRSVG_CFLAGS"
 ac_fn_cxx_check_header_mongrel "$LINENO" "librsvg/rsvg.h" "ac_cv_header_librsvg_rsvg_h" "$ac_includes_default"
 if test "x$ac_cv_header_librsvg_rsvg_h" = xyes; then :
 
@@ -3966,8 +3983,8 @@ fi
 
 
 
-CPPFLAGS="$LIBXML_CFLAGS $CFLAGS_ORI"
-CFLAGS="$LIBXML_CFLAGS $CFLAGS_ORI"
+CPPFLAGS="$CFLAGS_ORI $LIBXML_CFLAGS"
+CFLAGS="$CFLAGS_ORI $LIBXML_CFLAGS"
 ac_fn_cxx_check_header_mongrel "$LINENO" "libxml/xmlreader.h" "ac_cv_header_libxml_xmlreader_h" "$ac_includes_default"
 if test "x$ac_cv_header_libxml_xmlreader_h" = xyes; then :
 
@@ -3991,7 +4008,9 @@ fi
 
 
 # check functions
-CFLAGS="$LIBRSVG_CFLAGS $CFLAGS_ORI"
+CFLAGS="$CFLAGS_ORI $LIBRSVG_CFLAGS"
+LDFLAGS="$LDFLAGS_ORI $LIBRSVG_LIBS"
+LIBS="$LIBS_ORI $LIBRSVG_LIBS"
 ac_fn_cxx_check_func "$LINENO" "rsvg_handle_get_position_sub" "ac_cv_func_rsvg_handle_get_position_sub"
 if test "x$ac_cv_func_rsvg_handle_get_position_sub" = xyes; then :
 
@@ -4007,7 +4026,9 @@ else
 fi
 
 
-CPPFLAGS="$LIBXML_CFLAGS $CFLAGS_ORI"
+CFLAGS="$CFLAGS_ORI $LIBXML_CFLAGS"
+LDFLAGS="$LDFLAGS_ORI $LIBXML_LIBS"
+LIBS="$LIBS_ORI $LIBXML_LIBS"
 ac_fn_cxx_check_func "$LINENO" "xmlReaderForFile" "ac_cv_func_xmlReaderForFile"
 if test "x$ac_cv_func_xmlReaderForFile" = xyes; then :
 
@@ -4025,6 +4046,8 @@ fi
 
 # generate output
 CFLAGS=$CFLAGS_ORI
+
+LDFLAGS=$LDFLAGS_ORI
 
 LIBS=$LIBS_ORI
 
