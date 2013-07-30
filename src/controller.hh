@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2012 Dominik Lehmann
+  Copyright (C) 2013 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -22,7 +22,7 @@
 
 #include <string>
 #include <vector>
-#include <engine.hh>
+#include <scorepress/engine.hh>
 #include <giomm/file.h>
 #include "rsvg_renderer.hh"
 #include "key_listener.hh"

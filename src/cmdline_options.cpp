@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2012 Dominik Lehmann
+  Copyright (C) 2013 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -21,7 +21,7 @@
 
 #include "cmdline_options.hh"
 #include "i18n.hh"
-#include "version.hh"
+#include "config.hh"
 
 int parse_cmdline(CmdlineOptions& opt, int argn, char* argv[])
 {
@@ -80,7 +80,7 @@ Usage: score [options] [filename]\n\
    -V, --version      print program version\n\
 ")      , stdout);
         fputs("\n\
-Copyright (C) 2012 Dominik Lehmann\n\
+" SCOREPRESS_COPYRIGHT "\n\
 This application is licensed under the EUPL, Version 1.1\n\
 "       , stdout);
         return 1;

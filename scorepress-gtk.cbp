@@ -80,102 +80,29 @@
 			<Option target="install" />
 			<Option target="dist-clean" />
 		</Unit>
-		<Unit filename="src/application.cpp">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/application.hh">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/cmdline_options.cpp">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/cmdline_options.hh">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/configuration.cpp">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/configuration.hh">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/controller.cpp">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/controller.hh">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/i18n.hh">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/icon_manager.cpp">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/icon_manager.hh">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/key_listener.cpp">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/key_listener.hh">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/key_map.cpp">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/key_map.hh">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/main.cpp">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/mainwnd.cpp">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/mainwnd.hh">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/rsvg_renderer.cpp">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/rsvg_renderer.hh">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/score_widget.cpp">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/score_widget.hh">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/version.cpp">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
-		<Unit filename="src/version.hh">
-			<Option target="build" />
-			<Option target="install" />
-		</Unit>
+		<Unit filename="src/application.cpp" />
+		<Unit filename="src/application.hh" />
+		<Unit filename="src/cmdline_options.cpp" />
+		<Unit filename="src/cmdline_options.hh" />
+		<Unit filename="src/config.cpp" />
+		<Unit filename="src/config.hh" />
+		<Unit filename="src/config.hh.ac" />
+		<Unit filename="src/controller.cpp" />
+		<Unit filename="src/controller.hh" />
+		<Unit filename="src/i18n.hh" />
+		<Unit filename="src/icon_manager.cpp" />
+		<Unit filename="src/icon_manager.hh" />
+		<Unit filename="src/key_listener.cpp" />
+		<Unit filename="src/key_listener.hh" />
+		<Unit filename="src/key_map.cpp" />
+		<Unit filename="src/key_map.hh" />
+		<Unit filename="src/main.cpp" />
+		<Unit filename="src/mainwnd.cpp" />
+		<Unit filename="src/mainwnd.hh" />
+		<Unit filename="src/rsvg_renderer.cpp" />
+		<Unit filename="src/rsvg_renderer.hh" />
+		<Unit filename="src/score_widget.cpp" />
+		<Unit filename="src/score_widget.hh" />
 		<Extensions>
 			<code_completion />
 			<debugger />

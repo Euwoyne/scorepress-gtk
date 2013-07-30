@@ -23,40 +23,40 @@
 
 # programs
 SHELL     := /bin/sh
-CXX       := g++
-INSTALL   := /usr/bin/install -c
-INSTALLU  := ${INSTALL} -m 644
-PKGCONFIG := /usr/bin/pkg-config
+CXX       := @CXX@
+INSTALL   := @INSTALL@
+INSTALLU  := @INSTALL_DATA@
+PKGCONFIG := @PKGCONFIG@
 
 # target filenames
-PACKAGE_TARNAME := scorepress-gtk
+PACKAGE_TARNAME := @PACKAGE_TARNAME@
 binfile         := scorepress
 
 # directories
-prefix      := /home/dominik/sources/cpp/score/build
-exec_prefix := ${prefix}
-datarootdir := ${prefix}/share
-datadir     := ${datarootdir}/${PACKAGE_TARNAME}
-distdir     := scorepress-gtk-0.1.0
+prefix      := @prefix@
+exec_prefix := @exec_prefix@
+datarootdir := @datarootdir@
+datadir     := @datadir@/${PACKAGE_TARNAME}
+distdir     := @PACKAGE_NAME@-@PACKAGE_VERSION@
 
-srcdir      := ./src
-datasrc     := ./data
+srcdir      := @srcdir@/src
+datasrc     := @srcdir@/data
 iconsrc     := ${datasrc}/icons
 appiconsrc  := ${datasrc}/icons
-builddir    := ./build
+builddir    := @builddir@/build
 
-bindir   := ${exec_prefix}/bin
-mandir   := ${datarootdir}/man/man3
-docdir   := ${datarootdir}/doc/${PACKAGE_TARNAME}
-htmldir  := ${docdir}/html
-dvidir   := ${docdir}
-pdfdir   := ${docdir}
-psdir    := ${docdir}
+bindir   := @bindir@
+mandir   := @mandir@/man3
+docdir   := @docdir@
+htmldir  := @htmldir@/html
+dvidir   := @dvidir@
+pdfdir   := @pdfdir@
+psdir    := @psdir@
 
 # icons
 icontheme    := hicolor
 iconctx      := apps
-icondir      := ${datarootdir}/icons/${icontheme}
+icondir      := @datadir@/icons/${icontheme}
 iconfiles    := scorepress.png scorepress-sm.png
 iconsizes    := 16 24 32 48 64 128
 appicondir   := ${datadir}/icons/${icontheme}
@@ -64,18 +64,18 @@ appiconfiles :=
 appiconsizes := 
 
 # compiler flags
-SCOREPRESSFLAGS := -I/home/dominik/sources/cpp/score/build/include/libscorepress-0.2.5
-SCOREPRESSLIBS  := -lscorepress
-GTKFLAGS        := -pthread -I/usr/include/gtkmm-3.0 -I/usr/lib/i386-linux-gnu/gtkmm-3.0/include -I/usr/include/atkmm-1.6 -I/usr/include/giomm-2.4 -I/usr/lib/i386-linux-gnu/giomm-2.4/include -I/usr/include/pangomm-1.4 -I/usr/lib/i386-linux-gnu/pangomm-1.4/include -I/usr/include/gtk-3.0 -I/usr/include/cairomm-1.0 -I/usr/lib/i386-linux-gnu/cairomm-1.0/include -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/gtk-3.0/unix-print -I/usr/include/gdkmm-3.0 -I/usr/lib/i386-linux-gnu/gdkmm-3.0/include -I/usr/include/atk-1.0 -I/usr/include/glibmm-2.4 -I/usr/lib/i386-linux-gnu/glibmm-2.4/include -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -I/usr/include/sigc++-2.0 -I/usr/lib/i386-linux-gnu/sigc++-2.0/include -I/usr/include/pango-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/harfbuzz  
-GTKLIBS         := -lgtkmm-3.0 -latkmm-1.6 -lgdkmm-3.0 -lgiomm-2.4 -lpangomm-1.4 -lgtk-3 -lglibmm-2.4 -lcairomm-1.0 -lgdk-3 -latk-1.0 -lgio-2.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lcairo-gobject -lpango-1.0 -lcairo -lsigc-2.0 -lgobject-2.0 -lglib-2.0  
-CAIROFLAGS      := -I/usr/include/cairomm-1.0 -I/usr/lib/i386-linux-gnu/cairomm-1.0/include -I/usr/include/cairo -I/usr/include/sigc++-2.0 -I/usr/lib/i386-linux-gnu/sigc++-2.0/include -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12  
-CAIROLIBS       := -lcairomm-1.0 -lcairo -lsigc-2.0  
-PANGOFLAGS      := -pthread -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include  
-PANGOLIBS       := -lpango-1.0 -lgobject-2.0 -lglib-2.0  
-RSVGFLAGS       := -pthread -I/usr/include/librsvg-2.0 -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/cairo -I/usr/include/libpng12 -I/usr/include/pixman-1 -I/usr/include/freetype2  
-RSVGLIBS        := -lrsvg-2 -lm -lgio-2.0 -lgdk_pixbuf-2.0 -lcairo -lgobject-2.0 -lglib-2.0  
-XMLFLAGS        := -I/usr/include/libxml2  
-XMLLIBS         := -lxml2  
+SCOREPRESSFLAGS := @LIBSCOREPRESS_CFLAGS@
+SCOREPRESSLIBS  := @LIBSCOREPRESS_LIBS@
+GTKFLAGS        := @LIBGTKMM_CFLAGS@
+GTKLIBS         := @LIBGTKMM_LIBS@
+CAIROFLAGS      := @LIBCAIROMM_CFLAGS@
+CAIROLIBS       := @LIBCAIROMM_LIBS@
+PANGOFLAGS      := @LIBPANGO_CFLAGS@
+PANGOLIBS       := @LIBPANGO_LIBS@
+RSVGFLAGS       := @LIBRSVG_CFLAGS@
+RSVGLIBS        := @LIBRSVG_LIBS@
+XMLFLAGS        := @LIBXML_CFLAGS@
+XMLLIBS         := @LIBXML_LIBS@
 
 WARNINGS := -W                      \
             -Wall                   \
@@ -93,14 +93,14 @@ CTRLFLAGS := -ansi                  \
              -pedantic              \
              -fno-nonansi-builtins
 
-MODE    := RELEASE
+MODE    := @MODE@
 DEBUG   := -ggdb -O0
 PROFILE := -pg -O2
 RELEASE := -O2 -fomit-frame-pointer
 
-CONFIGFLAGS := -DDATADIR="\"${datadir}\"" -DICONDIR="\"${datarootdir}/icons\"" -DAPPICONDIR="\"${datadir}/icons\""
-USERFLAGS   := 
-USERLIBS    := -L/home/dominik/sources/cpp/score/build/lib 
+CONFIGFLAGS := -DDATADIR="\"${datadir}\"" -DICONDIR="\"@datadir@/icons\"" -DAPPICONDIR="\"${datadir}/icons\""
+USERFLAGS   := @CFLAGS@
+USERLIBS    := @LDFLAGS@ @LIBS@
 
 FLAGS := ${WARNINGS} ${CTRLFLAGS} ${${MODE}} -I${srcdir} ${SCOREPRESSFLAGS} ${USERFLAGS}
 LIBS  := ${SCOREPRESSLIBS} ${GTKLIBS} ${CAIROLIBS} ${PANGOLIBS} ${RSVGLIBS} ${XMLLIBS} ${USERLIBS}
@@ -118,14 +118,14 @@ ofiles := ${builddir}/main.o            \
           ${builddir}/score_widget.o    \
           ${builddir}/icon_manager.o
 
-distfiles := ./AUTHORS     \
-             ./configure   \
-             ./install-sh  \
-             ./LICENCE.pdf \
-             ./Makefile.ac \
-             ./README      \
-             ./data        \
-             ./src
+distfiles := @srcdir@/AUTHORS     \
+             @srcdir@/configure   \
+             @srcdir@/install-sh  \
+             @srcdir@/LICENCE.pdf \
+             @srcdir@/Makefile.ac \
+             @srcdir@/README      \
+             @srcdir@/data        \
+             @srcdir@/src
 
 #
 # MAIN TARGETS
@@ -228,9 +228,9 @@ clean:
 distclean: clean
 	@echo "  Deleting:     configuration..."
 	@-rm -f ${srcdir}/config.hh
-	@-rm -f ./config.log
-	@-rm -f ./config.status
-	@-rm -f ./Makefile
+	@-rm -f @srcdir@/config.log
+	@-rm -f @srcdir@/config.status
+	@-rm -f @srcdir@/Makefile
 
 help:
 	@echo "No Help Available"

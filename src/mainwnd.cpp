@@ -18,11 +18,10 @@
 */
 
 #include "mainwnd.hh"
-#include "configuration.hh"
-#include "version.hh"
+#include "config.hh"
 #include "i18n.hh"
 #include <vector>
-#include <log.hh>
+#include <scorepress/log.hh>
 
 // view class constructor
 MainWnd::View::View(Controller& ctrl) : controller(&ctrl), widget(ctrl)
@@ -41,15 +40,6 @@ Glib::ustring MainWnd::ZoomScale::on_format_value(double value)
 // zoom slider widget: constructor
 MainWnd::ZoomScale::ZoomScale() : Gtk::HScale(2, 61, 1)
 {
-    //this->add_mark(10, Gtk::POS_TOP, "");
-    //this->add_mark(25, Gtk::POS_TOP, "");
-    //this->add_mark(50, Gtk::POS_TOP, "");
-    //this->add_mark(75, Gtk::POS_TOP, "");
-    //this->add_mark(20, Gtk::POS_TOP, "");
-    //this->add_mark(150, Gtk::POS_TOP, "");
-    //this->add_mark(200, Gtk::POS_TOP, "");
-    //this->add_mark(250, Gtk::POS_TOP, "");
-    //this->add_mark(300, Gtk::POS_TOP, "");
     this->set_value_pos(Gtk::POS_RIGHT);
     this->set_has_origin(false);
     this->set_slider_size_fixed(true);
@@ -173,13 +163,13 @@ inline void MainWnd::setup_action_groups()
 // setup the "aboutDlg" instance
 void MainWnd::setup_about_dialog()
 {
-    Glib::RefPtr<Glib::IOChannel> eupl = Glib::IOChannel::create_from_file(conf.data_path + "/EUPL.txt", "r");
+    Glib::RefPtr<Glib::IOChannel> eupl = Glib::IOChannel::create_from_file(std::string(scorepress_datadir) += "/EUPL.txt", "r");
     eupl->read_to_end(licence);
-    logo = Gdk::Pixbuf::create_from_file(conf.data_path + "/logo.png");
+    logo = Gdk::Pixbuf::create_from_file(std::string(scorepress_datadir) += "/logo.png");
     
-    aboutDlg.set_program_name("ScorePress - Music Engraving Software");
+    aboutDlg.set_program_name(SCOREPRESS_TITLE);
     aboutDlg.set_version(SCOREPRESS_VERSION_STRING);
-    aboutDlg.set_copyright("Copyright \u00A9 2012 Dominik Lehmann");
+    aboutDlg.set_copyright(SCOREPRESS_COPYRIGHT_UTF);
     aboutDlg.set_comments(_("ScorePress is a WYSIWYG music typesetting program."));
     aboutDlg.set_license(licence);
     aboutDlg.set_license_type(Gtk::LICENSE_CUSTOM);
@@ -264,7 +254,7 @@ MainWnd::MainWnd(const Icon& icon) : controller(NULL), engine(NULL)
 {
     // setup window
     ScorePress::Log::debug("setup window...");
-    this->set_title("ScorePress - Music Engraving Software");
+    this->set_title(SCOREPRESS_TITLE);
     this->set_default_size(750, 530);
     this->set_icon_list(icon);
     
@@ -304,7 +294,9 @@ MainWnd::MainWnd(const Icon& icon) : controller(NULL), engine(NULL)
     viewBarBox->add(*viewBar);
     toolBox->pack_start(*mainBarBox, Gtk::PACK_EXPAND_WIDGET);
     toolBox->pack_start(*viewBarBox, Gtk::PACK_EXPAND_WIDGET);
+    scoreTabs->set_can_focus(false);
     scoreBox->pack_start(*scoreTabs);
+    zoomScl->set_can_focus(false);
     zoomItm->add(*zoomScl);
     zoomItm->set_expand(false);
     statusBar->pack_end(*zoomItm);

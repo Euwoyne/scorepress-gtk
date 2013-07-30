@@ -2,7 +2,13 @@
 scorepress-gtk.depend
 scorepress-gtk.layout
 
+# Configure Output
+config.status
+*.log
+src/config.hh
+
 # Compiled Object files
+build/
 *.slo
 *.lo
 *.o

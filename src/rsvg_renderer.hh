@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2012 Dominik Lehmann
+  Copyright (C) 2013 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -27,7 +27,7 @@
 #endif
 #include <pango/pangocairo.h>   // PangoLayout, PangoFontDescription
 
-#include <renderer.hh>          // Renderer, std::string, std::map
+#include <scorepress/renderer.hh>  // Renderer, std::string, std::map
 
 class RSVGRenderer : public ScorePress::Renderer
 {

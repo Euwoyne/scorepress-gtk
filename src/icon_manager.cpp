@@ -1,14 +1,14 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2011 Dominik Lehmann
+  Copyright (C) 2013 Dominik Lehmann
 
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
   versions of the EUPL (the "Licence");
   You may not use this work except in compliance with the
   Licence.
- 
+
   Unless required by applicable law or agreed to in
   writing, software distributed under the Licence is
   distributed on an "AS IS" basis, WITHOUT WARRANTIES OR
@@ -21,11 +21,20 @@
 
 #include "icon_manager.hh"
 #include "i18n.hh"
-#include "configuration.hh"
+#include "config.hh"
+
+#include <iostream>
 
 void IconManager::load(const std::string iconname, const std::string alias) throw(Error)
 {
-    const Glib::RefPtr<Gtk::IconTheme> theme = Gtk::IconTheme::get_default();
+    if (!theme)
+    {
+        theme = Gtk::IconTheme::get_default();
+        theme->append_search_path(scorepress_icondir);
+        theme->append_search_path(scorepress_appicondir);
+        theme->rescan_if_needed();
+    };
+    
     if (!theme->has_icon(iconname))
     {
         throw Error(_("Unable to load icon \"" + iconname + "\"."));
@@ -39,12 +48,12 @@ void IconManager::load(const std::string iconname, const std::string alias) thro
         {
             icon.push_back(theme->load_icon(iconname, *i));
         }
-        catch(Gtk::IconThemeError e)
+        catch(Gtk::IconThemeError& e)
         {
             throw IconManager::Error(e.what());
         };
     };
-    
+
 }
 
 const Icon& IconManager::get(const std::string alias) const throw(Error)
@@ -53,15 +62,3 @@ const Icon& IconManager::get(const std::string alias) const throw(Error)
     if (i == icons.end()) throw Error(_("Icon \"" + alias + "\" has not been loaded."));
     return i->second;
 }
-
-IconManager::~IconManager()
-{
-    for (std::map<std::string, Icon>::iterator i = icons.begin(); i != icons.end(); ++i)
-    {
-        for (std::vector< Glib::RefPtr<Gdk::Pixbuf> >::iterator j = i->second.begin(); j != i->second.end(); ++j)
-        {
-            j->reset();
-        };
-    };
-}
-

@@ -1,10 +1,18 @@
-ScorePress - Music Engraving Software  (libscorepress)
 ScorePress - Music Engraving Software  (scorepress-gtk)
-Copyright (C) 2012 Dominik Lehmann
 
+Copyright (C) 2013 Dominik Lehmann
 Licensed under the EUPL V.1.1
 
-Dominik Lehmann          Main Developer
-Micha Schinzel           Main Graphics Designer
-Gereon Kaiping           Code Contributor (parts of Pick and Barline algorithms, debugging)
+MAIN DEVELOPERS:
+Dominik Lehmann     (Developer)
+Micha Schinzel      (Graphics Designer)
+
+CODE CONTRIBUTORS:
+Gereon Kaiping
+
+BUGFIXES:
+
+
+TRANSLATORS:
+
 

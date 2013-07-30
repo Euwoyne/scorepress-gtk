@@ -18,12 +18,11 @@
 */
 
 #include <iostream>
-#include <renderer.hh>
-#include <context.hh>
-#include <press.hh>
+#include <scorepress/renderer.hh>
+#include <scorepress/context.hh>
+#include <scorepress/press.hh>
 
 #include "score_widget.hh"
-#include "configuration.hh"
 
 // constructor
 ScoreWidget::ScoreWidget(Controller& ctrl) : controller(&ctrl),
@@ -57,7 +56,7 @@ bool ScoreWidget::on_button_press(GdkEventButton* event)
     {
         controller->mouse_on((event->x * 1000 - offset.x) * 1000, (event->y * 1000 - offset.y) * 1000);
     }
-    catch (std::string& s)
+    catch (ScorePress::Error& s)
     {
         std::cerr << "Exception caught in signal handler (mouse on): " << s << "\n";
     };
@@ -70,7 +69,7 @@ bool ScoreWidget::on_button_release(GdkEventButton* event)
     {
         controller->mouse_off((event->x * 1000 - offset.x) * 1000, (event->y * 1000 - offset.y) * 1000);
     }
-    catch (std::string& s)
+    catch (ScorePress::Error& s)
     {
         std::cerr << "Exception caught in signal handler (mouse off): " << s << "\n";
     };
@@ -87,7 +86,7 @@ bool ScoreWidget::on_key_press(GdkEventKey* event)
         if (event->keyval == GDK_KEY_Q) controller->get_engine().plate_dump();
         if (event->keyval == GDK_KEY_w) controller->get_engine().cursor.dump();
     }
-    catch (std::string& s)
+    catch (ScorePress::Error& s)
     {
         std::cerr << "Exception caught in signal handler (key press): " << s << "\n";
     };
@@ -101,7 +100,7 @@ bool ScoreWidget::on_key_release(GdkEventKey* event)
         controller->key_release(KeyListener::Key(event->keyval, event->state & GDK_CONTROL_MASK));
         this->get_window()->invalidate(false);
     }
-    catch (std::string s)
+    catch (ScorePress::Error& s)
     {
         std::cerr << "Exception caught in signal handler (key release): " << s << "\n";
     };
@@ -118,7 +117,7 @@ bool ScoreWidget::on_blink()
         controller->get_engine().render_cursor(controller->get_renderer(), offset);
         controller->get_renderer().end();
     }
-    catch (std::string s)
+    catch (ScorePress::Error& s)
     {
         std::cerr << "Exception caught in signal handler (blink): " << s << "\n";
     };
@@ -136,15 +135,15 @@ bool ScoreWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& drawingCtx)
         controller->get_engine().render_cursor(controller->get_renderer(), offset);
         controller->get_renderer().end();
     }
-    catch (ScorePress::StaffContext::Error e)
+    catch (ScorePress::StaffContext::Error& e)
     {
         std::cerr << "Exception caught in signal handler (draw): " << e << " (class: Context)\n";
     }
-    catch (ScorePress::Press::Error e)
+    catch (ScorePress::Press::Error& e)
     {
         std::cerr << "Exception caught in signal handler (draw): " << e << " (class: Press)\n";
     }
-    catch (std::string s)
+    catch (ScorePress::Error& s)
     {
         std::cerr << "Exception caught in signal handler (draw): " << s << "\n";
     };

@@ -20,9 +20,10 @@
 #ifndef MAINWND_HH
 #define MAINWND_HH
 
+#define GTK_DISABLE_DEPRECATED 1
 #include <vector>
 #include <gtkmm.h>
-#include <engine.hh>
+#include <scorepress/engine.hh>
 
 #include "score_widget.hh"
 #include "icon_manager.hh"

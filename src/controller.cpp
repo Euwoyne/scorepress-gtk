@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2012 Dominik Lehmann
+  Copyright (C) 2013 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -17,9 +17,11 @@
   permissions and limitations under the Licence.
 */
 
+#include <scorepress/config.hh>  // libscorepress_datadir
+
 #include "controller.hh"
 #include "mainwnd.hh"
-#include "configuration.hh"
+#include "config.hh"
 
 void Controller::setup_engine()
 {
@@ -34,7 +36,7 @@ Controller::Controller(MainWnd& wnd, KeyListener& keys) : renderer(new RSVGRende
                                                           keylistener(&keys),
                                                           window(&wnd)
 {
-    renderer->load(conf.data_path + "/symbol/default.svg");
+    renderer->load(std::string(libscorepress_datadir) += "/symbol/default.svg");
     setup_engine();
     window->add_view(*this);
 }
@@ -60,76 +62,6 @@ void Controller::set_filename(const std::string& s)
     filename = s;
     window->refresh_label(*this);
 }
-
-/*
-int Controller::run(int argn, char* argv[])
-{
-    if (running)
-    {
-        std::cerr << "Exception caught: Unable to execute Controller::run(): Controller is already running\n";
-        return -1;
-    };
-    
-    try
-    {
-        running = true;
-        printf("ScorePress v%i.%i.%i\n", SCOREPRESS_VERSION_MAJOR, SCOREPRESS_VERSION_MINOR, SCOREPRESS_VERSION_PATCH);
-        
-        setlocale(LC_ALL, "");
-        if (parse_cmdline(argn, argv) != 0) return 0;
-        
-        ScorePress::Log::echo_info(!cmdline_options.silent);
-        ScorePress::Log::echo_debug(!cmdline_options.silent && cmdline_options.debug);
-        ScorePress::Log::echo_verbose(!cmdline_options.silent && cmdline_options.verbose);
-        ScorePress::Log::echo_warn(!cmdline_options.silent);
-        ScorePress::Log::echo_error(!cmdline_options.silent);
-        ScorePress::Log::log_info(false);
-        ScorePress::Log::log_debug(cmdline_options.log.debug);
-        ScorePress::Log::log_verbose(cmdline_options.log.verbose);
-        ScorePress::Log::log_warn(true);
-        ScorePress::Log::log_error(true);
-        
-        gnomekit.reset();
-        delete renderer;
-        delete engine;
-        delete icon_manager;
-        delete main_window;
-        
-        ScorePress::Log::debug("prepare Gnome...");
-        gnomekit = Gtk::Application::create(argn, argv, "ScorePress.Gtk.Main", Gio::APPLICATION_FLAGS_NONE);
-        
-        ScorePress::Log::debug("setup renderer...");
-        renderer = new RSVGRenderer();
-        renderer->load(conf.data_path + "/symbol/default.svg");
-        renderer->dump();
-        
-        ScorePress::Log::debug("setup engine->..");
-        engine = new ScorePress::Engine(renderer->get_sprites());
-        engine->set_resolution((1000L * Gdk::Screen::get_default()->get_width())  / Gdk::Screen::get_default()->get_width_mm(),
-                               (1000L * Gdk::Screen::get_default()->get_height()) / Gdk::Screen::get_default()->get_height_mm());
-        
-        ScorePress::Log::debug("setup gui...");
-        icon_manager = new IconManager();
-        icon_manager->load("score", "main");
-        icon_manager->load("score-sm", "main-small");
-        main_window = new MainWnd(*this, icon_manager->get("main-small"));
-        gnomekit->add_window(*main_window);
-        
-        ScorePress::Log::debug("setup... [DONE]");
-        setup = true;
-        gnomekit->run();
-        setup = false;
-        running = false;
-        return 0;
-    }
-    catch (std::string s)
-    {
-        std::cerr << "Exception caught: " << s << "\n";
-        running = false;
-        return -1;
-    };
-}
-*/
 
 #include <iostream>
 bool Controller::open(const Glib::RefPtr<Gio::File>& file)

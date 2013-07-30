@@ -8,7 +8,7 @@
   versions of the EUPL (the "Licence");
   You may not use this work except in compliance with the
   Licence.
- 
+
   Unless required by applicable law or agreed to in
   writing, software distributed under the Licence is
   distributed on an "AS IS" basis, WITHOUT WARRANTIES OR
@@ -17,29 +17,21 @@
   permissions and limitations under the Licence.
 */
 
-#include "key_map.hh"
+#ifndef CONFIG_HH
+#define CONFIG_HH
 
-KeyMap::KeyMap() : insert_on_name(true), insert_head_hold(false) {}
+#undef SCOREPRESS_PACKAGE_NAME
+#undef SCOREPRESS_VERSION_STRING
+#undef SCOREPRESS_DEBUG
 
-void KeyMap::assign(const ActionKey code, const Key key)
-{
-    reset(key);
-    keys[code].push_back(key);
-    codes[key] = code;
-}
+#define SCOREPRESS_TITLE         "ScorePress - Music Engraving Software"
+#define SCOREPRESS_COPYRIGHT     "Copyright (C) 2013 Dominik Lehmann"
+#define SCOREPRESS_COPYRIGHT_UTF "Copyright \u00A9 2013 Dominik Lehmann"
 
-void KeyMap::reset(const ActionKey code)
-{
-    for (std::list<Key>::iterator i = keys[code].begin(); i != keys[code].end(); ++i)
-    {
-        codes.erase(*i);
-    };
-    keys[code].clear();
-}
+extern const char* scorepress_datadir;
+extern const char* scorepress_icondir;
+extern const char* scorepress_appicondir;
+void print_library_info();
 
-void KeyMap::reset(const Key key)
-{
-    if (!has_key(key)) return;
-    keys[codes[key]].remove(key);
-    codes.erase(key);
-}
+#endif
+

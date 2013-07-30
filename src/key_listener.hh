@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2012 Dominik Lehmann
+  Copyright (C) 2013 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -21,7 +21,7 @@
 #define KEY_LISTENER_HH
 
 #include "key_map.hh"
-#include <engine.hh>
+#include <scorepress/engine.hh>
 
 class KeyListener : public KeyMap
 {

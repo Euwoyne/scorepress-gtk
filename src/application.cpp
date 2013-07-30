@@ -1,14 +1,14 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2012 Dominik Lehmann
-  
+  Copyright (C) 2013 Dominik Lehmann
+
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
   versions of the EUPL (the "Licence");
   You may not use this work except in compliance with the
   Licence.
- 
+
   Unless required by applicable law or agreed to in
   writing, software distributed under the Licence is
   distributed on an "AS IS" basis, WITHOUT WARRANTIES OR
@@ -20,17 +20,24 @@
 #include "application.hh"
 #include "cmdline_options.hh"
 #include "controller.hh"
+#include "config.hh"
 #include "i18n.hh"
 
-#include <log.hh>
+#include <scorepress/log.hh>
 #include <sstream>
 #include <iostream>
 
 void ScorePressApp::on_activate()
 {
-    std::cout << "ACTIVATE\n";
-    icon_manager.load("score", "main");
-    icon_manager.load("score-sm", "main-small");
+    try
+    {
+        icon_manager.load("scorepress", "main");
+        icon_manager.load("scorepress-sm", "main-small");
+    }
+    catch (IconManager::Error e)
+    {
+        std::cerr << "ScorePressApp::on_activate()  WARNING: " << e << "\n";
+    };
     
     key_listener.assign(KeyMap::KEY_UP,    GDK_KEY_Up);
     key_listener.assign(KeyMap::KEY_UP,    GDK_KEY_KP_Up);
@@ -106,18 +113,18 @@ void ScorePressApp::on_activate()
 
 std::string ScorePressApp::get_next_unnamed() const
 {
+    static const std::string unnamed_str = _("Unsaved Score");
     unsigned int n = 1;
     std::string name;
     std::ostringstream ss;
-    ss << _("Unsaved Score ") << n;
+    ss << unnamed_str << ' ' << n;
     name = ss.str();
-    static const std::string unnamed_str = _("Unsaved Score");
     for (std::vector<Controller*>::const_iterator c = controllers.begin(); c != controllers.end();)
     {
         if ((*c)->get_filename() == name)
         {
             ss.seekp(0);
-            ss << _("Unsaved Score ") << ++n;
+            ss << unnamed_str << ' ' << ++n;
             name = ss.str();
             c = controllers.begin();
         } else ++c;
@@ -127,51 +134,61 @@ std::string ScorePressApp::get_next_unnamed() const
 
 int ScorePressApp::on_command_line(const Glib::RefPtr<Gio::ApplicationCommandLine>& command_line)
 {
-    std::cout << "COMMANDLINE\n";
+    std::cout << "ScorePress " SCOREPRESS_VERSION_STRING "\n" SCOREPRESS_COPYRIGHT "\nLicensed under the EUPL V.1.1\n\n";
     CmdlineOptions options;
     int argn = 0;
     char** argv = command_line->get_arguments(argn);
     int ret = parse_cmdline(options, argn, argv) != 0;
     if (ret != 0) return (ret < 0) ? ret : 0;
     
-    ScorePress::Log::echo_info(!options.stdout.silent);
-    ScorePress::Log::echo_debug(!options.stdout.silent && options.stdout.debug);
-    ScorePress::Log::echo_verbose(!options.stdout.silent && options.stdout.verbose);
-    ScorePress::Log::echo_warn(!options.stdout.silent);
-    ScorePress::Log::echo_error(!options.stdout.silent);
-    ScorePress::Log::log_info(false);
-    ScorePress::Log::log_debug(!options.log.silent && options.log.debug);
-    ScorePress::Log::log_verbose(!options.log.silent && options.log.verbose);
-    ScorePress::Log::log_warn(!options.log.silent);
-    ScorePress::Log::log_error(!options.log.silent);
-    
-    if (options.files.empty())
+    try
     {
-        add_window();
-        add_tab(true);
-        controllers.back()->set_filename(get_next_unnamed());
-        controllers.back()->get_engine().get_document().meta.title = controllers.back()->get_filename();
-        controllers.back()->change();
-        /*
-        add_tab(true);
-        controllers.back()->set_filename(get_next_unnamed());
-        controllers.back()->get_engine().get_document().meta.title = controllers.back()->get_filename();
-        controllers.back()->change();
-        //*/
+        ScorePress::Log::echo_info(!options.stdout.silent);
+        ScorePress::Log::echo_debug(!options.stdout.silent && options.stdout.debug);
+        ScorePress::Log::echo_verbose(!options.stdout.silent && options.stdout.verbose);
+        ScorePress::Log::echo_warn(!options.stdout.silent);
+        ScorePress::Log::echo_error(!options.stdout.silent);
+        ScorePress::Log::log_info(false);
+        ScorePress::Log::log_debug(!options.log.silent && options.log.debug);
+        ScorePress::Log::log_verbose(!options.log.silent && options.log.verbose);
+        ScorePress::Log::log_warn(!options.log.silent);
+        ScorePress::Log::log_error(!options.log.silent);
+        
+        if (options.files.empty())
+        {
+            add_window();
+            add_tab(true);
+            controllers.back()->set_filename(get_next_unnamed());
+            controllers.back()->get_engine().get_document().meta.title = controllers.back()->get_filename();
+            controllers.back()->change();
+            /*
+            add_tab(true);
+            controllers.back()->set_filename(get_next_unnamed());
+            controllers.back()->get_engine().get_document().meta.title = controllers.back()->get_filename();
+            controllers.back()->change();
+            //*/
+        };
+        
+        std::vector< Glib::RefPtr<Gio::File> > files;
+        for (std::vector<std::string>::const_iterator file = options.files.begin(); file != options.files.end(); ++file)
+            files.push_back(Gio::File::create_for_path(*file));
+
+        open(files);
+    }
+    catch (std::string s)
+    {
+        std::cerr << "ScorePressApp::on_command_line()  ERROR: " << s << "\n";
+    }
+    catch (...)
+    {
+        std::cerr << "ScorePressApp::on_command_line()  ERROR: UNKNNOWN\n";
     };
-    
-    std::vector< Glib::RefPtr<Gio::File> > files;
-    for (std::vector<std::string>::const_iterator file = options.files.begin(); file != options.files.end(); ++file)
-        files.push_back(Gio::File::create_for_path(*file));
-    
-    open(files);
-    
+
     return 0;
 }
 
 void ScorePressApp::on_open(const std::vector< Glib::RefPtr<Gio::File> >& files, const Glib::ustring& hint)
 {
-    std::cout << "OPEN\n";
     if (get_windows().empty()) add_window();
     for (std::vector< Glib::RefPtr<Gio::File> >::const_iterator i = files.begin(); i != files.end(); ++i)
     {
@@ -184,7 +201,6 @@ void ScorePressApp::on_open(const std::vector< Glib::RefPtr<Gio::File> >& files,
 
 void ScorePressApp::on_window_hide(Gtk::Window* window)
 {
-    std::cout << "HIDE\n";
     for (std::vector<Controller*>::iterator i = controllers.begin(); i != controllers.end();)
     {
         if (&(*i)->get_window() == window)
@@ -199,8 +215,7 @@ void ScorePressApp::on_window_hide(Gtk::Window* window)
 
 ScorePressApp::ScorePressApp() : Gtk::Application("ScorePress.Gtk.Main", Gio::APPLICATION_HANDLES_OPEN | Gio::APPLICATION_HANDLES_COMMAND_LINE)
 {
-    std::cout << "CREATE\n";
-    Glib::set_application_name("ScorePress - Music Engraving Software");
+    Glib::set_application_name(SCOREPRESS_TITLE);
 }
 
 ScorePressApp::~ScorePressApp()
