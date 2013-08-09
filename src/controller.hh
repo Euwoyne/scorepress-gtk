@@ -8,7 +8,7 @@
   versions of the EUPL (the "Licence");
   You may not use this work except in compliance with the
   Licence.
- 
+  
   Unless required by applicable law or agreed to in
   writing, software distributed under the Licence is
   distributed on an "AS IS" basis, WITHOUT WARRANTIES OR
@@ -76,6 +76,7 @@ class Controller
     void set_linebounds(bool value);
     void set_attachbounds(bool value);
     void set_notebounds(bool value);
+    void set_eovbounds(bool value);
 };
 
 inline RSVGRenderer&       Controller::get_renderer()         {return *renderer;}

@@ -8,7 +8,7 @@
   versions of the EUPL (the "Licence");
   You may not use this work except in compliance with the
   Licence.
- 
+  
   Unless required by applicable law or agreed to in
   writing, software distributed under the Licence is
   distributed on an "AS IS" basis, WITHOUT WARRANTIES OR
@@ -111,6 +111,13 @@ void Controller::set_notebounds(bool value)
 {
     //if (!setup) return;
     engine->get_press_parameters().draw_notebounds = value;
+    window->refresh();
+}
+
+void Controller::set_eovbounds(bool value)
+{
+    //if (!setup) return;
+    engine->get_press_parameters().draw_eov = value;
     window->refresh();
 }
 

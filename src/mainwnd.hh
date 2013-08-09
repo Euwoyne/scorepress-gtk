@@ -8,7 +8,7 @@
   versions of the EUPL (the "Licence");
   You may not use this work except in compliance with the
   Licence.
- 
+  
   Unless required by applicable law or agreed to in
   writing, software distributed under the Licence is
   distributed on an "AS IS" basis, WITHOUT WARRANTIES OR
@@ -121,6 +121,7 @@ class MainWnd : public Gtk::Window
     void menu_linebounds();
     void menu_attachbounds();
     void menu_notebounds();
+    void menu_eovbounds();
     void menu_allbounds();
     void menu_nobounds();
     void menu_refresh();
@@ -139,6 +140,7 @@ class MainWnd : public Gtk::Window
     bool get_linebounds();      // return LineboundsMnu status ("Show line boundaries")
     bool get_attachbounds();    // return AttachboundsMnu status ("Show attachment boundaries")
     bool get_notebounds();      // return NoteboundsMnu status ("Show note boundaries")
+    bool get_eovbounds();       // return EOVboundsMnu status ("Show end-of-voice indicators")
     
  public:
     // view interface
@@ -158,6 +160,7 @@ inline void MainWnd::refresh()           {views.find(controller)->second->widget
 inline void MainWnd::menu_linebounds()   {controller->set_linebounds(get_linebounds());}
 inline void MainWnd::menu_attachbounds() {controller->set_attachbounds(get_attachbounds());}
 inline void MainWnd::menu_notebounds()   {controller->set_notebounds(get_notebounds());}
+inline void MainWnd::menu_eovbounds()    {controller->set_eovbounds(get_eovbounds());}
 inline void MainWnd::menu_refresh()      {reengrave(); refresh();}
 
 inline void MainWnd::menu_about()        {aboutDlg.run(); aboutDlg.hide();}
@@ -165,6 +168,7 @@ inline void MainWnd::menu_about()        {aboutDlg.run(); aboutDlg.hide();}
 inline bool MainWnd::get_linebounds()    {return static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/LineboundsMnu"))->get_active();}
 inline bool MainWnd::get_attachbounds()  {return static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/AttachboundsMnu"))->get_active();}
 inline bool MainWnd::get_notebounds()    {return static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/NoteboundsMnu"))->get_active();}
+inline bool MainWnd::get_eovbounds()     {return static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/EOVboundsMnu"))->get_active();}
 
 #endif
 

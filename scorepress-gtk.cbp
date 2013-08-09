@@ -53,9 +53,9 @@
 				<Option compiler="gcc" />
 			</Target>
 			<Environment>
-				<Variable name="BUILDDIR" value="build" />
-				<Variable name="BINFILE" value="score" />
 				<Variable name="BINDIR" value=".." />
+				<Variable name="BINFILE" value="score" />
+				<Variable name="BUILDDIR" value="build" />
 			</Environment>
 		</Build>
 		<VirtualTargets>
@@ -75,11 +75,6 @@
 			<Add library="libscorepress" />
 			<Add directory="/home/dominik/sources/cpp/score/libscorepress" />
 		</Linker>
-		<Unit filename="Makefile">
-			<Option target="build" />
-			<Option target="install" />
-			<Option target="dist-clean" />
-		</Unit>
 		<Unit filename="src/application.cpp" />
 		<Unit filename="src/application.hh" />
 		<Unit filename="src/cmdline_options.cpp" />

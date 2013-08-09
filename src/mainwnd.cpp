@@ -8,7 +8,7 @@
   versions of the EUPL (the "Licence");
   You may not use this work except in compliance with the
   Licence.
- 
+  
   Unless required by applicable law or agreed to in
   writing, software distributed under the Licence is
   distributed on an "AS IS" basis, WITHOUT WARRANTIES OR
@@ -74,6 +74,7 @@ static const char* UI =
     "                <menuitem action='LineboundsMnu'/>"
     "                <menuitem action='AttachboundsMnu'/>"
     "                <menuitem action='NoteboundsMnu'/>"
+    "                <menuitem action='EOVboundsMnu'/>"
     "                <separator/>"
     "                <menuitem action='AllboundsMnu'/>"
     "                <menuitem action='NoboundsMnu'/>"
@@ -148,6 +149,8 @@ inline void MainWnd::setup_action_groups()
                    sigc::mem_fun(*this, &MainWnd::menu_attachbounds));
     actionGrp->add(Gtk::ToggleAction::create("NoteboundsMnu", _("_Note"), _("Show note boundaries")),
                    sigc::mem_fun(*this, &MainWnd::menu_notebounds));
+    actionGrp->add(Gtk::ToggleAction::create("EOVboundsMnu", _("_EOV"), _("Show end-of-voice indicators")),
+                   sigc::mem_fun(*this, &MainWnd::menu_eovbounds));
     actionGrp->add(Gtk::Action::create("AllboundsMnu", _("_Show All"), _("Show all boundaries")),
                    sigc::mem_fun(*this, &MainWnd::menu_allbounds));
     actionGrp->add(Gtk::Action::create("NoboundsMnu", _("_Hide All"), _("Show no boundaries")),
@@ -419,6 +422,7 @@ void MainWnd::menu_allbounds()
     static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/LineboundsMnu"))->set_active();
     static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/AttachboundsMnu"))->set_active();
     static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/NoteboundsMnu"))->set_active();
+    static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/EOVboundsMnu"))->set_active();
 }
 
 void MainWnd::menu_nobounds()
@@ -426,6 +430,7 @@ void MainWnd::menu_nobounds()
     static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/LineboundsMnu"))->set_active(false);
     static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/AttachboundsMnu"))->set_active(false);
     static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/NoteboundsMnu"))->set_active(false);
+    static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/EOVboundsMnu"))->set_active(false);
 }
 
 void MainWnd::menu_help() {std::cout << "Help (?)\n";}

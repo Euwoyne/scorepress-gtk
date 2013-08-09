@@ -106,6 +106,32 @@ FLAGS := ${WARNINGS} ${CTRLFLAGS} ${${MODE}} -I${srcdir} ${SCOREPRESSFLAGS} ${US
 LIBS  := ${SCOREPRESSLIBS} ${GTKLIBS} ${CAIROLIBS} ${PANGOLIBS} ${RSVGLIBS} ${XMLLIBS} ${USERLIBS}
 
 # file lists
+cfiles := ${srcdir}/main.cpp            \
+          ${srcdir}/application.cpp     \
+          ${srcdir}/controller.cpp      \
+          ${srcdir}/cmdline_options.cpp \
+          ${srcdir}/config.cpp          \
+          ${srcdir}/rsvg_renderer.cpp   \
+          ${srcdir}/key_map.cpp         \
+          ${srcdir}/key_listener.cpp    \
+          ${srcdir}/mainwnd.cpp         \
+          ${srcdir}/score_widget.cpp    \
+          ${srcdir}/icon_manager.cpp
+
+hfiles := ${srcdir}/application.hh      \
+          ${srcdir}/controller.hh       \
+          ${srcdir}/cmdline_options.hh  \
+          ${srcdir}/config.hh           \
+          ${srcdir}/rsvg_renderer.hh    \
+          ${srcdir}/key_map.hh          \
+          ${srcdir}/key_listener.hh     \
+          ${srcdir}/mainwnd.hh          \
+          ${srcdir}/score_widget.hh     \
+          ${srcdir}/icon_manager.hh     \
+          ${srcdir}/i18n.hh
+
+srcfiles := ${cfiles} ${hfiles}
+
 ofiles := ${builddir}/main.o            \
           ${builddir}/application.o     \
           ${builddir}/controller.o      \
@@ -127,30 +153,56 @@ distfiles := @srcdir@/AUTHORS     \
              @srcdir@/data        \
              @srcdir@/src
 
+# header dependency list
+deps_score_widget_hh     := ${srcdir}/score_widget.hh
+deps_icon_manager_hh     := ${srcdir}/icon_manager.hh
+deps_rsvg_renderer_hh    := ${srcdir}/rsvg_renderer.hh
+deps_cmdline_options_hh  := ${srcdir}/cmdline_options.hh
+deps_config_hh           := ${srcdir}/config.hh
+deps_i18n_hh             := ${srcdir}/i18n.hh
+deps_key_map_hh          := ${srcdir}/key_map.hh
+deps_key_listener_hh     := ${srcdir}/key_listener.hh ${deps_key_map_hh}
+deps_controller_hh       := ${srcdir}/controller.hh ${deps_rsvg_renderer_hh} ${deps_key_listener_hh}
+deps_mainwnd_hh          := ${srcdir}/mainwnd.hh ${deps_score_widget_hh} ${deps_icon_manager_hh} ${deps_rsvg_renderer_hh}
+deps_application_hh      := ${srcdir}/application.hh ${deps_icon_manager_hh} ${deps_key_listener_hh} ${deps_mainwnd_hh}
+
+deps_main_cpp            := ${srcdir}/main.cpp ${application_hh}
+deps_application_cpp     := ${srcdir}/application.cpp ${deps_application_hh} ${deps_cmdline_options_hh} ${deps_controller_hh} ${deps_config_hh} ${deps_i18n_hh}
+deps_controller_cpp      := ${srcdir}/controller.cpp ${deps_controller_hh} ${deps_mainwnd_hh} ${deps_config_hh}
+deps_cmdline_options_cpp := ${srcdir}/cmdline_options.cpp ${deps_cmdline_options_hh} ${deps_i18n_hh} ${deps_config_hh}
+deps_config_cpp          := ${srcdir}/config.cpp ${deps_config_hh} ${deps_config_hh}
+deps_rsvg_renderer_cpp   := ${srcdir}/rsvg_renderer.cpp ${deps_rsvg_renderer_hh} ${deps_i18n_hh}
+deps_key_map_cpp         := ${srcdir}/key_map.cpp ${deps_key_map_hh}
+deps_key_listener_cpp    := ${srcdir}/key_listener.cpp ${deps_key_listener_hh}
+deps_mainwnd_cpp         := ${srcdir}/mainwnd.cpp ${deps_mainwnd_hh} ${deps_config_hh} ${deps_i18n_hh}
+deps_score_widget_cpp    := ${srcdir}/score_widget.cpp ${deps_score_widget_hh}
+deps_icon_manager_cpp    := ${srcdir}/icon_manager.cpp ${deps_icon_manager_hh} ${deps_i18n_hh} ${deps_config_hh}
+
+
 #
 # MAIN TARGETS
 #
 
 .PHONY: all                                               \
-        install install-bin install-data                  \
+        install install-bin install-data install-basedata \
         install-icons install-appicons update-icon-cache  \
         uninstall uninstall-bin uninstall-data            \
         clean distclean help                              \
         dist dist-gzip dist-bzip2 dist-zip deb
 
 # compile
-all: ${builddir}
-	@echo "Making:         ${binfile}"
-	@${MAKE} -s ${builddir}/${binfile}
+all: ${srcfiles} ${builddir} ${builddir}/${binfile}
 
 # install
 install: install-bin install-data
 
-install-bin: ${bindir}
+install-bin: ${builddir} ${builddir}/${binfile} ${bindir}
 	@echo "Installing:     ${binfile}"
 	@${INSTALL} ${builddir}/${binfile} ${bindir}
 
-install-data: ${datadir}
+install-data: install-basedata install-icons install-appicons
+
+install-basedata: ${datadir}
 	@echo "Installing Data..."
 	@echo "  Installing:   logo.png"
 	@${INSTALLU} -t ${datadir} ${datasrc}/logo.png
@@ -158,8 +210,6 @@ install-data: ${datadir}
 	@${INSTALLU} -t ${datadir} ${datasrc}/EUPL.txt
 	@echo "  Installing:   CC-BY-SA.pdf"
 	@${INSTALLU} -t ${datadir} ${datasrc}/CC-BY-SA.pdf
-	@${MAKE} -s install-icons
-	@${MAKE} -s install-appicons
 
 install-icons: ${icondir}
 	@echo "  Installing:   Icons (systemwide)"
@@ -196,25 +246,25 @@ update-icon-cache:
 uninstall: uninstall-bin uninstall-data
 
 uninstall-bin:
-	@echo "Removing:       ${binfile}"
+	@test -f ${bindir}/${binfile} && echo "Removing:    ${binfile}" || :
 	@-rm -f ${bindir}/${binfile}
 
 uninstall-data:
 	@echo "Removing Data..."
-	@echo "  Removing:     Icons"
+	@echo "  Removing:  Icons"
 	@for size in ${iconsizes}; do                                   \
 	    for file in ${iconfiles}; do                                \
 	        rm -f ${icondir}/$${size}x$${size}/${iconctx}/$${file}; \
 	    done;                                                       \
 	 done
-	@-rm -r ${datadir}/icons
-	@echo "  Removing:     logo.png"
+	@-rm -rf ${datadir}/icons
+	@test -f ${datadir}/logo.png && echo "  Removing:  logo.png" || :
 	@-rm -f ${datadir}/logo.png
-	@echo "  Removing:     EUPL.txt"
+	@test -f ${datadir}/EUPL.txt && echo "  Removing:  EUPL.txt" || :
 	@-rm -f ${datadir}/EUPL.txt
-	@echo "  Removing:     CC-BY-SA.pdf"
+	@test -f ${datadir}/CC-BY-SA.pdf && echo "  Removing:  CC-BY-SA.pdf" || :
 	@-rm -f ${datadir}/CC-BY-SA.pdf
-	@-rmdir ${datadir}
+	@test -d ${datadir} && (rmdir ${datadir} 2> /dev/null || echo "  WARNING: \"${datadir}\" is not empty") || :
 
 # clean
 clean:
@@ -223,7 +273,7 @@ clean:
 	@-rm -f  ${ofiles}
 	@-rm -f  ${builddir}/${binfile}
 	@echo "  Deleting:     build directory..."
-	@-rmdir ${builddir}
+	@test -d ${builddir} && (rmdir ${builddir} 2> /dev/null || echo "  WARNING: \"${builddir}\" is not empty") || :
 
 distclean: clean
 	@echo "  Deleting:     configuration..."
@@ -236,57 +286,59 @@ help:
 	@echo "No Help Available"
 
 # distributions
-dist: ${distdir}
+dist: ${srcfiles} ${distdir}
 	cp -RP --preserve=timestamps,links ${distfiles} ${distdir}
 	if test -f ${distdir}/src/config.hh; then rm -f ${distdir}/src/config.hh; fi
 
-dist-gzip: dist
+dist-gzip: ${srcfiles} dist
 	tar -cf - ${distdir} | gzip -c > ${distdir}.tar.gz
 
-dist-bzip2: dist
+dist-bzip2: ${srcfiles} dist
 	tar -cf - ${distdir} | bzip2 -c > ${distdir}.tar.bz2
 
-dist-zip: dist
+dist-zip: ${srcfiles} dist
 	zip -qr ${distdir}.zip ${distdir}
 
-deb: dist
+deb: ${srcfiles}
 	@echo "Debian Packaging not implemented yet."
 
 # directories
 ${builddir} ${bindir} ${datadir} ${distdir} ${icondir} ${appicondir}:
-	@echo "[[Creating directory:  $@]]"
-	@-mkdir -p $@
+#@echo "[[Creating directory:  $@]]"
+	@-mkdir -p $@ 2> /dev/null || echo "  ERROR: cannot create directory \"$@\""
 
 
 #
 # TARGET FILES
 #
 
-${builddir}/${binfile}:	${ofiles}
-						echo "  Linking:      ${binfile}..."
-						${CXX} ${ofiles} -o ${builddir}/${binfile} ${LIBS} ${FLAGS}
+${builddir}/${binfile}: ${srcfiles}
+						@echo "Making:         ${binfile}"
+						@${MAKE} -s ${ofiles}
+						@echo "  Linking:      ${binfile}..."
+						@${CXX} ${ofiles} -o ${builddir}/${binfile} ${LIBS} ${FLAGS}
 
 #
 # MAIN PROGRAM
 #
 
-${builddir}/main.o:				${srcdir}/main.cpp
+${builddir}/main.o:				${deps_main_cpp}
 								echo "  Compiling:    main.cpp..."
 								${CXX} -c ${srcdir}/main.cpp -o ${builddir}/main.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
 
-${builddir}/application.o:		${srcdir}/application.cpp
+${builddir}/application.o:		${deps_application_cpp}
 								echo "  Compiling:    application.cpp..."
 								${CXX} -c ${srcdir}/application.cpp -o ${builddir}/application.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
 
-${builddir}/config.o:			${srcdir}/config.cpp
+${builddir}/config.o:			${deps_config_cpp}
 								echo "  Compiling:    config.cpp..."
 								${CXX} -c ${srcdir}/config.cpp -o ${builddir}/config.o ${GTKFLAGS} ${PANGOFLAGS} ${RSVGFLAGS} ${XMLFLAGS} ${FLAGS} ${CONFIGFLAGS}
 
-${builddir}/controller.o:		${srcdir}/controller.cpp
+${builddir}/controller.o:		${deps_controller_cpp}
 								echo "  Compiling:    controller.cpp..."
 								${CXX} -c ${srcdir}/controller.cpp -o ${builddir}/controller.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
 
-${builddir}/cmdline_options.o:	${srcdir}/cmdline_options.cpp
+${builddir}/cmdline_options.o:	${deps_cmdline_options_cpp}
 								echo "  Compiling:    cmdline_options.cpp..."
 								${CXX} -c ${srcdir}/cmdline_options.cpp -o ${builddir}/cmdline_options.o ${FLAGS}
 
@@ -294,27 +346,27 @@ ${builddir}/cmdline_options.o:	${srcdir}/cmdline_options.cpp
 # GRAPHICAL USER INTERFACE
 #
 
-${builddir}/rsvg_renderer.o:	${srcdir}/rsvg_renderer.cpp
+${builddir}/rsvg_renderer.o:	${deps_rsvg_renderer_cpp}
 								echo "  Compiling:    rsvg_renderer.cpp..."
 								${CXX} -c ${srcdir}/rsvg_renderer.cpp -o ${builddir}/rsvg_renderer.o ${PANGOFLAGS} ${RSVGFLAGS} ${XMLFLAGS} ${FLAGS}
 
-${builddir}/key_map.o:			${srcdir}/key_map.cpp
+${builddir}/key_map.o:			${deps_key_map_cpp}
 								echo "  Compiling:    key_map.cpp..."
 								${CXX} -c ${srcdir}/key_map.cpp -o ${builddir}/key_map.o ${FLAGS}
 
-${builddir}/key_listener.o:		${srcdir}/key_listener.cpp
+${builddir}/key_listener.o:		${deps_key_listener_cpp}
 								echo "  Compiling:    key_listener.cpp..."
 								${CXX} -c ${srcdir}/key_listener.cpp -o ${builddir}/key_listener.o ${FLAGS}
 
-${builddir}/mainwnd.o:			${srcdir}/mainwnd.cpp
+${builddir}/mainwnd.o:			${deps_mainwnd_cpp}
 								echo "  Compiling:    mainwnd.cpp..."
 								${CXX} -c ${srcdir}/mainwnd.cpp -o ${builddir}/mainwnd.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
 
-${builddir}/score_widget.o:		${srcdir}/score_widget.cpp
+${builddir}/score_widget.o:		${deps_score_widget_cpp}
 								echo "  Compiling:    score_widget.cpp..."
 								${CXX} -c ${srcdir}/score_widget.cpp -o ${builddir}/score_widget.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
 
-${builddir}/icon_manager.o:		${srcdir}/icon_manager.cpp
+${builddir}/icon_manager.o:		${deps_icon_manager_cpp}
 								echo "  Compiling:    icon_manager.cpp..."
 								${CXX} -c ${srcdir}/icon_manager.cpp -o ${builddir}/icon_manager.o ${GTKFLAGS} ${FLAGS}
 

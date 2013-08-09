@@ -134,7 +134,7 @@ std::string ScorePressApp::get_next_unnamed() const
 
 int ScorePressApp::on_command_line(const Glib::RefPtr<Gio::ApplicationCommandLine>& command_line)
 {
-    std::cout << "ScorePress " SCOREPRESS_VERSION_STRING "\n" SCOREPRESS_COPYRIGHT "\nLicensed under the EUPL V.1.1\n\n";
+    ScorePress::Log::info("ScorePress " SCOREPRESS_VERSION_STRING "\n" SCOREPRESS_COPYRIGHT "\nLicensed under the EUPL V.1.1\n\n");
     CmdlineOptions options;
     int argn = 0;
     char** argv = command_line->get_arguments(argn);
