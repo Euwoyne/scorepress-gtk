@@ -30,7 +30,7 @@
 #include "rsvg_renderer.hh"
 
 class Controller;
-class MainWnd : public Gtk::Window
+class MainWnd : public Gtk::Window, public ScorePress::Logging
 {
  private:
     // view management
@@ -131,8 +131,10 @@ class MainWnd : public Gtk::Window
     
  public:
     // main interface
-    MainWnd(const Icon& icon);  // constructor
+    MainWnd();                  // constructor
     ~MainWnd();                 // destructor
+    
+    void setup(const Icon&);    // setup window and controls
     
     void reengrave();           // reengrave the associated score
     void refresh();             // redraw the score widget

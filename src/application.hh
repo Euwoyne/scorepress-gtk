@@ -32,6 +32,7 @@ class ScorePressApp : public Gtk::Application
     IconManager              icon_manager;
     KeyListener              key_listener;
     std::vector<Controller*> controllers;
+    ScorePress::Log          log;
     
  private:
     std::string get_next_unnamed() const;

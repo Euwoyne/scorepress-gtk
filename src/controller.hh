@@ -28,7 +28,7 @@
 #include "key_listener.hh"
 
 class MainWnd;
-class Controller
+class Controller : public ScorePress::Logging
 {
  private:
     RSVGRenderer*       renderer;
@@ -77,6 +77,10 @@ class Controller
     void set_attachbounds(bool value);
     void set_notebounds(bool value);
     void set_eovbounds(bool value);
+    
+    // logging control
+    void log_set(ScorePress::Log& log);
+    void log_unset();
 };
 
 inline RSVGRenderer&       Controller::get_renderer()         {return *renderer;}

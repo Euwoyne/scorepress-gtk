@@ -121,3 +121,16 @@ void Controller::set_eovbounds(bool value)
     window->refresh();
 }
 
+void Controller::log_set(ScorePress::Log& log)
+{
+    ScorePress::Logging::log_set(log);
+    engine->log_set(log);
+    window->log_set(log);
+}
+
+void Controller::log_unset()
+{
+    ScorePress::Logging::log_unset();
+    engine->log_unset();
+    window->log_unset();
+}

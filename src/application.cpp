@@ -134,7 +134,7 @@ std::string ScorePressApp::get_next_unnamed() const
 
 int ScorePressApp::on_command_line(const Glib::RefPtr<Gio::ApplicationCommandLine>& command_line)
 {
-    ScorePress::Log::info("ScorePress " SCOREPRESS_VERSION_STRING "\n" SCOREPRESS_COPYRIGHT "\nLicensed under the EUPL V.1.1\n\n");
+    log.info("ScorePress " SCOREPRESS_VERSION_STRING "\n" SCOREPRESS_COPYRIGHT "\nLicensed under the EUPL V.1.1\n");
     CmdlineOptions options;
     int argn = 0;
     char** argv = command_line->get_arguments(argn);
@@ -143,16 +143,16 @@ int ScorePressApp::on_command_line(const Glib::RefPtr<Gio::ApplicationCommandLin
     
     try
     {
-        ScorePress::Log::echo_info(!options.stdout.silent);
-        ScorePress::Log::echo_debug(!options.stdout.silent && options.stdout.debug);
-        ScorePress::Log::echo_verbose(!options.stdout.silent && options.stdout.verbose);
-        ScorePress::Log::echo_warn(!options.stdout.silent);
-        ScorePress::Log::echo_error(!options.stdout.silent);
-        ScorePress::Log::log_info(false);
-        ScorePress::Log::log_debug(!options.log.silent && options.log.debug);
-        ScorePress::Log::log_verbose(!options.log.silent && options.log.verbose);
-        ScorePress::Log::log_warn(!options.log.silent);
-        ScorePress::Log::log_error(!options.log.silent);
+        log.echo_info(!options.stdout.silent);
+        log.echo_debug(!options.stdout.silent && options.stdout.debug);
+        log.echo_verbose(!options.stdout.silent && options.stdout.verbose);
+        log.echo_warn(!options.stdout.silent);
+        log.echo_error(!options.stdout.silent);
+        log.log_info(false);
+        log.log_debug(!options.log.silent && options.log.debug);
+        log.log_verbose(!options.log.silent && options.log.verbose);
+        log.log_warn(!options.log.silent);
+        log.log_error(!options.log.silent);
         
         if (options.files.empty())
         {
@@ -178,6 +178,10 @@ int ScorePressApp::on_command_line(const Glib::RefPtr<Gio::ApplicationCommandLin
     catch (std::string s)
     {
         std::cerr << "ScorePressApp::on_command_line()  ERROR: " << s << "\n";
+    }
+    catch (Glib::Error& e)
+    {
+        std::cerr << "ScorePressApp::on_command_line()  ERROR: " << e.what() << "\n";
     }
     catch (...)
     {
@@ -228,6 +232,7 @@ bool ScorePressApp::add_tab(bool select)
 {
     if (!get_active_window()) return false;
     controllers.push_back(new Controller(*static_cast<MainWnd*>(get_active_window()), key_listener));
+    controllers.back()->log_set(log);
     static_cast<MainWnd*>(get_active_window())->add_view(*controllers.back(), select);
     return true;
 }
@@ -235,13 +240,16 @@ bool ScorePressApp::add_tab(bool select)
 void ScorePressApp::add_tab(MainWnd& wnd, bool select)
 {
     controllers.push_back(new Controller(wnd, key_listener));
+    controllers.back()->log_set(log);
     wnd.add_view(*controllers.back(), select);
 }
 
 void ScorePressApp::add_window()
 {
-    MainWnd* window = new MainWnd(icon_manager.get("main-small"));
+    MainWnd* window = new MainWnd();
     Application::add_window(*window);
+    window->log_set(log);
+    window->setup(icon_manager.get("main-small"));
     window->show();
     window->grab_focus();
 }

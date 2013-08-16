@@ -64,7 +64,7 @@ appiconfiles :=
 appiconsizes := 
 
 # compiler flags
-SCOREPRESSFLAGS := @LIBSCOREPRESS_CFLAGS@
+SCOREPRESSFLAGS := @LIBSCOREPRESS_CFLAGS@ -DSCOREPRESS_SO
 SCOREPRESSLIBS  := @LIBSCOREPRESS_LIBS@
 GTKFLAGS        := @LIBGTKMM_CFLAGS@
 GTKLIBS         := @LIBGTKMM_LIBS@
@@ -170,7 +170,7 @@ deps_main_cpp            := ${srcdir}/main.cpp ${application_hh}
 deps_application_cpp     := ${srcdir}/application.cpp ${deps_application_hh} ${deps_cmdline_options_hh} ${deps_controller_hh} ${deps_config_hh} ${deps_i18n_hh}
 deps_controller_cpp      := ${srcdir}/controller.cpp ${deps_controller_hh} ${deps_mainwnd_hh} ${deps_config_hh}
 deps_cmdline_options_cpp := ${srcdir}/cmdline_options.cpp ${deps_cmdline_options_hh} ${deps_i18n_hh} ${deps_config_hh}
-deps_config_cpp          := ${srcdir}/config.cpp ${deps_config_hh} ${deps_config_hh}
+deps_config_cpp          := ${srcdir}/config.cpp ${deps_config_hh} ${deps_config_hh} @srcdir@/Makefile
 deps_rsvg_renderer_cpp   := ${srcdir}/rsvg_renderer.cpp ${deps_rsvg_renderer_hh} ${deps_i18n_hh}
 deps_key_map_cpp         := ${srcdir}/key_map.cpp ${deps_key_map_hh}
 deps_key_listener_cpp    := ${srcdir}/key_listener.cpp ${deps_key_listener_hh}

@@ -253,10 +253,13 @@ void MainWnd::on_zoom_changed()
 }
 
 // constructor
-MainWnd::MainWnd(const Icon& icon) : controller(NULL), engine(NULL)
+MainWnd::MainWnd() : controller(NULL), engine(NULL) {}
+
+// setup window and controls
+void MainWnd::setup(const Icon& icon)
 {
     // setup window
-    ScorePress::Log::debug("setup window...");
+    log_debug("setup window...");
     this->set_title(SCOREPRESS_TITLE);
     this->set_default_size(750, 530);
     this->set_icon_list(icon);
@@ -264,7 +267,7 @@ MainWnd::MainWnd(const Icon& icon) : controller(NULL), engine(NULL)
     setup_about_dialog();
     
     // setup menus
-    ScorePress::Log::debug("setup menus...");
+    log_debug("setup menus...");
     setup_action_groups();
     uiManager = Gtk::UIManager::create();
     uiManager->insert_action_group(actionGrp);
@@ -281,7 +284,7 @@ MainWnd::MainWnd(const Icon& icon) : controller(NULL), engine(NULL)
     viewBar->set_can_focus(false);
     
     // setup controls
-    ScorePress::Log::debug("setup controls...");
+    log_debug("setup controls...");
     mainBarBox = new Gtk::HandleBox();
     zoomItm = new Gtk::ToolItem();
     zoomScl = new ZoomScale();
@@ -329,7 +332,7 @@ MainWnd::MainWnd(const Icon& icon) : controller(NULL), engine(NULL)
 // destructor
 MainWnd::~MainWnd()
 {
-    ScorePress::Log::debug("delete window");
+    log_debug("delete window");
     delete statusBar;
     delete scoreTabs;
     delete scoreBox;
@@ -356,7 +359,7 @@ void MainWnd::add_view(Controller& ctrl, bool select)
     };
     
     // add view
-    ScorePress::Log::debug("add view...");
+    log_debug("add view...");
     ViewSet::iterator view = views.find(&ctrl);
     int idx = -1;
     if (view != views.end())
