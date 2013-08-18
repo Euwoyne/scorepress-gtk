@@ -39,7 +39,7 @@ class KeyMap
     
     enum ActionKey {// cursor movement
                     KEY_UP,   KEY_DOWN,    KEY_RIGHT,  KEY_LEFT, KEY_HOME, KEY_END,
-                    KEY_REST, KEY_NEWLINE, KEY_DELETE, KEY_BACKSPACE,
+                    KEY_REST, KEY_NEWLINE, KEY_DELETE, KEY_BACKSPACE, KEY_DELVOICE,
                     
                     // note value
                     KEY_LONGA,  KEY_BREVE, KEY_WHOLE, KEY_HALF, KEY_QUARTER, KEY_EIGHTH,

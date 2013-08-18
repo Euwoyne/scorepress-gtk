@@ -57,6 +57,7 @@ void ScorePressApp::on_activate()
     key_listener.assign(KeyMap::KEY_NEWLINE,   GDK_KEY_KP_Enter);
     key_listener.assign(KeyMap::KEY_DELETE,    GDK_KEY_Delete);
     key_listener.assign(KeyMap::KEY_BACKSPACE, GDK_KEY_BackSpace);
+    key_listener.assign(KeyMap::KEY_DELVOICE,  GDK_KEY_Delete, true);
     
     key_listener.assign(KeyMap::KEY_LONGA,   GDK_KEY_0); key_listener.assign(KeyMap::KEY_LONGA,   GDK_KEY_KP_0);
     key_listener.assign(KeyMap::KEY_BREVE,   GDK_KEY_5); key_listener.assign(KeyMap::KEY_BREVE,   GDK_KEY_KP_5);

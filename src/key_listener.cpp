@@ -35,7 +35,7 @@ KeyListener::KeyListener() : mode(NORMAL),
 //#include <iostream>
 /*
 static const std::string ids[52] = {"KEY_UP",   "KEY_DOWN",    "KEY_RIGHT",  "KEY_LEFT", "KEY_HOME", "KEY_END",
-                              "KEY_REST", "KEY_NEWLINE", "KEY_DELETE", "KEY_BACKSPACE",
+                              "KEY_REST", "KEY_NEWLINE", "KEY_DELETE", "KEY_BACKSPACE", "KEY_DELVOICE",
                               "KEY_LONGA", "KEY_BREVE", "KEY_WHOLE", "KEY_HALF", "KEY_QUARTER", "KEY_EIGHTH",
                                            "KEY_16TH",  "KEY_32TH",  "KEY_64TH", "KEY_128TH",
                               "KEY_C", "KEY_D", "KEY_E", "KEY_F", "KEY_G", "KEY_A", "KEY_B",
@@ -71,6 +71,7 @@ void KeyListener::action_on(const ActionKey code, ScorePress::EditCursor& cursor
                         cursor.remove(); break;
     case KEY_BACKSPACE: if (!cursor.has_prev()) break;
                         cursor.prev(); cursor.remove(); break;
+    case KEY_DELVOICE:  cursor.remove_voice(); break;
     
     // note value
     case KEY_LONGA:   note.exp = ScorePress::VALUE_BASE + 2; if (!insert_on_name) insert(cursor); break;
@@ -196,18 +197,13 @@ void KeyListener::action_stemlength(const ActionKey code, ScorePress::EditCursor
     
     switch (code)
     {
-    // cursor movement
-    case KEY_UP:
-        static_cast<ScorePress::Chord&>(*cursor.get_cursor()).stem_length += 500;
-        break;
-        
-    case KEY_DOWN:
-        static_cast<ScorePress::Chord&>(*cursor.get_cursor()).stem_length -= 500;
-        break;
-        
-    // TODO: beam angle adjustment (stemlength key)
-    case KEY_RIGHT: break;
-    case KEY_LEFT:  break;
+    // stem length modification
+    case KEY_UP:   cursor.add_stem_length( 500); break;
+    case KEY_DOWN: cursor.add_stem_length(-500); break;
+    
+    // beam angle adjustment (stemlength key)
+    case KEY_LEFT:  cursor.add_stem_slope( 500); break;
+    case KEY_RIGHT: cursor.add_stem_slope(-500); break;
     
     case KEY_HOME:
         cursor.set_stem_length_auto();
