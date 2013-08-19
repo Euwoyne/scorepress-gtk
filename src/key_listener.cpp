@@ -228,17 +228,9 @@ void KeyListener::action_stemdir(const ActionKey code, ScorePress::EditCursor& c
     switch (code)
     {
     // stem direction
-    case KEY_UP:
-        _positive(static_cast<ScorePress::Chord&>(*cursor.get_cursor()).stem_length);
-        break;
-    
-    case KEY_DOWN:
-        _negative(static_cast<ScorePress::Chord&>(*cursor.get_cursor()).stem_length);
-        break;
-    
-    case KEY_HOME:
-        cursor.set_stem_dir_auto();
-        break;
+    case KEY_UP:   cursor.set_stem_dir(false); break;
+    case KEY_DOWN: cursor.set_stem_dir(true);  break;
+    case KEY_HOME: cursor.set_stem_dir_auto(); break;
     
     // ignore other codes (skip reengraving)
     default: return;
