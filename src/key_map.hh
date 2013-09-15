@@ -38,21 +38,24 @@ class KeyMap
     };
     
     enum ActionKey {// cursor movement
-                    KEY_UP,   KEY_DOWN,    KEY_RIGHT,  KEY_LEFT, KEY_HOME, KEY_END,
-                    KEY_REST, KEY_NEWLINE, KEY_DELETE, KEY_BACKSPACE, KEY_DELVOICE,
+                    KEY_UP, KEY_DOWN, KEY_RIGHT, KEY_LEFT, KEY_HOME, KEY_END,
                     
+                    // special action
+                    KEY_NEWLINE, KEY_PAGEBREAK, KEY_NEWVOICE,
+                    KEY_DELETE,  KEY_BACKSPACE, KEY_DELVOICE,
+                
                     // note value
-                    KEY_LONGA,  KEY_BREVE, KEY_WHOLE, KEY_HALF, KEY_QUARTER, KEY_EIGHTH,
-                                KEY_16TH,  KEY_32TH,  KEY_64TH, KEY_128TH,
+                    KEY_LONGA, KEY_BREVE, KEY_WHOLE, KEY_HALF, KEY_QUARTER, KEY_EIGHTH,
+                               KEY_16TH, KEY_32TH,  KEY_64TH, KEY_128TH,
                     
                     // note name
-                    KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_A, KEY_B,
-                    
+                    KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_A, KEY_B, KEY_REST, 
+
                     // accidentals
                     KEY_SHARP,  KEY_FLAT,  KEY_DOUBLESHARP,    KEY_DOUBLEFLAT,
                                            KEY_HALFSHARP,      KEY_HALFFLAT,
                                            KEY_SHARPANDAHALF,  KEY_FLATANDAHALF,
-                    
+
                     // octave modification
                     KEY_8VA, KEY_8VAB, KEY_OCTAVEUP, KEY_OCTAVEDOWN,
                     
@@ -60,8 +63,8 @@ class KeyMap
                     KEY_DOT, KEY_2DOT, KEY_NDOT,
                     
                     // note modification
-                    KEY_STEMLENGTH, KEY_STEMDIR,   KEY_CHROMATIC, KEY_MOVE, KEY_ACCMOVE, KEY_STAFFSHIFT,
-                    KEY_NOBEAM,     KEY_AUTOBEAM,  KEY_FORCEBEAM, KEY_CUTBEAM,
+                    KEY_STEMLENGTH, KEY_STEMDIR, KEY_CHROMATIC, KEY_MOVE, KEY_ACCMOVE, KEY_STAFFSHIFT,
+                    KEY_NOBEAM, KEY_AUTOBEAM, KEY_FORCEBEAM, KEY_CUTBEAM,
                     
                     // mode modification
                     KEY_HEAD_MODE,
@@ -94,7 +97,7 @@ class KeyMap
     void set_digit_key(const unsigned int digit, const Key key);
     
           bool      has_key(const Key& key)           const;
-    const ActionKey get_code(const Key& key)          const;
+          ActionKey get_code(const Key& key)          const;
     const KeyList&  get_keys(const ActionKey& action) const;
 
     void set_insert_method(const InsertMethod method);
@@ -112,7 +115,7 @@ inline void KeyMap::set_digit_key(const unsigned int digit, const Key key)
 
 inline bool KeyMap::has_key(const Key& key) const
     {return codes.count(key);}
-inline const KeyMap::ActionKey KeyMap::get_code(const Key& key) const
+inline KeyMap::ActionKey KeyMap::get_code(const Key& key) const
     {return codes.find(key)->second;}
 inline const KeyMap::KeyList&  KeyMap::get_keys(const ActionKey& action) const
     {return keys[action];}

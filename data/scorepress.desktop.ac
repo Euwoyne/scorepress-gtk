@@ -1,0 +1,20 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=ScorePress
+Icon=@DESKTOP_ICON@
+
+TryExec=@DESKTOP_EXEC@
+Exec=@DESKTOP_EXEC@ %F
+Terminal=false
+StartupNotify=false
+
+GenericName=Sheet Music Typesetter
+GenericName[de]=Notensatz Software
+
+Comment=Typeset, edit and print musical scores
+Comment[de]=Setze, bearbeite und drucke Partituren
+
+Categories=Graphics;2DGraphics;VectorGraphics
+Keywords=engraving
+MimeType=application/x-scorepress;application/vnd.recordare.musicxml;application/vnd.recordare.musicxml+xml

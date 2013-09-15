@@ -22,10 +22,11 @@
 #
 
 # programs
-SHELL     := /bin/sh
+SH        := @SH@
 CXX       := @CXX@
 INSTALL   := @INSTALL@
 INSTALLU  := @INSTALL_DATA@
+SED       := @SED@
 PKGCONFIG := @PKGCONFIG@
 
 # target filenames
@@ -63,6 +64,13 @@ appicondir   := ${datadir}/icons/${icontheme}
 appiconfiles := 
 appiconsizes := 
 
+# desktop file
+desktopfile     := ${PACKAGE_TARNAME}.desktop
+desktopac       := ${datasrc}/scorepress.desktop.ac
+desktopdir      := @datadir@/applications
+desktopiconsize := 128
+desktopiconfile := scorepress.png
+
 # compiler flags
 SCOREPRESSFLAGS := @LIBSCOREPRESS_CFLAGS@ -DSCOREPRESS_SO
 SCOREPRESSLIBS  := @LIBSCOREPRESS_LIBS@
@@ -77,26 +85,14 @@ RSVGLIBS        := @LIBRSVG_LIBS@
 XMLFLAGS        := @LIBXML_CFLAGS@
 XMLLIBS         := @LIBXML_LIBS@
 
-WARNINGS := -W                      \
-            -Wall                   \
-            -Wextra                 \
-            -Wpointer-arith         \
-            -Wcast-qual             \
-            -Wcast-align            \
-            -Wundef                 \
-            -Wwrite-strings         \
-            -Winit-self             \
-            -Wno-ignored-qualifiers \
-            -Wno-long-long
-            
-CTRLFLAGS := -ansi                  \
-             -pedantic              \
-             -fno-nonansi-builtins
+WARNINGS :=  @WARNINGS@
+
+CTRLFLAGS := @CTRLFLAGS@
 
 MODE    := @MODE@
-DEBUG   := -ggdb -O0
-PROFILE := -pg -O2
-RELEASE := -O2 -fomit-frame-pointer
+DEBUG   := @DEBUG@
+PROFILE := @PROFILE@
+RELEASE := @RELEASE@
 
 CONFIGFLAGS := -DDATADIR="\"${datadir}\"" -DICONDIR="\"@datadir@/icons\"" -DAPPICONDIR="\"${datadir}/icons\""
 USERFLAGS   := @CFLAGS@
@@ -183,11 +179,11 @@ deps_icon_manager_cpp    := ${srcdir}/icon_manager.cpp ${deps_icon_manager_hh} $
 # MAIN TARGETS
 #
 
-.PHONY: all                                               \
-        install install-bin install-data install-basedata \
-        install-icons install-appicons update-icon-cache  \
-        uninstall uninstall-bin uninstall-data            \
-        clean distclean help                              \
+.PHONY: all                                                              \
+        install install-bin install-data install-basedata                \
+        install-icons install-appicons update-icon-cache install-desktop \
+        uninstall uninstall-bin uninstall-data                           \
+        clean distclean help                                             \
         dist dist-gzip dist-bzip2 dist-zip deb
 
 # compile
@@ -200,7 +196,7 @@ install-bin: ${builddir} ${builddir}/${binfile} ${bindir}
 	@echo "Installing:     ${binfile}"
 	@${INSTALL} ${builddir}/${binfile} ${bindir}
 
-install-data: install-basedata install-icons install-appicons
+install-data: install-basedata install-icons install-appicons install-desktop
 
 install-basedata: ${datadir}
 	@echo "Installing Data..."
@@ -242,6 +238,32 @@ install-appicons: ${appicondir}
 update-icon-cache:
 	gtk-update-icon-cache -f -t ${icondir}
 
+# desktop integration
+${datasrc}/${desktopfile}: ${desktopac}
+	@echo "  Generating:   ${PACKAGE_TARNAME}.desktop"; \
+	_desktop_icon=${icondir}/${desktopiconsize}x${desktopiconsize}/${iconctx}/scorepress.png; \
+	_desktop_exec=${bindir}/${binfile};                 \
+	IFS_ORI=$$IFS;                                      \
+	IFS=:;                                              \
+	for path in $$XDG_DATA_DIRS; do                     \
+	    if test "$(echo $$path | sed --posix 's|\/*$||g')" = "${datarootdir}"; then \
+	        _desktop_icon=scorepress;                   \
+	    fi;                                             \
+	done;                                               \
+	for path in $$PATH; do                              \
+	    if test "$(echo $$path | sed --posix 's|\/*$||g')" = "${bindir}"; then \
+	        _desktop_exec=${binfile};                   \
+	    fi;                                             \
+	done;                                               \
+	IFS=$$_IFS;                                         \
+	${SED} -e "s|@DESKTOP_ICON[@]|$$_desktop_icon|g"    \
+	       -e "s|@DESKTOP_EXEC[@]|$$_desktop_exec|g"    \
+	       < ${desktopac} > ${datasrc}/${desktopfile}
+
+install-desktop: ${desktopdir} ${datasrc}/${desktopfile}
+	@echo "  Installing:   Desktop Entry"
+	@${INSTALL} -t ${desktopdir} ${datasrc}/${desktopfile}
+
 # uninstall
 uninstall: uninstall-bin uninstall-data
 
@@ -260,6 +282,8 @@ uninstall-data:
 	@-rm -rf ${datadir}/icons
 	@test -f ${datadir}/logo.png && echo "  Removing:  logo.png" || :
 	@-rm -f ${datadir}/logo.png
+	@test -f ${desktopdir}/${desktopfile} && echo "  Removing:  Desktop Entry" || :
+	@-rm -f ${desktopdir}/${desktopfile}
 	@test -f ${datadir}/EUPL.txt && echo "  Removing:  EUPL.txt" || :
 	@-rm -f ${datadir}/EUPL.txt
 	@test -f ${datadir}/CC-BY-SA.pdf && echo "  Removing:  CC-BY-SA.pdf" || :
@@ -278,6 +302,7 @@ clean:
 distclean: clean
 	@echo "  Deleting:     configuration..."
 	@-rm -f ${srcdir}/config.hh
+	@-rm -f ${datasrc}/${desktopfile}
 	@-rm -f @srcdir@/config.log
 	@-rm -f @srcdir@/config.status
 	@-rm -f @srcdir@/Makefile
@@ -303,7 +328,7 @@ deb: ${srcfiles}
 	@echo "Debian Packaging not implemented yet."
 
 # directories
-${builddir} ${bindir} ${datadir} ${distdir} ${icondir} ${appicondir}:
+${builddir} ${bindir} ${datadir} ${distdir} ${icondir} ${appicondir} ${desktopdir}:
 #@echo "[[Creating directory:  $@]]"
 	@-mkdir -p $@ 2> /dev/null || echo "  ERROR: cannot create directory \"$@\""
 

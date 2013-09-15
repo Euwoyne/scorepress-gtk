@@ -5,6 +5,7 @@ AC_PREREQ([2.69])
 AC_INIT([scorepress-gtk], [0.1.0])
 AC_CONFIG_SRCDIR([src/score_widget.cpp])
 AC_CONFIG_HEADERS([src/config.hh:src/config.hh.ac])
+AC_CONFIG_FILES([Makefile:Makefile.ac])
 AC_LANG([C++])
 
 AC_SUBST([PACKAGE_VERSION_MAIN], [0])
@@ -42,6 +43,10 @@ AC_ARG_WITH([libxml],
             [AS_HELP_STRING([--with-libxml], [location of the libxml2 headers [/usr/include/libxml2]])],
             [with_libxml="$withval"],
             [with_libxml="auto"])
+AC_ARG_WITH([rpath],
+            [AS_HELP_STRING([--with-rpath], [add the given path to the runtime library search path])],
+            [with_rpath="$withval"],
+            [with_rpath=""])
 
 AS_IF([test "x$with_debug" != "xno"],
     AC_DEFINE([SCOREPRESS_DEBUG], [1]),
@@ -54,12 +59,60 @@ AS_IF([test "x$with_profile" != "xno"],
 AS_IF([test "x$with_debug" != "xno"],
     AC_SUBST([MODE], [DEBUG]))
 
-# check for programs
+# check shell
+AS_IF([test "x$SHELL" != "x"],
+    [AC_SUBST([SH], [$SHELL])],
+    [AC_PATH_PROG([SH], [/bin/sh])])
+
+# check compiler
 AC_PROG_CXX
+
+# set compiler specific flags
+if test "x$CXX" = "xgcc" || test "x$CXX" = "xg++"; then
+    AC_CHECK_PROG([DEBUG], [gdb], [-ggdb], [])
+    AC_SUBST([PROFILE],    ["-O2 -fno-omit-frame-pointer"])
+    AC_SUBST([RELEASE],    ["-O2 -fomit-frame-pointer"])
+    AC_SUBST([WARNINGS],   ["-W                   \\
+             -Wall                \\
+             -Wextra              \\
+             -Wcast-qual          \\
+             -Wcast-align         \\
+             -Wconversion         \\
+             -Wfloat-equal        \\
+             -Winit-self          \\
+             -Wno-long-long       \\
+             -Wpointer-arith      \\
+             -Wshadow             \\
+             -Wundef              \\
+             -Wunreachable-code   \\
+             -Wwrite-strings"])
+    AC_SUBST([CTRLFLAGS],  ["-ansi                \\
+             -pedantic            \\
+             -fno-nonansi-builtins"])
+    
+    # append runtime library search path option to the linker flags
+    if test -n "$with_rpath"; then
+        LDFLAGS_ORI="$LDFLAGS_ORI -Wl,-R,$with_rpath"
+    fi
+    
+    # set compiler-version specific flags
+    AS_IF([gcc_version=`$CXX -dumpversion 2> /dev/null`],[
+            if test `echo -n $gcc_version | cut -d'.' -f1` -eq 4 &&
+               test `echo -n $gcc_version | cut -d'.' -f2` -ge 8 ||
+               test `echo -n $gcc_version | cut -d'.' -f1` -gt 4
+            then
+                AC_SUBST([DEBUG], ["$DEBUG -Og"])
+            else
+                AC_SUBST([DEBUG], ["$DEBUG -O0"])
+            fi ])
+fi
+
+# check for programs
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PATH_PROG([AR], [ar])
 AC_PATH_PROG([LDCONFIG], [ldconfig])
+AC_PATH_PROG([SED], [sed])
 AC_PATH_PROG([PKGCONFIG], [pkg-config])
 
 # check libraries
@@ -72,7 +125,7 @@ elif test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $scorepress_pkg; echo $?` -eq 
     AC_SUBST([LIBSCOREPRESS_LIBS], [`$PKGCONFIG $scorepress_pkg --libs`])
 else
     AC_SUBST([LIBSCOREPRESS_CFLAGS], [-I/usr/include/libscorepress])
-    AC_SUBST([LIBSCOREPRESS_LIBS], [-lscorepress])
+    AC_SUBST([LIBSCOREPRESS_LIBS], [-lscorepress -Wl,-R$libscorepress_path])
 fi
 
 CFLAGS="$CFLAGS_ORI $LIBSCOREPRESS_CFLAGS"
@@ -194,6 +247,5 @@ AC_CHECK_FUNC([xmlReaderForMemory],, AC_MSG_ERROR([library 'libxml2' does not pr
 AC_SUBST([CFLAGS],[$CFLAGS_ORI])
 AC_SUBST([LDFLAGS],[$LDFLAGS_ORI])
 AC_SUBST([LIBS],[$LIBS_ORI])
-AC_CONFIG_FILES([Makefile:Makefile.ac])
 AC_OUTPUT()
 

@@ -52,9 +52,11 @@ void ScorePressApp::on_activate()
     key_listener.assign(KeyMap::KEY_END,   GDK_KEY_End);
     key_listener.assign(KeyMap::KEY_END,   GDK_KEY_KP_End);
     
-    key_listener.assign(KeyMap::KEY_REST,      GDK_KEY_space);
     key_listener.assign(KeyMap::KEY_NEWLINE,   GDK_KEY_Return);
     key_listener.assign(KeyMap::KEY_NEWLINE,   GDK_KEY_KP_Enter);
+    key_listener.assign(KeyMap::KEY_PAGEBREAK, GDK_KEY_Return, true);
+    key_listener.assign(KeyMap::KEY_PAGEBREAK, GDK_KEY_KP_Enter, true);
+    key_listener.assign(KeyMap::KEY_NEWVOICE,  GDK_KEY_V, true);
     key_listener.assign(KeyMap::KEY_DELETE,    GDK_KEY_Delete);
     key_listener.assign(KeyMap::KEY_BACKSPACE, GDK_KEY_BackSpace);
     key_listener.assign(KeyMap::KEY_DELVOICE,  GDK_KEY_Delete, true);
@@ -69,6 +71,7 @@ void ScorePressApp::on_activate()
     key_listener.assign(KeyMap::KEY_32TH,    GDK_KEY_3); key_listener.assign(KeyMap::KEY_32TH,    GDK_KEY_KP_3);
     key_listener.assign(KeyMap::KEY_64TH,    GDK_KEY_7); key_listener.assign(KeyMap::KEY_64TH,    GDK_KEY_KP_7);
     key_listener.assign(KeyMap::KEY_128TH,   GDK_KEY_9); key_listener.assign(KeyMap::KEY_128TH,   GDK_KEY_KP_9);
+    key_listener.assign(KeyMap::KEY_REST,    GDK_KEY_space);
     
     key_listener.assign(KeyMap::KEY_C, GDK_KEY_C); key_listener.assign(KeyMap::KEY_C, GDK_KEY_c);
     key_listener.assign(KeyMap::KEY_D, GDK_KEY_D); key_listener.assign(KeyMap::KEY_D, GDK_KEY_d);
@@ -135,7 +138,8 @@ std::string ScorePressApp::get_next_unnamed() const
 
 int ScorePressApp::on_command_line(const Glib::RefPtr<Gio::ApplicationCommandLine>& command_line)
 {
-    log.info("ScorePress " SCOREPRESS_VERSION_STRING "\n" SCOREPRESS_COPYRIGHT "\nLicensed under the EUPL V.1.1\n");
+    if (controllers.empty())
+        log.info("ScorePress " SCOREPRESS_VERSION_STRING "\n" SCOREPRESS_COPYRIGHT "\nLicensed under the EUPL V.1.1\n");
     CmdlineOptions options;
     int argn = 0;
     char** argv = command_line->get_arguments(argn);
@@ -157,17 +161,14 @@ int ScorePressApp::on_command_line(const Glib::RefPtr<Gio::ApplicationCommandLin
         
         if (options.files.empty())
         {
-            add_window();
-            add_tab(true);
+            if (!add_tab())
+            {
+                add_window();
+                add_tab(true);
+            };
             controllers.back()->set_filename(get_next_unnamed());
             controllers.back()->get_engine().get_document().meta.title = controllers.back()->get_filename();
             controllers.back()->change();
-            /*
-            add_tab(true);
-            controllers.back()->set_filename(get_next_unnamed());
-            controllers.back()->get_engine().get_document().meta.title = controllers.back()->get_filename();
-            controllers.back()->change();
-            //*/
         };
         
         std::vector< Glib::RefPtr<Gio::File> > files;
@@ -194,11 +195,14 @@ int ScorePressApp::on_command_line(const Glib::RefPtr<Gio::ApplicationCommandLin
 
 void ScorePressApp::on_open(const std::vector< Glib::RefPtr<Gio::File> >& files, const Glib::ustring& hint)
 {
-    if (get_windows().empty()) add_window();
     for (std::vector< Glib::RefPtr<Gio::File> >::const_iterator i = files.begin(); i != files.end(); ++i)
     {
         if (!*i) continue;
-        add_tab(true);
+        if (!add_tab())
+        {
+            add_window();
+            add_tab(true);
+        };
         controllers.back()->open(*i);
     };
     Gtk::Application::on_open(files, hint);

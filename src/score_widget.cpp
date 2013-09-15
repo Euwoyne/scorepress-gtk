@@ -24,8 +24,16 @@
 
 #include "score_widget.hh"
 
+#if 0
+#define PRINT_CLOCK(s) \
+    std::cout << s << static_cast<float>(clock() - t) / CLOCKS_PER_SEC << "s\n"; \
+    t = clock();
+#else
+#define PRINT_CLOCK(s)
+#endif
 // constructor
 ScoreWidget::ScoreWidget(Controller& ctrl) : controller(&ctrl),
+                                             t(clock()),
                                              margin(30000, 40000)
 {
     offset = margin;
@@ -36,74 +44,82 @@ ScoreWidget::ScoreWidget(Controller& ctrl) : controller(&ctrl),
     this->signal_draw().connect(sigc::mem_fun(*this, &ScoreWidget::on_draw), false);
     this->signal_key_press_event().connect(sigc::mem_fun(*this, &ScoreWidget::on_key_press));
     this->signal_key_release_event().connect(sigc::mem_fun(*this, &ScoreWidget::on_key_release));
-    Glib::signal_timeout().connect(sigc::mem_fun(*this, &ScoreWidget::on_blink), 500);
-    set_size_request((controller->get_engine().page_width()  + 2 * offset.x) / 1000.0,
-                     (controller->get_engine().page_height() + 2 * offset.y) / 1000.0);
+    Glib::signal_timeout().connect_seconds(sigc::mem_fun(*this, &ScoreWidget::on_blink), 1);
+    set_size_request((controller->get_engine().page_width()  + 2 * offset.x) / 1000,
+                     (controller->get_engine().page_height() + 2 * offset.y) / 1000);
 }
 
 // center the score on the widget
 void ScoreWidget::center(unsigned int width)
 {
     if (width * 1000.0 < controller->get_engine().page_width()) offset.x = margin.x;
-    else offset.x = ((width - 2) * 1000.0 - controller->get_engine().page_width()) / 2.0;
-    set_size_request((controller->get_engine().page_width()  + 2 * offset.x) / 1000.0,
-                     (controller->get_engine().page_height() + 2 * offset.y) / 1000.0);
+    else offset.x = ((width - 2) * 1000 - controller->get_engine().page_width()) / 2;
+    set_size_request((controller->get_engine().page_width()  + 2 * offset.x) / 1000,
+                     (controller->get_engine().page_height() + 2 * offset.y) / 1000);
 }
 
-bool ScoreWidget::on_button_press(GdkEventButton* event)
+bool ScoreWidget::on_button_press(GdkEventButton* evnt)
 {
+    PRINT_CLOCK("on_button_press: in  ");
     try
     {
-        controller->mouse_on((event->x * 1000 - offset.x) * 1000, (event->y * 1000 - offset.y) * 1000);
+        controller->mouse_on((evnt->x * 1000 - offset.x) * 1000, (evnt->y * 1000 - offset.y) * 1000);
     }
     catch (ScorePress::Error& s)
     {
         std::cerr << "Exception caught in signal handler (mouse on): " << s << "\n";
     };
+    PRINT_CLOCK("on_button_press: out ");
     return true;
 }
 
-bool ScoreWidget::on_button_release(GdkEventButton* event)
+bool ScoreWidget::on_button_release(GdkEventButton* evnt)
 {
+    PRINT_CLOCK("on_button_release: in  ");
     try
     {
-        controller->mouse_off((event->x * 1000 - offset.x) * 1000, (event->y * 1000 - offset.y) * 1000);
+        controller->mouse_off((evnt->x * 1000 - offset.x) * 1000, (evnt->y * 1000 - offset.y) * 1000);
     }
     catch (ScorePress::Error& s)
     {
         std::cerr << "Exception caught in signal handler (mouse off): " << s << "\n";
     };
+    PRINT_CLOCK("on_button_release: out ");
     return true;
 }
 
-bool ScoreWidget::on_key_press(GdkEventKey* event)
+bool ScoreWidget::on_key_press(GdkEventKey* evnt)
 {
+    PRINT_CLOCK("on_key_press: in  ");
     try
     {
-        controller->key_press(KeyListener::Key(event->keyval, event->state & GDK_CONTROL_MASK));
+        controller->key_press(KeyListener::Key(evnt->keyval, evnt->state & GDK_CONTROL_MASK));
         this->get_window()->invalidate(false);
-        if (event->keyval == GDK_KEY_q) controller->get_engine().cursor.get_platenote().dump();
-        if (event->keyval == GDK_KEY_Q) controller->get_engine().plate_dump();
-        if (event->keyval == GDK_KEY_w) controller->get_engine().cursor.dump();
+        if (evnt->keyval == GDK_KEY_q) controller->get_engine().cursor.get_platenote().dump();
+        if (evnt->keyval == GDK_KEY_Q) controller->get_engine().plate_dump();
+        if (evnt->keyval == GDK_KEY_w) controller->get_engine().cursor.dump();
     }
     catch (ScorePress::Error& s)
     {
         std::cerr << "Exception caught in signal handler (key press): " << s << "\n";
     };
+    PRINT_CLOCK("on_key_press: out ");
     return true;
 }
 
-bool ScoreWidget::on_key_release(GdkEventKey* event)
+bool ScoreWidget::on_key_release(GdkEventKey* evnt)
 {
+    PRINT_CLOCK("on_key_release: in  ");
     try
     {
-        controller->key_release(KeyListener::Key(event->keyval, event->state & GDK_CONTROL_MASK));
+        controller->key_release(KeyListener::Key(evnt->keyval, evnt->state & GDK_CONTROL_MASK));
         this->get_window()->invalidate(false);
     }
     catch (ScorePress::Error& s)
     {
         std::cerr << "Exception caught in signal handler (key release): " << s << "\n";
     };
+    PRINT_CLOCK("on_key_release: out ");
     return true;
 }
 
@@ -111,7 +127,9 @@ bool ScoreWidget::on_blink()
 {
     try
     {
-        const Cairo::RefPtr<Cairo::Context>& drawingCtx = this->get_window()->create_cairo_context();
+        const Glib::RefPtr<Gdk::Window> wnd = this->get_window();
+        if (!wnd) return true;
+        const Cairo::RefPtr<Cairo::Context>& drawingCtx = wnd->create_cairo_context();
         drawingCtx->set_antialias(Cairo::ANTIALIAS_NONE);
         controller->get_renderer().begin(drawingCtx->cobj());
         controller->get_engine().render_cursor(controller->get_renderer(), offset);
@@ -126,6 +144,7 @@ bool ScoreWidget::on_blink()
 
 bool ScoreWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& drawingCtx)
 {
+    PRINT_CLOCK("on_draw: in  ");
     try
     {
         controller->get_renderer().begin(drawingCtx->cobj());
@@ -147,6 +166,7 @@ bool ScoreWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& drawingCtx)
     {
         std::cerr << "Exception caught in signal handler (draw): " << s << "\n";
     };
+    PRINT_CLOCK("on_draw: out ");
     return true;
 }
 

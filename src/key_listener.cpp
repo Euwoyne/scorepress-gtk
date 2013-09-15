@@ -34,19 +34,21 @@ KeyListener::KeyListener() : mode(NORMAL),
 
 //#include <iostream>
 /*
-static const std::string ids[52] = {"KEY_UP",   "KEY_DOWN",    "KEY_RIGHT",  "KEY_LEFT", "KEY_HOME", "KEY_END",
-                              "KEY_REST", "KEY_NEWLINE", "KEY_DELETE", "KEY_BACKSPACE", "KEY_DELVOICE",
-                              "KEY_LONGA", "KEY_BREVE", "KEY_WHOLE", "KEY_HALF", "KEY_QUARTER", "KEY_EIGHTH",
-                                           "KEY_16TH",  "KEY_32TH",  "KEY_64TH", "KEY_128TH",
-                              "KEY_C", "KEY_D", "KEY_E", "KEY_F", "KEY_G", "KEY_A", "KEY_B",
-                              "KEY_SHARP",  "KEY_FLAT",  "KEY_DOUBLESHARP",    "KEY_DOUBLEFLAT",
-                                                         "KEY_HALFSHARP",      "KEY_HALFFLAT",
-                                                         "KEY_SHARPANDAHALF",  "KEY_FLATANDAHALF",
-                              "KEY_8VA", "KEY_8VAB", "KEY_OCTAVEUP", "KEY_OCTAVEDOWN",
-                              "KEY_DOT", "KEY_2DOT", "KEY_NDOT",
-                              "KEY_STEMLENGTH", "KEY_STEMDIR", "KEY_CHROMATIC", "KEY_MOVE", "KEY_ACCMOVE", "KEY_STAFFSHIFT",
-                              "KEY_NOBEAM", "KEY_AUTOBEAM", "KEY_FORCEBEAM", "KEY_CUTBEAM",
-                              "KEY_HEAD_MODE", "__COUNT___"};
+static const std::string ids[57] = {
+    "KEY_UP", "KEY_DOWN", "KEY_RIGHT", "KEY_LEFT", "KEY_HOME", "KEY_END",
+    "KEY_NEWLINE", "KEY_PAGEBREAK", "KEY_NEWVOICE",
+    "KEY_DELETE",  "KEY_BACKSPACE", "KEY_DELVOICE",
+    "KEY_LONGA", "KEY_BREVE", "KEY_WHOLE", "KEY_HALF", "KEY_QUARTER", "KEY_EIGHTH",
+                 "KEY_16TH",  "KEY_32TH",  "KEY_64TH", "KEY_128TH",
+    "KEY_C", "KEY_D", "KEY_E", "KEY_F", "KEY_G", "KEY_A", "KEY_B", "KEY_REST",
+    "KEY_SHARP",  "KEY_FLAT",  "KEY_DOUBLESHARP",    "KEY_DOUBLEFLAT",
+                               "KEY_HALFSHARP",      "KEY_HALFFLAT",
+                               "KEY_SHARPANDAHALF",  "KEY_FLATANDAHALF",
+    "KEY_8VA", "KEY_8VAB", "KEY_OCTAVEUP", "KEY_OCTAVEDOWN",
+    "KEY_DOT", "KEY_2DOT", "KEY_NDOT",
+    "KEY_STEMLENGTH", "KEY_STEMDIR", "KEY_CHROMATIC", "KEY_MOVE", "KEY_ACCMOVE", "KEY_STAFFSHIFT",
+    "KEY_NOBEAM", "KEY_AUTOBEAM", "KEY_FORCEBEAM", "KEY_CUTBEAM",
+    "KEY_HEAD_MODE", "__COUNT__"};
 //*/
 
 void KeyListener::action_on(const ActionKey code, ScorePress::EditCursor& cursor)
@@ -65,13 +67,15 @@ void KeyListener::action_on(const ActionKey code, ScorePress::EditCursor& cursor
     case KEY_HOME:  if (got_home) cursor.home(); else cursor.home_voice(); break;
     case KEY_END:   if (got_end)  cursor.end();  else cursor.end_voice();  break;
     
-    case KEY_REST:      cursor.insert_rest(note.exp, note.dots); break;
-    case KEY_NEWLINE:   cursor.insert_newline(); break;
+    // special action
+    case KEY_NEWLINE:   cursor.insert_newline();        break;
+    case KEY_PAGEBREAK: cursor.insert_pagebreak();      break;
+    case KEY_NEWVOICE:                                  break;
     case KEY_DELETE:    if (cursor.at_end()) break;
-                        cursor.remove(); break;
+                        cursor.remove();                break;
     case KEY_BACKSPACE: if (!cursor.has_prev()) break;
                         cursor.prev(); cursor.remove(); break;
-    case KEY_DELVOICE:  cursor.remove_voice(); break;
+    case KEY_DELVOICE:  cursor.remove_voice();          break;
     
     // note value
     case KEY_LONGA:   note.exp = ScorePress::VALUE_BASE + 2; if (!insert_on_name) insert(cursor); break;
@@ -84,6 +88,8 @@ void KeyListener::action_on(const ActionKey code, ScorePress::EditCursor& cursor
     case KEY_32TH:    note.exp = ScorePress::VALUE_BASE - 5; if (!insert_on_name) insert(cursor); break;
     case KEY_64TH:    note.exp = ScorePress::VALUE_BASE - 6; if (!insert_on_name) insert(cursor); break;
     case KEY_128TH:   note.exp = ScorePress::VALUE_BASE - 7; if (!insert_on_name) insert(cursor); break;
+    
+    case KEY_REST:    cursor.insert_rest(note.exp, note.dots); break;
     
     // note name
     case KEY_C: note.name = ScorePress::EditCursor::C; if (insert_on_name) insert(cursor); break;
@@ -145,24 +151,23 @@ void KeyListener::action_on(const ActionKey code, ScorePress::EditCursor& cursor
                     static_cast<ScorePress::Chord&>(*cursor.get_cursor()).beam = ScorePress::Chord::CUT_BEAM;
                     break;
                 default: break;};
-            };
-            cursor.next();
-            cursor.reengrave();
+                cursor.next();
+                cursor.reengrave();
+            }
+            else cursor.next();
         };
         break;
     
     // mode modification
     case KEY_HEAD_MODE: head_input = (insert_head_hold || !head_input); break;
     
-    // ignore other codes
-    default: break;
+    // ignore key-count indicator (shouldn't be set anyway)
+    case KEY__COUNT__: break;
     };
     
     // remember KEY_HOME
     got_home = (code == KEY_HOME);
     got_end  = (code == KEY_END);
-    
-    //cursor.dump();
 }
 
 void KeyListener::action_off(const ActionKey code)
@@ -251,13 +256,13 @@ void KeyListener::action_chromatic(const ActionKey code, ScorePress::EditCursor&
     // shift direction
     case KEY_UP:
         for (ScorePress::HeadList::iterator head = chord.heads.begin(); head != chord.heads.end(); ++head)
-            (*head)->tone += 1;
+            ++(*head)->tone;
         cursor.set_accidental_auto();
         break;
     
     case KEY_DOWN:
         for (ScorePress::HeadList::iterator head = chord.heads.begin(); head != chord.heads.end(); ++head)
-            (*head)->tone -= 1;
+            --(*head)->tone;
         cursor.set_accidental_auto();
         break;
     

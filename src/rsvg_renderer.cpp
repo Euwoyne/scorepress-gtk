@@ -25,7 +25,7 @@
 #define STR_CAST(str)    reinterpret_cast<const xmlChar*>(str)
 #define XML_CAST(xmlstr) reinterpret_cast<const char*>(xmlstr)
 
-RSVGRenderer::RSVGRenderer(cairo_t* _drawingCtx) : libs(), drawingCtx(_drawingCtx), font_underline(false)
+RSVGRenderer::RSVGRenderer(cairo_t* _drawingCtx) : libs(), drawingCtx(_drawingCtx), clipped(0), font_underline(false)
 {
     text_layout = (drawingCtx != NULL) ? pango_cairo_create_layout(drawingCtx) : NULL;
     text_attributes = pango_attr_list_new();
@@ -282,6 +282,23 @@ void RSVGRenderer::close()
     cairo_close_path(drawingCtx);
 }
 
+// set rectangle clipping
+void RSVGRenderer::clip(const int x1, const int y1, const int w, const int h)
+{
+    cairo_save(drawingCtx);
+    cairo_rectangle(drawingCtx, x1, y1, w, h);
+    cairo_clip(drawingCtx);
+    ++clipped;
+}
+
+// reset the last "clip" call
+void RSVGRenderer::unclip()
+{
+    if (!clipped) return;
+    --clipped;
+    cairo_restore(drawingCtx);
+}
+
 // set the font family
 void RSVGRenderer::set_font_family(const std::string& family)
 {
@@ -421,7 +438,7 @@ void RSVGRenderer::bezier_slur(double  x1, double  y1,
                                double  w0, double  w1)
 {
     const double line_width = cairo_get_line_width(drawingCtx); // save current line-width (for restoring)
-    if (w0 == w1)
+    if (w0 <= w1 + 0.1 && w0 >= w1 - 0.1)
     {
         cairo_set_line_width(drawingCtx, w0);
         bezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2);

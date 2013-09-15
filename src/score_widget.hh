@@ -29,6 +29,7 @@ class ScoreWidget : public Gtk::DrawingArea
 {
  private:
     Controller* controller;             // corresponding controller
+    clock_t     t;
     
  public:
     ScorePress::Position<ScorePress::mpx_t> margin; // margin around the page (i.e. minimal offset)

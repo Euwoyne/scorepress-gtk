@@ -243,7 +243,7 @@ void MainWnd::on_zoom_changed()
     if (!engine || view == views.end()) return;
     
     // set zoom parameter
-    engine->get_press_parameters().scale = 50 * zoomScl->get_value();
+    engine->get_press_parameters().scale = static_cast<int>(50.0 * zoomScl->get_value());
     
     // redraw score
     if (view->second->widget.get_realized())

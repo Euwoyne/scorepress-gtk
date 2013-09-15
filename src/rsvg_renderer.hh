@@ -61,6 +61,7 @@ class RSVGRenderer : public ScorePress::Renderer
     std::vector<RsvgHandle*> libs;  // handles for the loaded sprite-set SVG files
     
     cairo_t*       drawingCtx;      // target drawing context
+    unsigned int   clipped;         // number of "clip" calls
     
     PangoLayout*   text_layout;     // text layout
     PangoAttrList* text_attributes; // text attributes
@@ -108,6 +109,10 @@ class RSVGRenderer : public ScorePress::Renderer
     virtual void fill();                        // fill the drawn object
     virtual void stroke();                      // render the drawn object
     virtual void close();                       // close the drawn object
+    
+    // clipping
+    virtual void clip(const int x1, const int y1, const int w, const int h);    // set rectangle clipping
+    virtual void unclip();                                                      // reset the last "clip" call
     
     // text rendering
     virtual void set_font_family(const std::string& family); // set the font family

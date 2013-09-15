@@ -23,6 +23,8 @@
 #include "mainwnd.hh"
 #include "config.hh"
 
+inline static int _round(const double d) {return static_cast<int>(d + 0.5);}
+
 void Controller::setup_engine()
 {
     // setup engine
@@ -76,8 +78,8 @@ bool Controller::open(const Glib::RefPtr<Gio::File>& file)
 void Controller::mouse_on(double x, double y)
 {
     engine->cursor.set_pos(ScorePress::Position<ScorePress::mpx_t>(
-                                x / engine->get_press_parameters().scale,
-                                y / engine->get_press_parameters().scale),
+                                _round(x / engine->get_press_parameters().scale),
+                                _round(y / engine->get_press_parameters().scale)),
                             engine->get_viewport());
     window->refresh();
 }
@@ -134,3 +136,4 @@ void Controller::log_unset()
     engine->log_unset();
     window->log_unset();
 }
+
