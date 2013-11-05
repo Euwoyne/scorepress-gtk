@@ -45,17 +45,17 @@ ScoreWidget::ScoreWidget(Controller& ctrl) : controller(&ctrl),
     this->signal_key_press_event().connect(sigc::mem_fun(*this, &ScoreWidget::on_key_press));
     this->signal_key_release_event().connect(sigc::mem_fun(*this, &ScoreWidget::on_key_release));
     Glib::signal_timeout().connect_seconds(sigc::mem_fun(*this, &ScoreWidget::on_blink), 1);
-    set_size_request((controller->get_engine().page_width()  + 2 * offset.x) / 1000,
-                     (controller->get_engine().page_height() + 2 * offset.y) / 1000);
+    set_size_request(controller->get_engine().view_width()  + offset.x / 500 - 2,
+                     controller->get_engine().view_height() + offset.y / 500 - 2);
 }
 
 // center the score on the widget
 void ScoreWidget::center(unsigned int width)
 {
-    if (width * 1000.0 < controller->get_engine().page_width()) offset.x = margin.x;
-    else offset.x = ((width - 2) * 1000 - controller->get_engine().page_width()) / 2;
-    set_size_request((controller->get_engine().page_width()  + 2 * offset.x) / 1000,
-                     (controller->get_engine().page_height() + 2 * offset.y) / 1000);
+    if (width < controller->get_engine().view_width()) offset.x = margin.x;
+    else offset.x = ((width - 20) - controller->get_engine().view_width()) * 500;
+    set_size_request(controller->get_engine().view_width()  + offset.x / 500 - 2,
+                     controller->get_engine().view_height() + offset.y / 500 - 2);
 }
 
 bool ScoreWidget::on_button_press(GdkEventButton* evnt)
@@ -63,11 +63,19 @@ bool ScoreWidget::on_button_press(GdkEventButton* evnt)
     PRINT_CLOCK("on_button_press: in  ");
     try
     {
-        controller->mouse_on((evnt->x * 1000 - offset.x) * 1000, (evnt->y * 1000 - offset.y) * 1000);
+        controller->mouse_on(evnt->x * 1000 - offset.x, evnt->y * 1000 - offset.y);
     }
     catch (ScorePress::Error& s)
     {
-        std::cerr << "Exception caught in signal handler (mouse on): " << s << "\n";
+        std::cerr << "[ERROR] ScoreWidget::on_button_press(): " << s << "\n";
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "[ERROR] ScoreWidget::on_button_press(): " << e.what() << "\n";
+    }
+    catch (...)
+    {
+        std::cerr << "[ERROR] ScoreWidget::on_button_press(): Unknown Exception\n";
     };
     PRINT_CLOCK("on_button_press: out ");
     return true;
@@ -78,11 +86,19 @@ bool ScoreWidget::on_button_release(GdkEventButton* evnt)
     PRINT_CLOCK("on_button_release: in  ");
     try
     {
-        controller->mouse_off((evnt->x * 1000 - offset.x) * 1000, (evnt->y * 1000 - offset.y) * 1000);
+        controller->mouse_off(evnt->x * 1000 - offset.x, evnt->y * 1000 - offset.y);
     }
     catch (ScorePress::Error& s)
     {
-        std::cerr << "Exception caught in signal handler (mouse off): " << s << "\n";
+        std::cerr << "[ERROR] ScoreWidget::on_button_release(): " << s << "\n";
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "[ERROR] ScoreWidget::on_button_release(): " << e.what() << "\n";
+    }
+    catch (...)
+    {
+        std::cerr << "[ERROR] ScoreWidget::on_button_release(): Unknown Exception\n";
     };
     PRINT_CLOCK("on_button_release: out ");
     return true;
@@ -101,7 +117,15 @@ bool ScoreWidget::on_key_press(GdkEventKey* evnt)
     }
     catch (ScorePress::Error& s)
     {
-        std::cerr << "Exception caught in signal handler (key press): " << s << "\n";
+        std::cerr << "[ERROR] ScoreWidget::on_key_press(): " << s << "\n";
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "[ERROR] ScoreWidget::on_key_press(): " << e.what() << "\n";
+    }
+    catch (...)
+    {
+        std::cerr << "[ERROR] ScoreWidget::on_key_press(): Unknown Exception\n";
     };
     PRINT_CLOCK("on_key_press: out ");
     return true;
@@ -117,7 +141,15 @@ bool ScoreWidget::on_key_release(GdkEventKey* evnt)
     }
     catch (ScorePress::Error& s)
     {
-        std::cerr << "Exception caught in signal handler (key release): " << s << "\n";
+        std::cerr << "[ERROR] ScoreWidget::on_key_release(): " << s << "\n";
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "[ERROR] ScoreWidget::on_key_release(): " << e.what() << "\n";
+    }
+    catch (...)
+    {
+        std::cerr << "[ERROR] ScoreWidget::on_key_release(): Unknown Exception\n";
     };
     PRINT_CLOCK("on_key_release: out ");
     return true;
@@ -137,7 +169,15 @@ bool ScoreWidget::on_blink()
     }
     catch (ScorePress::Error& s)
     {
-        std::cerr << "Exception caught in signal handler (blink): " << s << "\n";
+        std::cerr << "[ERROR] ScoreWidget::on_blink(): " << s << "\n";
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "[ERROR] ScoreWidget::on_blink(): " << e.what() << "\n";
+    }
+    catch (...)
+    {
+        std::cerr << "[ERROR] ScoreWidget::on_blink(): Unknown Exception\n";
     };
     return true;
 }
@@ -156,15 +196,23 @@ bool ScoreWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& drawingCtx)
     }
     catch (ScorePress::StaffContext::Error& e)
     {
-        std::cerr << "Exception caught in signal handler (draw): " << e << " (class: Context)\n";
+        std::cerr << "[ERROR] ScoreWidget::on_draw(): " << e << " (class: Context)\n";
     }
     catch (ScorePress::Press::Error& e)
     {
-        std::cerr << "Exception caught in signal handler (draw): " << e << " (class: Press)\n";
+        std::cerr << "[ERROR] ScoreWidget::on_draw(): " << e << " (class: Press)\n";
     }
     catch (ScorePress::Error& s)
     {
-        std::cerr << "Exception caught in signal handler (draw): " << s << "\n";
+        std::cerr << "[ERROR] ScoreWidget::on_draw(): " << s << "\n";
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "[ERROR] ScoreWidget::on_draw(): " << e.what() << "\n";
+    }
+    catch (...)
+    {
+        std::cerr << "[ERROR] ScoreWidget::on_draw(): Unknown Exception\n";
     };
     PRINT_CLOCK("on_draw: out ");
     return true;

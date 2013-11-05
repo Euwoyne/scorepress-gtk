@@ -23,8 +23,8 @@
 #define GTK_DISABLE_DEPRECATED 1
 #include <gtkmm.h>
 #include <cairomm/surface.h>
+#include "controller.hh"
 
-class Controller;
 class ScoreWidget : public Gtk::DrawingArea
 {
  private:

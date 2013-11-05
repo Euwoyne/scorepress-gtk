@@ -31,10 +31,10 @@ class MainWnd;
 class Controller : public ScorePress::Logging
 {
  private:
-    RSVGRenderer*       renderer;
-    ScorePress::Engine* engine;
-    KeyListener*        keylistener;
-    MainWnd*            window;
+    RSVGRenderer        renderer;
+    ScorePress::Engine  engine;
+    KeyListener&        keylistener;
+    MainWnd&            window;
     
     std::string  filename;
     std::string  filepath;
@@ -48,7 +48,6 @@ class Controller : public ScorePress::Logging
     // constructors
     Controller(MainWnd& window, KeyListener& keylistener);
     Controller(MainWnd& window, KeyListener& keylistener, const std::string& sprite_file);
-    ~Controller();
     
     // data access
     RSVGRenderer&       get_renderer();
@@ -83,9 +82,9 @@ class Controller : public ScorePress::Logging
     void log_unset();
 };
 
-inline RSVGRenderer&       Controller::get_renderer()         {return *renderer;}
-inline ScorePress::Engine& Controller::get_engine()           {return *engine;}
-inline MainWnd&            Controller::get_window()           {return *window;}
+inline RSVGRenderer&       Controller::get_renderer()      {return renderer;}
+inline ScorePress::Engine& Controller::get_engine()        {return engine;}
+inline MainWnd&            Controller::get_window()        {return window;}
 
 inline const std::string&  Controller::get_filename() const               {return filename;}
 inline const std::string&  Controller::get_filepath() const               {return filepath;}
@@ -94,8 +93,8 @@ inline bool                Controller::is_new() const                     {retur
 inline bool                Controller::is_changed() const                 {return changed;}
 inline void                Controller::change(bool b)                     {changed = b;}
 
-inline void Controller::key_press(const KeyMap::Key key) {keylistener->press(key, engine->cursor);}
-inline void Controller::key_release(const KeyMap::Key key) {keylistener->release(key);}
+inline void Controller::key_press(const KeyMap::Key key)   {keylistener.press(key, engine.cursor);}
+inline void Controller::key_release(const KeyMap::Key key) {keylistener.release(key);}
 
 #endif
 

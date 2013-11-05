@@ -22,6 +22,7 @@
 #include "i18n.hh"
 #include <vector>
 #include <scorepress/log.hh>
+#include <iostream>
 
 // view class constructor
 MainWnd::View::View(Controller& ctrl) : controller(&ctrl), widget(ctrl)
@@ -34,7 +35,15 @@ MainWnd::View::View(Controller& ctrl) : controller(&ctrl), widget(ctrl)
 // zoom slider widget: value formatter
 Glib::ustring MainWnd::ZoomScale::on_format_value(double value)
 {
-    return Glib::ustring::compose("%1%% ", 5.0 * value);
+    try
+    {
+        return Glib::ustring::compose("%1%% ", 5.0 * value);
+    }
+    catch (std::exception e)
+    {
+        std::cerr << "std::exception caught: " << e.what() << "\n";
+        return "ERR%";
+    };
 }
 
 // zoom slider widget: constructor
@@ -192,64 +201,127 @@ void MainWnd::setup_about_dialog()
 // tab switch
 void MainWnd::on_switch_tab(Gtk::Widget* page, guint)
 {
-    // get controller/engine
-    ScoreWidget* widget = static_cast<ScoreWidget*>(static_cast<Gtk::Viewport*>(static_cast<Gtk::ScrolledWindow*>(page)->get_child())->get_child());
-    controller = &widget->get_controller();
-    engine = &controller->get_engine();
-    zoomScl->set_value(engine->get_press_parameters().scale / 50.0);
-    
-    // set window title
-    this->set_title(Glib::ustring(engine->get_document().meta.title) += " - ScorePress " SCOREPRESS_VERSION_STRING);
-    
-    // refresh menus
-    static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/LineboundsMnu"))->set_active(
-        engine->get_press_parameters().draw_linebounds);
-    static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/AttachboundsMnu"))->set_active(
-        engine->get_press_parameters().draw_attachbounds);
-    static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/NoteboundsMnu"))->set_active(
-        engine->get_press_parameters().draw_notebounds);
-    
-    // set focus
-    widget->grab_focus();
+    try
+    {
+        // get controller/engine
+        ScoreWidget* widget = static_cast<ScoreWidget*>(static_cast<Gtk::Viewport*>(static_cast<Gtk::ScrolledWindow*>(page)->get_child())->get_child());
+        controller = &widget->get_controller();
+        engine = &controller->get_engine();
+        zoomScl->set_value(engine->get_press_parameters().scale / 50.0);
+        
+        // set window title
+        this->set_title(Glib::ustring(engine->get_document().meta.title) += " - ScorePress " SCOREPRESS_VERSION_STRING);
+        
+        // refresh menus
+        static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/LineboundsMnu"))->set_active(
+            engine->get_press_parameters().draw_linebounds);
+        static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/AttachboundsMnu"))->set_active(
+            engine->get_press_parameters().draw_attachbounds);
+        static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/NoteboundsMnu"))->set_active(
+            engine->get_press_parameters().draw_notebounds);
+        
+        // set focus
+        widget->grab_focus();
+    }
+    catch (ScorePress::Error& s)
+    {
+        std::cerr << "[ERROR] MainWnd::on_switch_tab(): " << s << "\n";
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "[ERROR] MainWnd::on_switch_tab(): " << e.what() << "\n";
+    }
+    catch (...)
+    {
+        std::cerr << "[ERROR] MainWnd::on_switch_tab(): Unknown Exception\n";
+    };
 }
 
 // tab close
 void MainWnd::on_close_tab(Gtk::Widget* page, guint)
 {
-    // get controller
-    ScoreWidget* widget = static_cast<ScoreWidget*>(static_cast<Gtk::Viewport*>(static_cast<Gtk::ScrolledWindow*>(page)->get_child())->get_child());
-    Controller* ctrl = &widget->get_controller();
-    
-    // TODO: ask for save
-    
-    // delete the view
-    ViewSet::iterator view = views.find(ctrl);
-    if (view != views.end()) views.erase(view);
+    try
+    {
+        // get controller
+        ScoreWidget* widget = static_cast<ScoreWidget*>(static_cast<Gtk::Viewport*>(static_cast<Gtk::ScrolledWindow*>(page)->get_child())->get_child());
+        Controller* ctrl = &widget->get_controller();
+        
+        // TODO: ask for save
+        
+        // delete the view
+        ViewSet::iterator view = views.find(ctrl);
+        if (view != views.end()) views.erase(view);
+    }
+    catch (ScorePress::Error& s)
+    {
+        std::cerr << "[ERROR] MainWnd::on_close_tab(): " << s << "\n";
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "[ERROR] MainWnd::on_close_tab(): " << e.what() << "\n";
+    }
+    catch (...)
+    {
+        std::cerr << "[ERROR] MainWnd::on_close_tab(): Unknown Exception\n";
+    };
 }
 
 // window size change (center score)
 void MainWnd::on_size_changed(Gtk::Allocation& allocation)
 {
-    ViewSet::iterator view = views.find(controller);
-    if (view != views.end() && view->second->widget.get_realized())
-        view->second->widget.center(allocation.get_width());
+    try
+    {
+        ViewSet::iterator view = views.find(controller);
+        if (view != views.end() && view->second->widget.get_realized())
+            view->second->widget.center(allocation.get_width());
+    }
+    catch (ScorePress::Error& s)
+    {
+        std::cerr << "[ERROR] MainWnd::on_size_changed(): " << s << "\n";
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "[ERROR] MainWnd::on_size_changed(): " << e.what() << "\n";
+    }
+    catch (...)
+    {
+        std::cerr << "[ERROR] MainWnd::on_size_changed(): Unknown Exception\n";
+    };
 }
 
 // zoom slider handler
 void MainWnd::on_zoom_changed()
 {
-    // find current view
-    ViewSet::iterator view = views.find(controller);
-    if (!engine || view == views.end()) return;
-    
-    // set zoom parameter
-    engine->get_press_parameters().scale = static_cast<int>(50.0 * zoomScl->get_value());
-    
-    // redraw score
-    if (view->second->widget.get_realized())
-        view->second->widget.center(view->second->scrollWnd.get_width());
-    if (view->second->scrollWnd.get_realized())
-        view->second->scrollWnd.get_window()->invalidate(true);
+    try
+    {
+        // find current view
+        ViewSet::iterator view = views.find(controller);
+        if (!engine || view == views.end()) return;
+        
+        // set zoom parameter
+        engine->get_press_parameters().scale = static_cast<int>(50.0 * zoomScl->get_value());
+        
+        // clear renderer cache
+        controller->get_renderer().clear_cache();
+        
+        // redraw score
+        if (view->second->widget.get_realized())
+            view->second->widget.center(view->second->scrollWnd.get_width());
+        if (view->second->scrollWnd.get_realized())
+            view->second->scrollWnd.get_window()->invalidate(true);
+    }
+    catch (ScorePress::Error& s)
+    {
+        std::cerr << "[ERROR] MainWnd::on_zoom_changed(): " << s << "\n";
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "[ERROR] MainWnd::on_zoom_changed(): " << e.what() << "\n";
+    }
+    catch (...)
+    {
+        std::cerr << "[ERROR] MainWnd::on_zoom_changed(): Unknown Exception\n";
+    };
 }
 
 // constructor

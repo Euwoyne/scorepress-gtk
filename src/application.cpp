@@ -36,7 +36,7 @@ void ScorePressApp::on_activate()
     }
     catch (IconManager::Error e)
     {
-        std::cerr << "ScorePressApp::on_activate()  WARNING: " << e << "\n";
+        std::cerr << "[WARNING] ScorePressApp::on_activate(): " << e << "\n";
     };
     
     key_listener.assign(KeyMap::KEY_UP,    GDK_KEY_Up);
@@ -174,20 +174,20 @@ int ScorePressApp::on_command_line(const Glib::RefPtr<Gio::ApplicationCommandLin
         std::vector< Glib::RefPtr<Gio::File> > files;
         for (std::vector<std::string>::const_iterator file = options.files.begin(); file != options.files.end(); ++file)
             files.push_back(Gio::File::create_for_path(*file));
-
-        open(files);
+        
+        if (!files.empty()) open(files);
     }
     catch (std::string s)
     {
-        std::cerr << "ScorePressApp::on_command_line()  ERROR: " << s << "\n";
+        std::cerr << "[ERROR] ScorePressApp::on_command_line(): " << s << "\n";
     }
     catch (Glib::Error& e)
     {
-        std::cerr << "ScorePressApp::on_command_line()  ERROR: " << e.what() << "\n";
+        std::cerr << "[ERROR] ScorePressApp::on_command_line(): " << e.what() << "\n";
     }
     catch (...)
     {
-        std::cerr << "ScorePressApp::on_command_line()  ERROR: UNKNNOWN\n";
+        std::cerr << "[ERROR] ScorePressApp::on_command_line(): Unknown Exception\n";
     };
 
     return 0;

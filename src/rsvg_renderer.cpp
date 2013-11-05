@@ -158,7 +158,6 @@ void RSVGRenderer::clear_cache(const size_t setid)
             cache.erase(i);
         };
     };
-    cache.clear();
 #endif
 }
 

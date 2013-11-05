@@ -150,7 +150,6 @@ distfiles := @srcdir@/AUTHORS     \
              @srcdir@/src
 
 # header dependency list
-deps_score_widget_hh     := ${srcdir}/score_widget.hh
 deps_icon_manager_hh     := ${srcdir}/icon_manager.hh
 deps_rsvg_renderer_hh    := ${srcdir}/rsvg_renderer.hh
 deps_cmdline_options_hh  := ${srcdir}/cmdline_options.hh
@@ -159,6 +158,7 @@ deps_i18n_hh             := ${srcdir}/i18n.hh
 deps_key_map_hh          := ${srcdir}/key_map.hh
 deps_key_listener_hh     := ${srcdir}/key_listener.hh ${deps_key_map_hh}
 deps_controller_hh       := ${srcdir}/controller.hh ${deps_rsvg_renderer_hh} ${deps_key_listener_hh}
+deps_score_widget_hh     := ${srcdir}/score_widget.hh ${deps_controller_hh}
 deps_mainwnd_hh          := ${srcdir}/mainwnd.hh ${deps_score_widget_hh} ${deps_icon_manager_hh} ${deps_rsvg_renderer_hh}
 deps_application_hh      := ${srcdir}/application.hh ${deps_icon_manager_hh} ${deps_key_listener_hh} ${deps_mainwnd_hh}
 
