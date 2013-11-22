@@ -45,17 +45,17 @@ ScoreWidget::ScoreWidget(Controller& ctrl) : controller(&ctrl),
     this->signal_key_press_event().connect(sigc::mem_fun(*this, &ScoreWidget::on_key_press));
     this->signal_key_release_event().connect(sigc::mem_fun(*this, &ScoreWidget::on_key_release));
     Glib::signal_timeout().connect_seconds(sigc::mem_fun(*this, &ScoreWidget::on_blink), 1);
-    set_size_request(controller->get_engine().view_width()  + offset.x / 500 - 2,
-                     controller->get_engine().view_height() + offset.y / 500 - 2);
+    set_size_request(controller->layout_width()  + offset.x / 500 - 2,
+                     controller->layout_height() + offset.y / 500 - 2);
 }
 
 // center the score on the widget
 void ScoreWidget::center(unsigned int width)
 {
-    if (width < controller->get_engine().view_width()) offset.x = margin.x;
-    else offset.x = ((width - 20) - controller->get_engine().view_width()) * 500;
-    set_size_request(controller->get_engine().view_width()  + offset.x / 500 - 2,
-                     controller->get_engine().view_height() + offset.y / 500 - 2);
+    if (width < controller->layout_width()) offset.x = margin.x;
+    else offset.x = ((width - 20) - controller->layout_width()) * 500;
+    set_size_request(controller->layout_width()  + offset.x / 500 - 2,
+                     controller->layout_height() + offset.y / 500 - 2);
 }
 
 bool ScoreWidget::on_button_press(GdkEventButton* evnt)
@@ -65,16 +65,31 @@ bool ScoreWidget::on_button_press(GdkEventButton* evnt)
     {
         controller->mouse_on(evnt->x * 1000 - offset.x, evnt->y * 1000 - offset.y);
     }
-    catch (ScorePress::Error& s)
-    {
+    catch (ScorePress::Engine::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_button_press(): " << s << " (Engine Error)\n";
+    }
+    catch (ScorePress::UserCursor::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_button_press(): " << s << " (User Cursor Error)\n";
+    }
+    catch (ScorePress::Cursor::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_button_press(): " << s << " (Cursor Error)\n";
+    }
+    catch (ScorePress::Renderer::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_button_press(): " << s << " (Renderer Error)\n";
+    }
+    catch (ScorePress::Press::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_button_press(): " << s << " (Press Error)\n";
+    }
+    catch (ScorePress::StaffContext::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_button_press(): " << s << " (Context Error)\n";
+    }
+    catch (ScorePress::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_button_press(): " << s << "\n";
     }
-    catch (std::exception& e)
-    {
+    catch (std::exception& e) {
         std::cerr << "[ERROR] ScoreWidget::on_button_press(): " << e.what() << "\n";
     }
-    catch (...)
-    {
+    catch (...) {
         std::cerr << "[ERROR] ScoreWidget::on_button_press(): Unknown Exception\n";
     };
     PRINT_CLOCK("on_button_press: out ");
@@ -88,16 +103,31 @@ bool ScoreWidget::on_button_release(GdkEventButton* evnt)
     {
         controller->mouse_off(evnt->x * 1000 - offset.x, evnt->y * 1000 - offset.y);
     }
-    catch (ScorePress::Error& s)
-    {
+    catch (ScorePress::Engine::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_button_release(): " << s << " (Engine Error)\n";
+    }
+    catch (ScorePress::UserCursor::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_button_release(): " << s << " (User Cursor Error)\n";
+    }
+    catch (ScorePress::Cursor::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_button_release(): " << s << " (Cursor Error)\n";
+    }
+    catch (ScorePress::Renderer::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_button_release(): " << s << " (Renderer Error)\n";
+    }
+    catch (ScorePress::Press::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_button_release(): " << s << " (Press Error)\n";
+    }
+    catch (ScorePress::StaffContext::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_button_release(): " << s << " (Context Error)\n";
+    }
+    catch (ScorePress::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_button_release(): " << s << "\n";
     }
-    catch (std::exception& e)
-    {
+    catch (std::exception& e) {
         std::cerr << "[ERROR] ScoreWidget::on_button_release(): " << e.what() << "\n";
     }
-    catch (...)
-    {
+    catch (...) {
         std::cerr << "[ERROR] ScoreWidget::on_button_release(): Unknown Exception\n";
     };
     PRINT_CLOCK("on_button_release: out ");
@@ -111,20 +141,35 @@ bool ScoreWidget::on_key_press(GdkEventKey* evnt)
     {
         controller->key_press(KeyListener::Key(evnt->keyval, evnt->state & GDK_CONTROL_MASK));
         this->get_window()->invalidate(false);
-        if (evnt->keyval == GDK_KEY_q) controller->get_engine().cursor.get_platenote().dump();
+        if (evnt->keyval == GDK_KEY_q) controller->get_cursor().get_platenote().dump();
         if (evnt->keyval == GDK_KEY_Q) controller->get_engine().plate_dump();
-        if (evnt->keyval == GDK_KEY_w) controller->get_engine().cursor.dump();
+        if (evnt->keyval == GDK_KEY_w) controller->get_cursor().dump();
     }
-    catch (ScorePress::Error& s)
-    {
+    catch (ScorePress::Engine::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_key_press(): " << s << " (Engine Error)\n";
+    }
+    catch (ScorePress::UserCursor::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_key_press(): " << s << " (User Cursor Error)\n";
+    }
+    catch (ScorePress::Cursor::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_key_press(): " << s << " (Cursor Error)\n";
+    }
+    catch (ScorePress::Renderer::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_key_press(): " << s << " (Renderer Error)\n";
+    }
+    catch (ScorePress::Press::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_key_press(): " << s << " (Press Error)\n";
+    }
+    catch (ScorePress::StaffContext::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_key_press(): " << s << " (Context Error)\n";
+    }
+    catch (ScorePress::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_key_press(): " << s << "\n";
     }
-    catch (std::exception& e)
-    {
+    catch (std::exception& e) {
         std::cerr << "[ERROR] ScoreWidget::on_key_press(): " << e.what() << "\n";
     }
-    catch (...)
-    {
+    catch (...) {
         std::cerr << "[ERROR] ScoreWidget::on_key_press(): Unknown Exception\n";
     };
     PRINT_CLOCK("on_key_press: out ");
@@ -139,16 +184,31 @@ bool ScoreWidget::on_key_release(GdkEventKey* evnt)
         controller->key_release(KeyListener::Key(evnt->keyval, evnt->state & GDK_CONTROL_MASK));
         this->get_window()->invalidate(false);
     }
-    catch (ScorePress::Error& s)
-    {
+    catch (ScorePress::Engine::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_key_release(): " << s << " (Engine Error)\n";
+    }
+    catch (ScorePress::UserCursor::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_key_release(): " << s << " (User Cursor Error)\n";
+    }
+    catch (ScorePress::Cursor::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_key_release(): " << s << " (Cursor Error)\n";
+    }
+    catch (ScorePress::Renderer::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_key_release(): " << s << " (Renderer Error)\n";
+    }
+    catch (ScorePress::Press::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_key_release(): " << s << " (Press Error)\n";
+    }
+    catch (ScorePress::StaffContext::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_key_release(): " << s << " (Context Error)\n";
+    }
+    catch (ScorePress::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_key_release(): " << s << "\n";
     }
-    catch (std::exception& e)
-    {
+    catch (std::exception& e) {
         std::cerr << "[ERROR] ScoreWidget::on_key_release(): " << e.what() << "\n";
     }
-    catch (...)
-    {
+    catch (...) {
         std::cerr << "[ERROR] ScoreWidget::on_key_release(): Unknown Exception\n";
     };
     PRINT_CLOCK("on_key_release: out ");
@@ -164,19 +224,34 @@ bool ScoreWidget::on_blink()
         const Cairo::RefPtr<Cairo::Context>& drawingCtx = wnd->create_cairo_context();
         drawingCtx->set_antialias(Cairo::ANTIALIAS_NONE);
         controller->get_renderer().begin(drawingCtx->cobj());
-        controller->get_engine().render_cursor(controller->get_renderer(), offset);
+        controller->render_cursor(offset);
         controller->get_renderer().end();
     }
-    catch (ScorePress::Error& s)
-    {
+    catch (ScorePress::Engine::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_blink(): " << s << " (Engine Error)\n";
+    }
+    catch (ScorePress::UserCursor::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_blink(): " << s << " (User Cursor Error)\n";
+    }
+    catch (ScorePress::Cursor::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_blink(): " << s << " (Cursor Error)\n";
+    }
+    catch (ScorePress::Renderer::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_blink(): " << s << " (Renderer Error)\n";
+    }
+    catch (ScorePress::Press::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_blink(): " << s << " (Press Error)\n";
+    }
+    catch (ScorePress::StaffContext::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_blink(): " << s << " (Context Error)\n";
+    }
+    catch (ScorePress::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_blink(): " << s << "\n";
     }
-    catch (std::exception& e)
-    {
+    catch (std::exception& e) {
         std::cerr << "[ERROR] ScoreWidget::on_blink(): " << e.what() << "\n";
     }
-    catch (...)
-    {
+    catch (...) {
         std::cerr << "[ERROR] ScoreWidget::on_blink(): Unknown Exception\n";
     };
     return true;
@@ -189,29 +264,36 @@ bool ScoreWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& drawingCtx)
     {
         controller->get_renderer().begin(drawingCtx->cobj());
         drawingCtx->set_antialias(Cairo::ANTIALIAS_SUBPIXEL);
-        controller->get_engine().render(controller->get_renderer(), offset);
+        controller->render_document(offset);
         drawingCtx->set_antialias(Cairo::ANTIALIAS_NONE);
-        controller->get_engine().render_cursor(controller->get_renderer(), offset);
+        controller->render_cursor(offset);
         controller->get_renderer().end();
     }
-    catch (ScorePress::StaffContext::Error& e)
-    {
-        std::cerr << "[ERROR] ScoreWidget::on_draw(): " << e << " (class: Context)\n";
+    catch (ScorePress::Engine::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_draw(): " << s << " (Engine Error)\n";
     }
-    catch (ScorePress::Press::Error& e)
-    {
-        std::cerr << "[ERROR] ScoreWidget::on_draw(): " << e << " (class: Press)\n";
+    catch (ScorePress::UserCursor::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_draw(): " << s << " (User Cursor Error)\n";
     }
-    catch (ScorePress::Error& s)
-    {
+    catch (ScorePress::Cursor::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_draw(): " << s << " (Cursor Error)\n";
+    }
+    catch (ScorePress::Renderer::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_draw(): " << s << " (Renderer Error)\n";
+    }
+    catch (ScorePress::Press::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_draw(): " << s << " (Press Error)\n";
+    }
+    catch (ScorePress::StaffContext::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_draw(): " << s << " (Context Error)\n";
+    }
+    catch (ScorePress::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_draw(): " << s << "\n";
     }
-    catch (std::exception& e)
-    {
+    catch (std::exception& e) {
         std::cerr << "[ERROR] ScoreWidget::on_draw(): " << e.what() << "\n";
     }
-    catch (...)
-    {
+    catch (...) {
         std::cerr << "[ERROR] ScoreWidget::on_draw(): Unknown Exception\n";
     };
     PRINT_CLOCK("on_draw: out ");

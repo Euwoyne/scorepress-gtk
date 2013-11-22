@@ -75,6 +75,9 @@
 			<Add library="libscorepress" />
 			<Add directory="/home/dominik/sources/cpp/score/libscorepress" />
 		</Linker>
+		<Unit filename="src/_testdoc.cpp">
+			<Option target="build" />
+		</Unit>
 		<Unit filename="src/application.cpp" />
 		<Unit filename="src/application.hh" />
 		<Unit filename="src/cmdline_options.cpp" />

@@ -2,7 +2,7 @@
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
   Copyright (C) 2013 Dominik Lehmann
-
+  
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
   versions of the EUPL (the "Licence");

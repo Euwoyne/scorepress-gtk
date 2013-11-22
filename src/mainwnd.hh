@@ -156,7 +156,7 @@ class MainWnd : public Gtk::Window, public ScorePress::Logging
 // inline method implementations
 #include "controller.hh"
 
-inline void MainWnd::reengrave()         {engine->cursor.reengrave();}
+inline void MainWnd::reengrave()         {controller->reengrave();}
 inline void MainWnd::refresh()           {views.find(controller)->second->widget.refresh();}
 
 inline void MainWnd::menu_linebounds()   {controller->set_linebounds(get_linebounds());}

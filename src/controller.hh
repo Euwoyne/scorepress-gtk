@@ -31,10 +31,16 @@ class MainWnd;
 class Controller : public ScorePress::Logging
 {
  private:
-    RSVGRenderer        renderer;
-    ScorePress::Engine  engine;
-    KeyListener&        keylistener;
-    MainWnd&            window;
+    typedef std::list<ScorePress::EditCursor> CursorList;
+    
+    ScorePress::Document         document;
+    ScorePress::Engine           engine;
+    ScorePress::MultipageLayout  layout;
+    CursorList                   cursors;
+    
+    RSVGRenderer                 renderer;
+    KeyListener&                 keylistener;
+    MainWnd&                     window;
     
     std::string  filename;
     std::string  filepath;
@@ -50,9 +56,11 @@ class Controller : public ScorePress::Logging
     Controller(MainWnd& window, KeyListener& keylistener, const std::string& sprite_file);
     
     // data access
-    RSVGRenderer&       get_renderer();
-    ScorePress::Engine& get_engine();
-    MainWnd&            get_window();
+    RSVGRenderer&           get_renderer();
+    ScorePress::Engine&     get_engine();
+    ScorePress::EditCursor& get_cursor();
+    MainWnd&                get_window();
+    
     const std::string&  get_filename() const;
     const std::string&  get_filepath() const;
     void                set_filename(const std::string& s);
@@ -60,6 +68,15 @@ class Controller : public ScorePress::Logging
     bool                is_new() const;
     bool                is_changed() const;
     void                change(bool b = true);
+    
+    // engine interface
+    unsigned int layout_width() const;
+    unsigned int layout_height() const;
+    
+    // renderer interface
+    void render_document(ScorePress::Position<ScorePress::mpx_t> offset);
+    void render_cursor(ScorePress::Position<ScorePress::mpx_t> offset);
+    void reengrave();
     
     // open file
     bool open(const Glib::RefPtr<Gio::File>& file);
@@ -82,9 +99,10 @@ class Controller : public ScorePress::Logging
     void log_unset();
 };
 
-inline RSVGRenderer&       Controller::get_renderer()      {return renderer;}
-inline ScorePress::Engine& Controller::get_engine()        {return engine;}
-inline MainWnd&            Controller::get_window()        {return window;}
+inline RSVGRenderer&           Controller::get_renderer()      {return renderer;}
+inline ScorePress::Engine&     Controller::get_engine()        {return engine;}
+inline ScorePress::EditCursor& Controller::get_cursor()        {return cursors.back();}
+inline MainWnd&                Controller::get_window()        {return window;}
 
 inline const std::string&  Controller::get_filename() const               {return filename;}
 inline const std::string&  Controller::get_filepath() const               {return filepath;}
@@ -93,7 +111,14 @@ inline bool                Controller::is_new() const                     {retur
 inline bool                Controller::is_changed() const                 {return changed;}
 inline void                Controller::change(bool b)                     {changed = b;}
 
-inline void Controller::key_press(const KeyMap::Key key)   {keylistener.press(key, engine.cursor);}
+inline unsigned int        Controller::layout_width() const  {return engine.layout_width(layout);}
+inline unsigned int        Controller::layout_height() const {return engine.layout_height(layout);}
+
+inline void                Controller::render_document(ScorePress::Position<ScorePress::mpx_t> offset) {engine.render_all(renderer, layout, offset, true);}
+inline void                Controller::render_cursor(ScorePress::Position<ScorePress::mpx_t> offset)   {engine.render_cursor(renderer, cursors.back(), layout, offset);}
+inline void                Controller::reengrave()                                                     {cursors.back().reengrave();}
+
+inline void Controller::key_press(const KeyMap::Key key)   {keylistener.press(key, cursors.back());}
 inline void Controller::key_release(const KeyMap::Key key) {keylistener.release(key);}
 
 #endif

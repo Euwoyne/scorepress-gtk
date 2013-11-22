@@ -2,7 +2,7 @@
 
 # initialize package
 AC_PREREQ([2.69])
-AC_INIT([scorepress-gtk], [0.1.0])
+AC_INIT([scorepress-gtk], [0.1.1])
 AC_CONFIG_SRCDIR([src/score_widget.cpp])
 AC_CONFIG_HEADERS([src/config.hh:src/config.hh.ac])
 AC_CONFIG_FILES([Makefile:Makefile.ac])

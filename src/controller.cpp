@@ -23,31 +23,35 @@
 #include "mainwnd.hh"
 #include "config.hh"
 
+#include "_testdoc.cpp"
+
 inline static int _round(const double d) {return static_cast<int>(d + 0.5);}
 
 void Controller::setup_engine()
 {
     // setup engine
-    engine.set_test(renderer.get_sprites());
+    set_test(document, renderer.get_sprites());
     engine.set_resolution((1000L * Gdk::Screen::get_default()->get_width())  / Gdk::Screen::get_default()->get_width_mm(),
                            (1000L * Gdk::Screen::get_default()->get_height()) / Gdk::Screen::get_default()->get_height_mm());
 }
 
-Controller::Controller(MainWnd& wnd, KeyListener& keys) : engine(renderer.get_sprites()),
+Controller::Controller(MainWnd& wnd, KeyListener& keys) : engine(document, renderer.get_sprites()),
                                                           keylistener(keys),
                                                           window(wnd)
 {
     renderer.load(std::string(libscorepress_datadir) += "/symbol/default.svg");
     setup_engine();
+    cursors.push_back(engine.create_cursor());
     window.add_view(*this);
 }
 
-Controller::Controller(MainWnd& wnd, KeyListener& keys, const std::string& sprite_file) : engine(renderer.get_sprites()),
+Controller::Controller(MainWnd& wnd, KeyListener& keys, const std::string& sprite_file) : engine(document, renderer.get_sprites()),
                                                                                           keylistener(keys),
                                                                                           window(wnd)
 {
     renderer.load(sprite_file);
     setup_engine();
+    cursors.push_back(engine.create_cursor());
     window.add_view(*this);
 }
 
@@ -69,9 +73,10 @@ bool Controller::open(const Glib::RefPtr<Gio::File>& file)
 
 void Controller::mouse_on(double x, double y)
 {
-    engine.cursor.set_pos(ScorePress::Position<ScorePress::mpx_t>(static_cast<int>(x), static_cast<int>(y)),
-                          engine.get_press_parameters(),
-                          engine.get_viewport());
+    if (cursors.empty())
+        cursors.push_back(engine.create_cursor(ScorePress::Position<ScorePress::mpx_t>(static_cast<int>(x), static_cast<int>(y)), layout));
+    else
+        engine.set_cursor(cursors.back(), ScorePress::Position<ScorePress::mpx_t>(static_cast<int>(x), static_cast<int>(y)), layout);
     window.refresh();
 }
 
