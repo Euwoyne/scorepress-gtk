@@ -441,7 +441,7 @@ void MainWnd::add_view(Controller& ctrl, bool select)
     if (idx < 0)
     {
         view = views.insert(std::pair<Controller*, View*>(&ctrl, new View(ctrl))).first;
-        view->second->scrollWnd.signal_size_allocate().connect(sigc::mem_fun(*this, &MainWnd::on_size_changed), false);
+        view->second->scrollWnd.get_child()->signal_size_allocate().connect(sigc::mem_fun(*this, &MainWnd::on_size_changed), false);
         idx = scoreTabs->append_page(view->second->scrollWnd, ctrl.get_filename());
     };
     

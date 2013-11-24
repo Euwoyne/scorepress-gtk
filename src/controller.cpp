@@ -41,7 +41,7 @@ Controller::Controller(MainWnd& wnd, KeyListener& keys) : engine(document, rende
 {
     renderer.load(std::string(libscorepress_datadir) += "/symbol/default.svg");
     setup_engine();
-    cursors.push_back(engine.create_cursor());
+    cursor = &engine.get_cursor();
     window.add_view(*this);
 }
 
@@ -51,7 +51,7 @@ Controller::Controller(MainWnd& wnd, KeyListener& keys, const std::string& sprit
 {
     renderer.load(sprite_file);
     setup_engine();
-    cursors.push_back(engine.create_cursor());
+    cursor = &engine.get_cursor();
     window.add_view(*this);
 }
 
@@ -73,10 +73,7 @@ bool Controller::open(const Glib::RefPtr<Gio::File>& file)
 
 void Controller::mouse_on(double x, double y)
 {
-    if (cursors.empty())
-        cursors.push_back(engine.create_cursor(ScorePress::Position<ScorePress::mpx_t>(static_cast<int>(x), static_cast<int>(y)), layout));
-    else
-        engine.set_cursor(cursors.back(), ScorePress::Position<ScorePress::mpx_t>(static_cast<int>(x), static_cast<int>(y)), layout);
+    cursor = &engine.get_cursor(ScorePress::Position<ScorePress::mpx_t>(static_cast<int>(x), static_cast<int>(y)), layout);
     window.refresh();
 }
 

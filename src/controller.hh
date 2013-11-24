@@ -31,12 +31,10 @@ class MainWnd;
 class Controller : public ScorePress::Logging
 {
  private:
-    typedef std::list<ScorePress::EditCursor> CursorList;
-    
     ScorePress::Document         document;
     ScorePress::Engine           engine;
     ScorePress::MultipageLayout  layout;
-    CursorList                   cursors;
+    ScorePress::EditCursor*      cursor;
     
     RSVGRenderer                 renderer;
     KeyListener&                 keylistener;
@@ -101,7 +99,7 @@ class Controller : public ScorePress::Logging
 
 inline RSVGRenderer&           Controller::get_renderer()      {return renderer;}
 inline ScorePress::Engine&     Controller::get_engine()        {return engine;}
-inline ScorePress::EditCursor& Controller::get_cursor()        {return cursors.back();}
+inline ScorePress::EditCursor& Controller::get_cursor()        {return *cursor;}
 inline MainWnd&                Controller::get_window()        {return window;}
 
 inline const std::string&  Controller::get_filename() const               {return filename;}
@@ -115,10 +113,10 @@ inline unsigned int        Controller::layout_width() const  {return engine.layo
 inline unsigned int        Controller::layout_height() const {return engine.layout_height(layout);}
 
 inline void                Controller::render_document(ScorePress::Position<ScorePress::mpx_t> offset) {engine.render_all(renderer, layout, offset, true);}
-inline void                Controller::render_cursor(ScorePress::Position<ScorePress::mpx_t> offset)   {engine.render_cursor(renderer, cursors.back(), layout, offset);}
-inline void                Controller::reengrave()                                                     {cursors.back().reengrave();}
+inline void                Controller::render_cursor(ScorePress::Position<ScorePress::mpx_t> offset)   {engine.render_cursor(renderer, *cursor, layout, offset);}
+inline void                Controller::reengrave()                                                     {cursor->reengrave();}
 
-inline void Controller::key_press(const KeyMap::Key key)   {keylistener.press(key, cursors.back());}
+inline void Controller::key_press(const KeyMap::Key key)   {keylistener.press(key, *cursor);}
 inline void Controller::key_release(const KeyMap::Key key) {keylistener.release(key);}
 
 #endif

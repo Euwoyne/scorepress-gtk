@@ -45,17 +45,24 @@ ScoreWidget::ScoreWidget(Controller& ctrl) : controller(&ctrl),
     this->signal_key_press_event().connect(sigc::mem_fun(*this, &ScoreWidget::on_key_press));
     this->signal_key_release_event().connect(sigc::mem_fun(*this, &ScoreWidget::on_key_release));
     Glib::signal_timeout().connect_seconds(sigc::mem_fun(*this, &ScoreWidget::on_blink), 1);
-    set_size_request(controller->layout_width()  + offset.x / 500 - 2,
-                     controller->layout_height() + offset.y / 500 - 2);
+    set_size_request(controller->layout_width()  / 1000 + offset.x / 500,
+                     controller->layout_height() / 1000 + offset.y / 500);
 }
 
 // center the score on the widget
 void ScoreWidget::center(unsigned int width)
 {
-    if (width < controller->layout_width()) offset.x = margin.x;
-    else offset.x = ((width - 20) - controller->layout_width()) * 500;
-    set_size_request(controller->layout_width()  + offset.x / 500 - 2,
-                     controller->layout_height() + offset.y / 500 - 2);
+    offset.x = 500 * width - controller->layout_width() / 2;
+    if (offset.x < margin.x)
+    {
+        offset.x = margin.x;
+        set_size_request(controller->layout_width()  / 1000 + offset.x / 500,
+                         controller->layout_height() / 1000 + offset.y / 500);
+    }
+    else
+    {
+        set_size_request(0, controller->layout_height() / 1000 + offset.y / 500);
+    };
 }
 
 bool ScoreWidget::on_button_press(GdkEventButton* evnt)
