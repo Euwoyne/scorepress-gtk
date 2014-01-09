@@ -17,4 +17,4 @@ Comment[de]=Setze, bearbeite und drucke Partituren
 
 Categories=Graphics;2DGraphics;VectorGraphics
 Keywords=engraving
-MimeType=application/x-scorepress;application/vnd.recordare.musicxml;application/vnd.recordare.musicxml+xml
+MimeType=application/x-scorepress;application/x-scorepress+xml;application/vnd.recordare.musicxml;application/vnd.recordare.musicxml+xml

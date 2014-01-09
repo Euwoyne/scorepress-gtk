@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2013 Dominik Lehmann
+  Copyright (C) 2014 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -100,12 +100,12 @@ void ScorePressApp::on_activate()
     key_listener.assign(KeyMap::KEY_2DOT, GDK_KEY_colon);
     key_listener.assign(KeyMap::KEY_NDOT, GDK_KEY_semicolon);
     
-    key_listener.assign(KeyMap::KEY_STEMLENGTH, GDK_KEY_N);       key_listener.assign(KeyMap::KEY_STEMLENGTH, GDK_KEY_n);
-    key_listener.assign(KeyMap::KEY_STEMDIR,    GDK_KEY_I);       key_listener.assign(KeyMap::KEY_STEMDIR,    GDK_KEY_i);
-    key_listener.assign(KeyMap::KEY_CHROMATIC,  GDK_KEY_P);       key_listener.assign(KeyMap::KEY_CHROMATIC,  GDK_KEY_p);
-    key_listener.assign(KeyMap::KEY_MOVE,       GDK_KEY_J);       key_listener.assign(KeyMap::KEY_MOVE,       GDK_KEY_j);
-    key_listener.assign(KeyMap::KEY_ACCMOVE,    GDK_KEY_J, true); key_listener.assign(KeyMap::KEY_ACCMOVE,    GDK_KEY_j, true);
-    key_listener.assign(KeyMap::KEY_STAFFSHIFT, GDK_KEY_V);       key_listener.assign(KeyMap::KEY_STAFFSHIFT, GDK_KEY_v);
+    key_listener.assign(KeyMap::KEY_STEMLENGTH, GDK_KEY_N);     key_listener.assign(KeyMap::KEY_STEMLENGTH, GDK_KEY_n);
+    key_listener.assign(KeyMap::KEY_STEMDIR,    GDK_KEY_I);     key_listener.assign(KeyMap::KEY_STEMDIR,    GDK_KEY_i);
+    key_listener.assign(KeyMap::KEY_CHROMATIC,  GDK_KEY_P);     key_listener.assign(KeyMap::KEY_CHROMATIC,  GDK_KEY_p);
+    key_listener.assign(KeyMap::KEY_STAFFSHIFT, GDK_KEY_V);     key_listener.assign(KeyMap::KEY_STAFFSHIFT, GDK_KEY_v);
+    key_listener.assign(KeyMap::KEY_MOVE,       GDK_KEY_J);     key_listener.assign(KeyMap::KEY_MOVE,       GDK_KEY_j);
+    key_listener.assign(KeyMap::KEY_ACCMOVE,    GDK_KEY_K);     key_listener.assign(KeyMap::KEY_ACCMOVE,    GDK_KEY_k);
     key_listener.assign(KeyMap::KEY_NOBEAM,     GDK_KEY_F5);
     key_listener.assign(KeyMap::KEY_AUTOBEAM,   GDK_KEY_F6);
     key_listener.assign(KeyMap::KEY_CUTBEAM,    GDK_KEY_F7);

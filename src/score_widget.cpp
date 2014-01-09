@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2013 Dominik Lehmann
+  Copyright (C) 2014 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -188,7 +188,8 @@ bool ScoreWidget::on_key_release(GdkEventKey* evnt)
     PRINT_CLOCK("on_key_release: in  ");
     try
     {
-        controller->key_release(KeyListener::Key(evnt->keyval, evnt->state & GDK_CONTROL_MASK));
+        controller->key_release(KeyListener::Key(evnt->keyval, true));
+        controller->key_release(KeyListener::Key(evnt->keyval, false));
         this->get_window()->invalidate(false);
     }
     catch (ScorePress::Engine::Error& s) {
