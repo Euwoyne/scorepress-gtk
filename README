@@ -2,3 +2,11 @@ scorepress-gtk
 ==============
 
 ScorePress - Music Engraving Software  (scorepress-gtk)
+
+
+
+Changelog:
+0.1     * early development
+
+0.1.1   * incorporated Document and Cursor (removed from Engine)
+

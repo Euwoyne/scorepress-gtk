@@ -47,3 +47,9 @@ void print_library_info()
 #endif
 }
 
+void print_directory_info()
+{
+    std::cout << " - DATADIR    = " << scorepress_datadir << "\n";
+    std::cout << " - ICONDIR    = " << scorepress_icondir    << "\n";
+    std::cout << " - APPICONDIR = " << scorepress_appicondir << "\n";
+}

@@ -36,6 +36,7 @@ int parse_cmdline(CmdlineOptions& opt, int argn, char* argv[])
     
     // parse arguments
     bool version = false;
+    bool dirs = false;
     bool help = false;
     std::string arg;
     
@@ -51,6 +52,7 @@ int parse_cmdline(CmdlineOptions& opt, int argn, char* argv[])
         else if (arg == "--debug"     || arg == "-d") opt.stdout.debug = true;
         else if (arg == "--verbose"   || arg == "-v") opt.stdout.verbose = true;
         else if (arg == "--version"   || arg == "-V") version = true;
+        else if (arg == "--dirs"      || arg == "-D") dirs = true;
         else if (arg == "--help"      || arg == "-h") help = true;
         else {printf(_("Warning: Unrecognized option \"%s\"."), arg.c_str()); puts("");};
     };
@@ -59,8 +61,14 @@ int parse_cmdline(CmdlineOptions& opt, int argn, char* argv[])
     {
         puts(_("Libraries:"));
         print_library_info();
-        return 2;
     };
+    
+    if (dirs)
+    {
+        puts(_("Directories:"));
+        print_directory_info();
+    };
+    if (dirs || version) return 2;
     
     if (help)
     {

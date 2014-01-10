@@ -1,4 +1,21 @@
 # Process this file with autoconf to produce a configure script.
+#
+#  ScorePress - Music Engraving Software  (scorepress-gtk)
+#  Copyright (C) 2014 Dominik Lehmann
+#  
+#  Licensed under the EUPL, Version 1.1 or - as soon they
+#  will be approved by the European Commission - subsequent
+#  versions of the EUPL (the "Licence");
+#  You may not use this work except in compliance with the
+#  Licence.
+#  
+#  Unless required by applicable law or agreed to in
+#  writing, software distributed under the Licence is
+#  distributed on an "AS IS" basis, WITHOUT WARRANTIES OR
+#  CONDITIONS OF ANY KIND, either expressed or implied.
+#  See the Licence for the specific language governing
+#  permissions and limitations under the Licence.
+#
 
 # initialize package
 AC_PREREQ([2.69])
@@ -9,8 +26,12 @@ AC_CONFIG_FILES([Makefile:Makefile.ac])
 AC_LANG([C++])
 
 AC_SUBST([PACKAGE_VERSION_MAIN], [0])
+
 AC_DEFINE([SCOREPRESS_PACKAGE_NAME], ["AC_PACKAGE_NAME"])
 AC_DEFINE([SCOREPRESS_VERSION_STRING], ["AC_PACKAGE_VERSION"])
+AC_DEFINE([SCOREPRESS_VERSION_MAJOR], [0])
+AC_DEFINE([SCOREPRESS_VERSION_MINOR], [1])
+AC_DEFINE([SCOREPRESS_VERSION_PATCH], [1])
 
 # save user flags
 CFLAGS_ORI="$CFLAGS"
@@ -39,25 +60,29 @@ AC_ARG_WITH([libscorepress],
             [AS_HELP_STRING([--with-libscorepress], [location of the libscorepress headers [/usr/include/libscorepress]])],
             [with_libscorepress="$withval"],
             [with_libscorepress="auto"])
-AC_ARG_WITH([libxml],
-            [AS_HELP_STRING([--with-libxml], [location of the libxml2 headers [/usr/include/libxml2]])],
-            [with_libxml="$withval"],
-            [with_libxml="auto"])
+AC_ARG_WITH([libxml2],
+            [AS_HELP_STRING([--with-libxml2], [location of the libxml2 headers [/usr/include/libxml2]])],
+            [with_libxml2="$withval"],
+            [with_libxml2="auto"])
 AC_ARG_WITH([rpath],
             [AS_HELP_STRING([--with-rpath], [add the given path to the runtime library search path])],
             [with_rpath="$withval"],
             [with_rpath=""])
 
+
 AS_IF([test "x$with_debug" != "xno"],
     AC_DEFINE([SCOREPRESS_DEBUG], [1]),
     AC_DEFINE([SCOREPRESS_DEBUG], [0]))
-AC_SUBST([MODE], [RELEASE])
 
+AC_SUBST([MODE], [RELEASE])
 AS_IF([test "x$with_profile" != "xno"],
     AC_SUBST([MODE], [PROFILE]))
-
 AS_IF([test "x$with_debug" != "xno"],
     AC_SUBST([MODE], [DEBUG]))
+
+AS_IF([test "x$with_rpath" != "x"],
+    AC_SUBST([USER_RPATH], [$with_rpath]),
+    AC_SUBST([USER_RPATH], []))
 
 # check shell
 AS_IF([test "x$SHELL" != "x"],
@@ -69,9 +94,10 @@ AC_PROG_CXX
 
 # set compiler specific flags
 if test "x$CXX" = "xgcc" || test "x$CXX" = "xg++"; then
-    AC_CHECK_PROG([DEBUG], [gdb], [-ggdb], [])
+    AC_CHECK_PROG([DEBUG], [gdb], [-ggdb], [-g])
+    AC_SUBST([DEBUG],      ["$DEBUG -fno-inline -Werror"])
     AC_SUBST([PROFILE],    ["-O2 -fno-omit-frame-pointer"])
-    AC_SUBST([RELEASE],    ["-O2 -fomit-frame-pointer"])
+    AC_SUBST([RELEASE],    ["-O2"])
     AC_SUBST([WARNINGS],   ["-W                   \\
              -Wall                \\
              -Wextra              \\
@@ -120,12 +146,15 @@ AC_PATH_PROG([PKGCONFIG], [pkg-config])
 if test "x$with_libscorepress" != "xauto"; then
     AC_SUBST([LIBSCOREPRESS_CFLAGS], [-I$with_libscorepress])
     AC_SUBST([LIBSCOREPRESS_LIBS], [-lscorepress])
+    AC_SUBST([USER_LIBSCOREPRESS], [$with_libscorepress])
 elif test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $scorepress_pkg; echo $?` -eq 0; then
     AC_SUBST([LIBSCOREPRESS_CFLAGS], [`$PKGCONFIG $scorepress_pkg --cflags`])
     AC_SUBST([LIBSCOREPRESS_LIBS], [`$PKGCONFIG $scorepress_pkg --libs`])
+    AC_SUBST([USER_LIBSCOREPRESS], [])
 else
     AC_SUBST([LIBSCOREPRESS_CFLAGS], [-I/usr/include/libscorepress])
     AC_SUBST([LIBSCOREPRESS_LIBS], [-lscorepress -Wl,-R$libscorepress_path])
+    AC_SUBST([USER_LIBSCOREPRESS], [])
 fi
 
 CFLAGS="$CFLAGS_ORI $LIBSCOREPRESS_CFLAGS"
@@ -179,15 +208,18 @@ LIBS="$LIBS_ORI $LIBRSVG_LIBS"
 AC_CHECK_LIB([rsvg-2], [rsvg_handle_new],, AC_MSG_ERROR([cannot find library '$rsvg_pkg']))
 
 #   libxml
-if test "x$with_libxml" != "xauto"; then
-    AC_SUBST([LIBXML_CFLAGS], [-I$with_libxml])
+if test "x$with_libxml2" != "xauto"; then
+    AC_SUBST([LIBXML_CFLAGS], [-I$with_libxml2])
     AC_SUBST([LIBXML_LIBS], [-lxml2])
+    AC_SUBST([USER_LIBXML], [$with_libxml2])
 elif test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $libxml_pkg; echo $?` -eq 0; then
     AC_SUBST([LIBXML_CFLAGS], [`$PKGCONFIG $libxml_pkg --cflags`])
     AC_SUBST([LIBXML_LIBS], [`$PKGCONFIG $libxml_pkg --libs`])
+    AC_SUBST([USER_LIBXML], [])
 else
     AC_SUBST([LIBXML_CFLAGS], [-I/usr/include/libxml2])
     AC_SUBST([LIBXML_LIBS], [-lxml2])
+    AC_SUBST([USER_LIBXML], [])
 fi
 
 CFLAGS="$CFLAGS_ORI $LIBXML_CFLAGS"

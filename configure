@@ -625,6 +625,7 @@ CFLAGS
 EGREP
 GREP
 CXXCPP
+USER_LIBXML
 LIBXML_LIBS
 LIBXML_CFLAGS
 LIBRSVG_LIBS
@@ -635,6 +636,7 @@ LIBCAIROMM_LIBS
 LIBCAIROMM_CFLAGS
 LIBGTKMM_LIBS
 LIBGTKMM_CFLAGS
+USER_LIBSCOREPRESS
 LIBSCOREPRESS_LIBS
 LIBSCOREPRESS_CFLAGS
 PKGCONFIG
@@ -658,6 +660,7 @@ LDFLAGS
 CXXFLAGS
 CXX
 SH
+USER_RPATH
 MODE
 PACKAGE_VERSION_MAIN
 target_alias
@@ -704,7 +707,7 @@ enable_option_checking
 enable_debug
 enable_profile
 with_libscorepress
-with_libxml
+with_libxml2
 with_rpath
 '
       ac_precious_vars='build_alias
@@ -1334,7 +1337,7 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-libscorepress    location of the libscorepress headers
                           [/usr/include/libscorepress]
-  --with-libxml           location of the libxml2 headers
+  --with-libxml2          location of the libxml2 headers
                           [/usr/include/libxml2]
   --with-rpath            add the given path to the runtime library search
                           path
@@ -2196,9 +2199,16 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 PACKAGE_VERSION_MAIN=0
 
+
 $as_echo "#define SCOREPRESS_PACKAGE_NAME \"scorepress-gtk\"" >>confdefs.h
 
 $as_echo "#define SCOREPRESS_VERSION_STRING \"0.1.1\"" >>confdefs.h
+
+$as_echo "#define SCOREPRESS_VERSION_MAJOR 0" >>confdefs.h
+
+$as_echo "#define SCOREPRESS_VERSION_MINOR 1" >>confdefs.h
+
+$as_echo "#define SCOREPRESS_VERSION_PATCH 1" >>confdefs.h
 
 
 # save user flags
@@ -2239,11 +2249,11 @@ else
 fi
 
 
-# Check whether --with-libxml was given.
-if test "${with_libxml+set}" = set; then :
-  withval=$with_libxml; with_libxml="$withval"
+# Check whether --with-libxml2 was given.
+if test "${with_libxml2+set}" = set; then :
+  withval=$with_libxml2; with_libxml2="$withval"
 else
-  with_libxml="auto"
+  with_libxml2="auto"
 fi
 
 
@@ -2255,6 +2265,7 @@ else
 fi
 
 
+
 if test "x$with_debug" != "xno"; then :
   $as_echo "#define SCOREPRESS_DEBUG 1" >>confdefs.h
 
@@ -2262,16 +2273,20 @@ else
   $as_echo "#define SCOREPRESS_DEBUG 0" >>confdefs.h
 
 fi
-MODE=RELEASE
 
+MODE=RELEASE
 
 if test "x$with_profile" != "xno"; then :
   MODE=PROFILE
 
 fi
-
 if test "x$with_debug" != "xno"; then :
   MODE=DEBUG
+
+fi
+
+if test "x$with_rpath" != "x"; then :
+  USER_RPATH=$with_rpath
 
 fi
 
@@ -2858,6 +2873,7 @@ done
   done
 IFS=$as_save_IFS
 
+  test -z "$ac_cv_prog_DEBUG" && ac_cv_prog_DEBUG="-g"
 fi
 fi
 DEBUG=$ac_cv_prog_DEBUG
@@ -2870,9 +2886,11 @@ $as_echo "no" >&6; }
 fi
 
 
+    DEBUG="$DEBUG -fno-inline -Werror"
+
     PROFILE="-O2 -fno-omit-frame-pointer"
 
-    RELEASE="-O2 -fomit-frame-pointer"
+    RELEASE="-O2"
 
     WARNINGS="-W                   \\
              -Wall                \\
@@ -3217,15 +3235,19 @@ if test "x$with_libscorepress" != "xauto"; then
 
     LIBSCOREPRESS_LIBS=-lscorepress
 
+    USER_LIBSCOREPRESS=$with_libscorepress
+
 elif test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $scorepress_pkg; echo $?` -eq 0; then
     LIBSCOREPRESS_CFLAGS=`$PKGCONFIG $scorepress_pkg --cflags`
 
     LIBSCOREPRESS_LIBS=`$PKGCONFIG $scorepress_pkg --libs`
 
+
 else
     LIBSCOREPRESS_CFLAGS=-I/usr/include/libscorepress
 
     LIBSCOREPRESS_LIBS=-lscorepress -Wl,-R$libscorepress_path
+
 
 fi
 
@@ -3567,20 +3589,24 @@ fi
 
 
 #   libxml
-if test "x$with_libxml" != "xauto"; then
-    LIBXML_CFLAGS=-I$with_libxml
+if test "x$with_libxml2" != "xauto"; then
+    LIBXML_CFLAGS=-I$with_libxml2
 
     LIBXML_LIBS=-lxml2
+
+    USER_LIBXML=$with_libxml2
 
 elif test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $libxml_pkg; echo $?` -eq 0; then
     LIBXML_CFLAGS=`$PKGCONFIG $libxml_pkg --cflags`
 
     LIBXML_LIBS=`$PKGCONFIG $libxml_pkg --libs`
 
+
 else
     LIBXML_CFLAGS=-I/usr/include/libxml2
 
     LIBXML_LIBS=-lxml2
+
 
 fi
 

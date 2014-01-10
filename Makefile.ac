@@ -22,12 +22,14 @@
 #
 
 # programs
-SH        := @SH@
-CXX       := @CXX@
-INSTALL   := @INSTALL@
-INSTALLU  := @INSTALL_DATA@
-SED       := @SED@
-PKGCONFIG := @PKGCONFIG@
+SHELL           := @SHELL@
+SH              := @SH@
+CXX             := @CXX@
+INSTALL         := @INSTALL@
+INSTALL_DATA    := @INSTALL_DATA@
+INSTALL_PROGRAM := @INSTALL_PROGRAM@
+SED             := @SED@
+PKGCONFIG       := @PKGCONFIG@
 
 # target filenames
 PACKAGE_TARNAME := @PACKAGE_TARNAME@
@@ -37,19 +39,23 @@ binfile         := scorepress
 prefix      := @prefix@
 exec_prefix := @exec_prefix@
 datarootdir := @datarootdir@
-datadir     := @datadir@/${PACKAGE_TARNAME}
+datadir     := @datadir@
+datadir_pkg := ${datadir}/${PACKAGE_TARNAME}
 distdir     := @PACKAGE_NAME@-@PACKAGE_VERSION@
 
-srcdir      := @srcdir@/src
-datasrc     := @srcdir@/data
+srcdir      := @srcdir@
+cppsrc      := ${srcdir}/src
+datasrc     := ${srcdir}/data
 iconsrc     := ${datasrc}/icons
 appiconsrc  := ${datasrc}/icons
 builddir    := @builddir@/build
 
 bindir   := @bindir@
-mandir   := @mandir@/man3
+mandir   := @mandir@
+man1dir  := ${mandir}/man1
+manext   := .1
 docdir   := @docdir@
-htmldir  := @htmldir@/html
+htmldir  := @htmldir@
 dvidir   := @dvidir@
 pdfdir   := @pdfdir@
 psdir    := @psdir@
@@ -57,17 +63,17 @@ psdir    := @psdir@
 # icons
 icontheme    := hicolor
 iconctx      := apps
-icondir      := @datadir@/icons/${icontheme}
+icondir      := ${datadir}/icons/${icontheme}
 iconfiles    := scorepress.png scorepress-sm.png
 iconsizes    := 16 24 32 48 64 128
-appicondir   := ${datadir}/icons/${icontheme}
+appicondir   := ${datadir_pkg}/icons/${icontheme}
 appiconfiles := 
 appiconsizes := 
 
 # desktop file
 desktopfile     := ${PACKAGE_TARNAME}.desktop
 desktopac       := ${datasrc}/scorepress.desktop.ac
-desktopdir      := @datadir@/applications
+desktopdir      := ${datadir}/applications
 desktopiconsize := 128
 desktopiconfile := scorepress.png
 
@@ -94,37 +100,43 @@ DEBUG   := @DEBUG@
 PROFILE := @PROFILE@
 RELEASE := @RELEASE@
 
-CONFIGFLAGS := -DDATADIR="\"${datadir}\"" -DICONDIR="\"@datadir@/icons\"" -DAPPICONDIR="\"${datadir}/icons\""
-USERFLAGS   := @CFLAGS@
-USERLIBS    := @LDFLAGS@ @LIBS@
+CONFIGFLAGS  := -DDATADIR="\"${DESTDIR}${datadir_pkg}\"" -DICONDIR="\"${DESTDIR}${datadir}/icons\"" -DAPPICONDIR="\"${DESTDIR}${datadir_pkg}/icons\""
+USER_CFLAGS  := @CFLAGS@
+USER_FLAGS   := ${USER_CFLAGS} ${CFLAGS}
+USER_LIBS    := @LIBS@
+USER_LDFLAGS := @LDFLAGS@
+USER_RPATH   := @USER_RPATH@
 
-FLAGS := ${WARNINGS} ${CTRLFLAGS} ${${MODE}} -I${srcdir} ${SCOREPRESSFLAGS} ${USERFLAGS}
-LIBS  := ${SCOREPRESSLIBS} ${GTKLIBS} ${CAIROLIBS} ${PANGOLIBS} ${RSVGLIBS} ${XMLLIBS} ${USERLIBS}
+USER_LIBSCOREPRESS := @USER_LIBSCOREPRESS@
+USER_LIBXML        := @USER_LIBXML@
+
+FLAGS := ${WARNINGS} ${CTRLFLAGS} ${${MODE}} -I${cppsrc} ${SCOREPRESSFLAGS} ${USER_CFLAGS}
+LIBS  := ${SCOREPRESSLIBS} ${GTKLIBS} ${CAIROLIBS} ${PANGOLIBS} ${RSVGLIBS} ${XMLLIBS} ${USER_LIBS} ${USER_LDFLAGS}
 
 # file lists
-cfiles := ${srcdir}/main.cpp            \
-          ${srcdir}/application.cpp     \
-          ${srcdir}/controller.cpp      \
-          ${srcdir}/cmdline_options.cpp \
-          ${srcdir}/config.cpp          \
-          ${srcdir}/rsvg_renderer.cpp   \
-          ${srcdir}/key_map.cpp         \
-          ${srcdir}/key_listener.cpp    \
-          ${srcdir}/mainwnd.cpp         \
-          ${srcdir}/score_widget.cpp    \
-          ${srcdir}/icon_manager.cpp
+cfiles := ${cppsrc}/main.cpp            \
+          ${cppsrc}/application.cpp     \
+          ${cppsrc}/controller.cpp      \
+          ${cppsrc}/cmdline_options.cpp \
+          ${cppsrc}/config.cpp          \
+          ${cppsrc}/rsvg_renderer.cpp   \
+          ${cppsrc}/key_map.cpp         \
+          ${cppsrc}/key_listener.cpp    \
+          ${cppsrc}/mainwnd.cpp         \
+          ${cppsrc}/score_widget.cpp    \
+          ${cppsrc}/icon_manager.cpp
 
-hfiles := ${srcdir}/application.hh      \
-          ${srcdir}/controller.hh       \
-          ${srcdir}/cmdline_options.hh  \
-          ${srcdir}/config.hh           \
-          ${srcdir}/rsvg_renderer.hh    \
-          ${srcdir}/key_map.hh          \
-          ${srcdir}/key_listener.hh     \
-          ${srcdir}/mainwnd.hh          \
-          ${srcdir}/score_widget.hh     \
-          ${srcdir}/icon_manager.hh     \
-          ${srcdir}/i18n.hh
+hfiles := ${cppsrc}/application.hh      \
+          ${cppsrc}/controller.hh       \
+          ${cppsrc}/cmdline_options.hh  \
+          ${cppsrc}/config.hh           \
+          ${cppsrc}/rsvg_renderer.hh    \
+          ${cppsrc}/key_map.hh          \
+          ${cppsrc}/key_listener.hh     \
+          ${cppsrc}/mainwnd.hh          \
+          ${cppsrc}/score_widget.hh     \
+          ${cppsrc}/icon_manager.hh     \
+          ${cppsrc}/i18n.hh
 
 srcfiles := ${cfiles} ${hfiles}
 
@@ -140,39 +152,39 @@ ofiles := ${builddir}/main.o            \
           ${builddir}/score_widget.o    \
           ${builddir}/icon_manager.o
 
-distfiles := @srcdir@/AUTHORS     \
-             @srcdir@/configure   \
-             @srcdir@/install-sh  \
-             @srcdir@/LICENCE.pdf \
-             @srcdir@/Makefile.ac \
-             @srcdir@/README      \
-             @srcdir@/data        \
-             @srcdir@/src
+distfiles := ${srcdir}/AUTHORS     \
+             ${srcdir}/configure   \
+             ${srcdir}/install-sh  \
+             ${srcdir}/LICENCE.pdf \
+             ${srcdir}/Makefile.ac \
+             ${srcdir}/README      \
+             ${srcdir}/data        \
+             ${srcdir}/src
 
 # header dependency list
-deps_icon_manager_hh     := ${srcdir}/icon_manager.hh
-deps_rsvg_renderer_hh    := ${srcdir}/rsvg_renderer.hh
-deps_cmdline_options_hh  := ${srcdir}/cmdline_options.hh
-deps_config_hh           := ${srcdir}/config.hh
-deps_i18n_hh             := ${srcdir}/i18n.hh
-deps_key_map_hh          := ${srcdir}/key_map.hh
-deps_key_listener_hh     := ${srcdir}/key_listener.hh ${deps_key_map_hh}
-deps_controller_hh       := ${srcdir}/controller.hh ${deps_rsvg_renderer_hh} ${deps_key_listener_hh}
-deps_score_widget_hh     := ${srcdir}/score_widget.hh ${deps_controller_hh}
-deps_mainwnd_hh          := ${srcdir}/mainwnd.hh ${deps_score_widget_hh} ${deps_icon_manager_hh} ${deps_rsvg_renderer_hh}
-deps_application_hh      := ${srcdir}/application.hh ${deps_icon_manager_hh} ${deps_key_listener_hh} ${deps_mainwnd_hh}
+deps_icon_manager_hh     := ${cppsrc}/icon_manager.hh
+deps_rsvg_renderer_hh    := ${cppsrc}/rsvg_renderer.hh
+deps_cmdline_options_hh  := ${cppsrc}/cmdline_options.hh
+deps_config_hh           := ${cppsrc}/config.hh
+deps_i18n_hh             := ${cppsrc}/i18n.hh
+deps_key_map_hh          := ${cppsrc}/key_map.hh
+deps_key_listener_hh     := ${cppsrc}/key_listener.hh ${deps_key_map_hh}
+deps_controller_hh       := ${cppsrc}/controller.hh ${deps_rsvg_renderer_hh} ${deps_key_listener_hh}
+deps_score_widget_hh     := ${cppsrc}/score_widget.hh ${deps_controller_hh}
+deps_mainwnd_hh          := ${cppsrc}/mainwnd.hh ${deps_score_widget_hh} ${deps_icon_manager_hh} ${deps_rsvg_renderer_hh}
+deps_application_hh      := ${cppsrc}/application.hh ${deps_icon_manager_hh} ${deps_key_listener_hh} ${deps_mainwnd_hh}
 
-deps_main_cpp            := ${srcdir}/main.cpp ${application_hh}
-deps_application_cpp     := ${srcdir}/application.cpp ${deps_application_hh} ${deps_cmdline_options_hh} ${deps_controller_hh} ${deps_config_hh} ${deps_i18n_hh}
-deps_controller_cpp      := ${srcdir}/controller.cpp ${deps_controller_hh} ${deps_mainwnd_hh} ${deps_config_hh}
-deps_cmdline_options_cpp := ${srcdir}/cmdline_options.cpp ${deps_cmdline_options_hh} ${deps_i18n_hh} ${deps_config_hh}
-deps_config_cpp          := ${srcdir}/config.cpp ${deps_config_hh} ${deps_config_hh} @srcdir@/Makefile
-deps_rsvg_renderer_cpp   := ${srcdir}/rsvg_renderer.cpp ${deps_rsvg_renderer_hh} ${deps_i18n_hh}
-deps_key_map_cpp         := ${srcdir}/key_map.cpp ${deps_key_map_hh}
-deps_key_listener_cpp    := ${srcdir}/key_listener.cpp ${deps_key_listener_hh}
-deps_mainwnd_cpp         := ${srcdir}/mainwnd.cpp ${deps_mainwnd_hh} ${deps_config_hh} ${deps_i18n_hh}
-deps_score_widget_cpp    := ${srcdir}/score_widget.cpp ${deps_score_widget_hh}
-deps_icon_manager_cpp    := ${srcdir}/icon_manager.cpp ${deps_icon_manager_hh} ${deps_i18n_hh} ${deps_config_hh}
+deps_main_cpp            := ${cppsrc}/main.cpp ${application_hh}
+deps_application_cpp     := ${cppsrc}/application.cpp ${deps_application_hh} ${deps_cmdline_options_hh} ${deps_controller_hh} ${deps_config_hh} ${deps_i18n_hh}
+deps_controller_cpp      := ${cppsrc}/controller.cpp ${deps_controller_hh} ${deps_mainwnd_hh} ${deps_config_hh}
+deps_cmdline_options_cpp := ${cppsrc}/cmdline_options.cpp ${deps_cmdline_options_hh} ${deps_i18n_hh} ${deps_config_hh}
+deps_config_cpp          := ${cppsrc}/config.cpp ${deps_config_hh} ${deps_config_hh} ${srcdir}/Makefile
+deps_rsvg_renderer_cpp   := ${cppsrc}/rsvg_renderer.cpp ${deps_rsvg_renderer_hh} ${deps_i18n_hh}
+deps_key_map_cpp         := ${cppsrc}/key_map.cpp ${deps_key_map_hh}
+deps_key_listener_cpp    := ${cppsrc}/key_listener.cpp ${deps_key_listener_hh}
+deps_mainwnd_cpp         := ${cppsrc}/mainwnd.cpp ${deps_mainwnd_hh} ${deps_config_hh} ${deps_i18n_hh}
+deps_score_widget_cpp    := ${cppsrc}/score_widget.cpp ${deps_score_widget_hh}
+deps_icon_manager_cpp    := ${cppsrc}/icon_manager.cpp ${deps_icon_manager_hh} ${deps_i18n_hh} ${deps_config_hh}
 
 
 #
@@ -183,7 +195,7 @@ deps_icon_manager_cpp    := ${srcdir}/icon_manager.cpp ${deps_icon_manager_hh} $
         install install-bin install-data install-basedata                \
         install-icons install-appicons update-icon-cache install-desktop \
         uninstall uninstall-bin uninstall-data                           \
-        clean distclean help                                             \
+        clean distclean help configinfo                                  \
         dist dist-gzip dist-bzip2 dist-zip deb
 
 # compile
@@ -192,54 +204,63 @@ all: ${srcfiles} ${builddir} ${builddir}/${binfile}
 # install
 install: install-bin install-data
 
-install-bin: ${builddir} ${builddir}/${binfile} ${bindir}
+install-bin: ${builddir} ${builddir}/${binfile} ${DESTDIR}${bindir}
+	$(NORMAL_INSTALL)
 	@echo "Installing:     ${binfile}"
-	@${INSTALL} ${builddir}/${binfile} ${bindir}
+	@${INSTALL_PROGRAM} ${builddir}/${binfile} ${DESTDIR}${bindir}
 
 install-data: install-basedata install-icons install-appicons install-desktop
 
-install-basedata: ${datadir}
+install-basedata: ${DESTDIR}${datadir_pkg}
+	$(NORMAL_INSTALL)
 	@echo "Installing Data..."
 	@echo "  Installing:   logo.png"
-	@${INSTALLU} -t ${datadir} ${datasrc}/logo.png
+	@${INSTALL_DATA} -t ${DESTDIR}${datadir_pkg} ${datasrc}/logo.png
 	@echo "  Installing:   EUPL.txt"
-	@${INSTALLU} -t ${datadir} ${datasrc}/EUPL.txt
+	@${INSTALL_DATA} -t ${DESTDIR}${datadir_pkg} ${datasrc}/EUPL.txt
 	@echo "  Installing:   CC-BY-SA.pdf"
-	@${INSTALLU} -t ${datadir} ${datasrc}/CC-BY-SA.pdf
+	@${INSTALL_DATA} -t ${DESTDIR}${datadir_pkg} ${datasrc}/CC-BY-SA.pdf
 
-install-icons: ${icondir}
+install-icons: ${DESTDIR}${icondir}
+	$(NORMAL_INSTALL)
 	@echo "  Installing:   Icons (systemwide)"
-	@for size in ${iconsizes}; do                                       \
-	    if test ! -e ${icondir}/$${size}x$${size}; then                 \
-	        mkdir ${icondir}/$${size}x$${size};                         \
-	        mkdir ${icondir}/$${size}x$${size}/${iconctx};              \
-	    elif test ! -e ${icondir}/$${size}x$${size}/${iconctx}; then    \
-	        mkdir ${icondir}/$${size}x$${size}/${iconctx};              \
-	    fi;                                                             \
-	    for file in ${iconfiles}; do                                    \
-	        ${INSTALLU} -t ${icondir}/$${size}x$${size}/${iconctx} ${iconsrc}/$${size}x$${size}/$${file}; \
-	    done;                                                           \
+	@for size in ${iconsizes}; do                                              \
+	    if test ! -e ${DESTDIR}${icondir}/$${size}x$${size}; then              \
+	        mkdir ${DESTDIR}${icondir}/$${size}x$${size};                      \
+	        mkdir ${DESTDIR}${icondir}/$${size}x$${size}/${iconctx};           \
+	    elif test ! -e ${DESTDIR}${icondir}/$${size}x$${size}/${iconctx}; then \
+	        mkdir ${DESTDIR}${icondir}/$${size}x$${size}/${iconctx};           \
+	    fi;                                                                    \
+	    for file in ${iconfiles}; do                                           \
+	        ${INSTALL_DATA} -t ${DESTDIR}${icondir}/$${size}x$${size}/${iconctx} \
+	                           ${iconsrc}/$${size}x$${size}/$${file};          \
+	    done;                                                                  \
 	 done
 
-install-appicons: ${appicondir}
+install-appicons: ${DESTDIR}${appicondir}
+	$(NORMAL_INSTALL)
 	@echo "  Installing:   Icons (application specific)"
-	@for size in ${appiconsizes}; do                                    \
-	    if test ! -e ${appicondir}/$${size}x$${size}; then              \
-	        mkdir ${appicondir}/$${size}x$${size};                      \
-	        mkdir ${appicondir}/$${size}x$${size}/${iconctx};           \
-	    elif test ! -e ${appicondir}/$${size}x$${size}/${iconctx}; then \
-	        mkdir ${appicondir}/$${size}x$${size}/${iconctx};           \
-	    fi;                                                             \
-	    for file in ${appiconfiles}; do                                 \
-	        ${INSTALLU} -t ${appicondir}/$${size}x$${size}/${iconctx} ${iconsrc}/$${size}x$${size}/$${file}; \
-	    done;                                                           \
+	@for size in ${appiconsizes}; do                                                \
+	    if test ! -e ${DESTDIR}${appicondir}/$${size}x$${size}; then                \
+	        mkdir ${DESTDIR}${appicondir}/$${size}x$${size};                        \
+	        mkdir ${DESTDIR}${appicondir}/$${size}x$${size}/${iconctx};             \
+	    elif test ! -e ${DESTDIR}${appicondir}/$${size}x$${size}/${iconctx}; then   \
+	        mkdir ${DESTDIR}${appicondir}/$${size}x$${size}/${iconctx};             \
+	    fi;                                                                         \
+	    for file in ${appiconfiles}; do                                             \
+	        ${INSTALL_DATA} -t ${DESTDIR}${appicondir}/$${size}x$${size}/${iconctx} \
+	                           ${iconsrc}/$${size}x$${size}/$${file};               \
+	    done;                                                                       \
 	 done
 
 update-icon-cache:
-	gtk-update-icon-cache -f -t ${icondir}
+	$(POST_INSTALL)
+	gtk-update-icon-cache -f -t ${DESTDIR}${icondir}
+	gtk-update-icon-cache -f -t ${DESTDIR}${appicondir}
 
 # desktop integration
-${datasrc}/${desktopfile}: ${desktopac}
+${builddir}/${desktopfile}: ${desktopac}
+	$(PRE_INSTALL)
 	@echo "  Generating:   ${PACKAGE_TARNAME}.desktop"; \
 	_desktop_icon=${icondir}/${desktopiconsize}x${desktopiconsize}/${iconctx}/scorepress.png; \
 	_desktop_exec=${bindir}/${binfile};                 \
@@ -258,37 +279,39 @@ ${datasrc}/${desktopfile}: ${desktopac}
 	IFS=$$_IFS;                                         \
 	${SED} -e "s|@DESKTOP_ICON[@]|$$_desktop_icon|g"    \
 	       -e "s|@DESKTOP_EXEC[@]|$$_desktop_exec|g"    \
-	       < ${desktopac} > ${datasrc}/${desktopfile}
+	       < ${desktopac} > ${builddir}/${desktopfile}
 
-install-desktop: ${desktopdir} ${datasrc}/${desktopfile}
+install-desktop: ${DESTDIR}${desktopdir} ${builddir}/${desktopfile}
+	$(NORMAL_INSTALL)
 	@echo "  Installing:   Desktop Entry"
-	@${INSTALL} -t ${desktopdir} ${datasrc}/${desktopfile}
+	@${INSTALL} -t ${DESTDIR}${desktopdir} ${builddir}/${desktopfile}
 
 # uninstall
 uninstall: uninstall-bin uninstall-data
 
 uninstall-bin:
-	@test -f ${bindir}/${binfile} && echo "Removing:    ${binfile}" || :
-	@-rm -f ${bindir}/${binfile}
+	@test -f ${DESTDIR}${bindir}/${binfile} && echo "Removing:    ${binfile}" || :
+	@-rm -f ${DESTDIR}${bindir}/${binfile}
 
 uninstall-data:
 	@echo "Removing Data..."
 	@echo "  Removing:  Icons"
 	@for size in ${iconsizes}; do                                   \
 	    for file in ${iconfiles}; do                                \
-	        rm -f ${icondir}/$${size}x$${size}/${iconctx}/$${file}; \
+	        rm -f ${DESTDIR}${icondir}/$${size}x$${size}/${iconctx}/$${file}; \
 	    done;                                                       \
 	 done
-	@-rm -rf ${datadir}/icons
-	@test -f ${datadir}/logo.png && echo "  Removing:  logo.png" || :
-	@-rm -f ${datadir}/logo.png
-	@test -f ${desktopdir}/${desktopfile} && echo "  Removing:  Desktop Entry" || :
-	@-rm -f ${desktopdir}/${desktopfile}
-	@test -f ${datadir}/EUPL.txt && echo "  Removing:  EUPL.txt" || :
-	@-rm -f ${datadir}/EUPL.txt
-	@test -f ${datadir}/CC-BY-SA.pdf && echo "  Removing:  CC-BY-SA.pdf" || :
-	@-rm -f ${datadir}/CC-BY-SA.pdf
-	@test -d ${datadir} && (rmdir ${datadir} 2> /dev/null || echo "  WARNING: \"${datadir}\" is not empty") || :
+	@-rm -rf ${DESTDIR}${datadir_pkg}/icons
+	@test -f ${DESTDIR}${datadir_pkg}/logo.png && echo "  Removing:  logo.png" || :
+	@-rm -f ${DESTDIR}${datadir_pkg}/logo.png
+	@test -f ${DESTDIR}${desktopdir}/${desktopfile} && echo "  Removing:  Desktop Entry" || :
+	@-rm -f ${DESTDIR}${desktopdir}/${desktopfile}
+	@test -f ${DESTDIR}${datadir_pkg}/EUPL.txt && echo "  Removing:  EUPL.txt" || :
+	@-rm -f ${DESTDIR}${datadir_pkg}/EUPL.txt
+	@test -f ${DESTDIR}${datadir_pkg}/CC-BY-SA.pdf && echo "  Removing:  CC-BY-SA.pdf" || :
+	@-rm -f ${DESTDIR}${datadir_pkg}/CC-BY-SA.pdf
+	@test -d ${DESTDIR}${datadir_pkg} && (rmdir ${DESTDIR}${datadir_pkg} 2> /dev/null \
+	                                  || echo "  WARNING: \"${DESTDIR}${datadir_pkg}\" is not empty") || :
 
 # clean
 clean:
@@ -296,19 +319,82 @@ clean:
 	@echo "  Deleting:     object-files..."
 	@-rm -f  ${ofiles}
 	@-rm -f  ${builddir}/${binfile}
+	@-rm -f  ${builddir}/${desktopfile}
 	@echo "  Deleting:     build directory..."
 	@test -d ${builddir} && (rmdir ${builddir} 2> /dev/null || echo "  WARNING: \"${builddir}\" is not empty") || :
 
 distclean: clean
 	@echo "  Deleting:     configuration..."
-	@-rm -f ${srcdir}/config.hh
+	@-rm -f ${cppsrc}/config.hh
 	@-rm -f ${datasrc}/${desktopfile}
-	@-rm -f @srcdir@/config.log
-	@-rm -f @srcdir@/config.status
-	@-rm -f @srcdir@/Makefile
+	@-rm -f ${srcdir}/config.log
+	@-rm -f ${srcdir}/config.status
+	@-rm -f ${srcdir}/Makefile
 
+# user information
 help:
 	@echo "No Help Available"
+
+configinfo:
+	@echo "DIRECTORIES:"
+	@echo "  srcdir:      ${srcdir}"
+	@echo
+	@echo "  prefix:      ${prefix}"
+	@echo "  exec_prefix: ${exec_prefix}"
+	@echo "  datarootdir: ${datarootdir}"
+	@echo "  datadir:     ${datadir}"
+	@echo
+	@echo "  bindir:      ${bindir}"
+	@echo "  mandir:      ${mandir}"
+	@echo "  docdir:      ${docdir}"
+	@echo "  htmldir:     ${htmldir}"
+	@echo "  dvidir:      ${dvidir}"
+	@echo "  pdfdir:      ${pdfdir}"
+	@echo "  psdir:       ${psdir}"
+	@echo
+	@echo "COMPILER FLAGS:"
+	@if test -n "${USER_CFLAGS}";  then echo "  CFLAGS:   ${USER_CFLAGS}";  fi
+	@if test -n "${USER_LIBS}";    then echo "  LIBS:     ${USER_LIBS}";    fi
+	@if test -n "${USER_LDFLAGS}"; then echo "  LDFLAGS:  ${USER_LDFLAGS}"; fi
+	@if test -n "${USER_RPATH}";   then echo "  rpath:    ${USER_RPATH}";   fi
+	@echo
+	@echo "CONFIGURE OPTIONS:"
+	@if test "${MODE}" = "DEBUG";        then echo "  --enable-debug";   fi
+	@if test "${MODE}" = "PROFILE";      then echo "  --enable-profile"; fi
+	@if test -n "${USER_LIBSCOREPRESS}"; then echo "  --with-libscorepress=${USER_LIBSCOREPRESS}"; fi
+	@if test -n "${USER_LIBXML}";        then echo "  --with-libxml2=${USER_LIBXML}"; fi
+	@echo
+
+confargs := --srcdir=${srcdir}               \
+	        --prefix=${prefix}               \
+            --exec_prefix=${exec_prefix}     \
+            --datarootdir=${datarootdir}     \
+            --datadir=${datadir}             \
+            --bindir=${bindir}               \
+            --mandir=${mandir}               \
+            --docdir=${docdir}               \
+            --htmldir=${htmldir}             \
+            --dvidir=${dvidir}               \
+            --pdfdir=${pdfdir}               \
+            --psdir=${psdir}
+
+Makefile:
+	@echo -n "${confargs} " > /tmp/$$.confargs
+	@if test "${MODE}" = "DEBUG";   then echo -n "--enable-debug "   >> /tmp/$$.confargs; fi
+	@if test "${MODE}" = "PROFILE"; then echo -n "--enable-profile " >> /tmp/$$.confargs; fi
+	@if test -n "${USER_LIBXML}";   then echo -n "--with-libxml2=${USER_LIBXML} " >> /tmp/$$.confargs; fi
+	@if test -n "${USER_LIBSCOREPRESS}"; \
+	            then echo -n "--with-libscorepress=${USER_LIBSCOREPRESS} "     >> /tmp/$$.confargs; fi
+	@if test -n "${USER_RPATH}";    then echo -n "--with-rpath=${USER_RPATH} " >> /tmp/$$.confargs; fi
+	
+	@echo -n > /tmp/$$.envvars
+	@if test -n "${USER_CFLAGS}";  then echo -n "CFLAGS=${USER_CFLAGS} "   >> /tmp/$$.envvars; fi
+	@if test -n "${USER_LIBS}";    then echo -n "LIBS=${USER_LIBS} "       >> /tmp/$$.envvars; fi
+	@if test -n "${USER_LDFLAGS}"; then echo -n "LDFLAGS=${USER_LDFLAGS} " >> /tmp/$$.envvars; fi
+	
+	@echo "Running configure script..."
+	@(eval `cat /tmp/$$.envvars` ${srcdir}/configure `cat /tmp/$$.confargs`)
+
 
 # distributions
 dist: ${srcfiles} ${distdir}
@@ -327,10 +413,14 @@ dist-zip: ${srcfiles} dist
 deb: ${srcfiles}
 	@echo "Debian Packaging not implemented yet."
 
+
 # directories
-${builddir} ${bindir} ${datadir} ${distdir} ${icondir} ${appicondir} ${desktopdir}:
-#@echo "[[Creating directory:  $@]]"
-	@-mkdir -p $@ 2> /dev/null || echo "  ERROR: cannot create directory \"$@\""
+${DESTDIR} ${builddir} ${distdir}:
+	$(NORMAL_INSTALL)
+	@-mkdir -p $@ 2> /dev/null || echo "    ERROR: cannot create directory \"$@\""
+${DESTDIR}/%:
+	$(NORMAL_INSTALL)
+	@-mkdir -p $@ 2> /dev/null || echo "    ERROR: cannot create directory \"$@\""
 
 
 #
@@ -349,23 +439,23 @@ ${builddir}/${binfile}: ${srcfiles}
 
 ${builddir}/main.o:				${deps_main_cpp}
 								echo "  Compiling:    main.cpp..."
-								${CXX} -c ${srcdir}/main.cpp -o ${builddir}/main.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
+								${CXX} -c ${cppsrc}/main.cpp -o ${builddir}/main.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
 
 ${builddir}/application.o:		${deps_application_cpp}
 								echo "  Compiling:    application.cpp..."
-								${CXX} -c ${srcdir}/application.cpp -o ${builddir}/application.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
+								${CXX} -c ${cppsrc}/application.cpp -o ${builddir}/application.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
 
 ${builddir}/config.o:			${deps_config_cpp}
 								echo "  Compiling:    config.cpp..."
-								${CXX} -c ${srcdir}/config.cpp -o ${builddir}/config.o ${GTKFLAGS} ${PANGOFLAGS} ${RSVGFLAGS} ${XMLFLAGS} ${FLAGS} ${CONFIGFLAGS}
+								${CXX} -c ${cppsrc}/config.cpp -o ${builddir}/config.o ${GTKFLAGS} ${PANGOFLAGS} ${RSVGFLAGS} ${XMLFLAGS} ${FLAGS} ${CONFIGFLAGS}
 
 ${builddir}/controller.o:		${deps_controller_cpp}
 								echo "  Compiling:    controller.cpp..."
-								${CXX} -c ${srcdir}/controller.cpp -o ${builddir}/controller.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
+								${CXX} -c ${cppsrc}/controller.cpp -o ${builddir}/controller.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
 
 ${builddir}/cmdline_options.o:	${deps_cmdline_options_cpp}
 								echo "  Compiling:    cmdline_options.cpp..."
-								${CXX} -c ${srcdir}/cmdline_options.cpp -o ${builddir}/cmdline_options.o ${FLAGS}
+								${CXX} -c ${cppsrc}/cmdline_options.cpp -o ${builddir}/cmdline_options.o ${FLAGS}
 
 #
 # GRAPHICAL USER INTERFACE
@@ -373,25 +463,25 @@ ${builddir}/cmdline_options.o:	${deps_cmdline_options_cpp}
 
 ${builddir}/rsvg_renderer.o:	${deps_rsvg_renderer_cpp}
 								echo "  Compiling:    rsvg_renderer.cpp..."
-								${CXX} -c ${srcdir}/rsvg_renderer.cpp -o ${builddir}/rsvg_renderer.o ${PANGOFLAGS} ${RSVGFLAGS} ${XMLFLAGS} ${FLAGS}
+								${CXX} -c ${cppsrc}/rsvg_renderer.cpp -o ${builddir}/rsvg_renderer.o ${PANGOFLAGS} ${RSVGFLAGS} ${XMLFLAGS} ${FLAGS}
 
 ${builddir}/key_map.o:			${deps_key_map_cpp}
 								echo "  Compiling:    key_map.cpp..."
-								${CXX} -c ${srcdir}/key_map.cpp -o ${builddir}/key_map.o ${FLAGS}
+								${CXX} -c ${cppsrc}/key_map.cpp -o ${builddir}/key_map.o ${FLAGS}
 
 ${builddir}/key_listener.o:		${deps_key_listener_cpp}
 								echo "  Compiling:    key_listener.cpp..."
-								${CXX} -c ${srcdir}/key_listener.cpp -o ${builddir}/key_listener.o ${FLAGS}
+								${CXX} -c ${cppsrc}/key_listener.cpp -o ${builddir}/key_listener.o ${FLAGS}
 
 ${builddir}/mainwnd.o:			${deps_mainwnd_cpp}
 								echo "  Compiling:    mainwnd.cpp..."
-								${CXX} -c ${srcdir}/mainwnd.cpp -o ${builddir}/mainwnd.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
+								${CXX} -c ${cppsrc}/mainwnd.cpp -o ${builddir}/mainwnd.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
 
 ${builddir}/score_widget.o:		${deps_score_widget_cpp}
 								echo "  Compiling:    score_widget.cpp..."
-								${CXX} -c ${srcdir}/score_widget.cpp -o ${builddir}/score_widget.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
+								${CXX} -c ${cppsrc}/score_widget.cpp -o ${builddir}/score_widget.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
 
 ${builddir}/icon_manager.o:		${deps_icon_manager_cpp}
 								echo "  Compiling:    icon_manager.cpp..."
-								${CXX} -c ${srcdir}/icon_manager.cpp -o ${builddir}/icon_manager.o ${GTKFLAGS} ${FLAGS}
+								${CXX} -c ${cppsrc}/icon_manager.cpp -o ${builddir}/icon_manager.o ${GTKFLAGS} ${FLAGS}
 

@@ -32,6 +32,7 @@ extern const char* scorepress_datadir;
 extern const char* scorepress_icondir;
 extern const char* scorepress_appicondir;
 void print_library_info();
+void print_directory_info();
 
 #endif
 
