@@ -30,6 +30,7 @@ struct CmdlineOptions
         bool silent;
         bool debug;
         bool verbose;
+        std::string file;
     } log;
     
     struct cStdout

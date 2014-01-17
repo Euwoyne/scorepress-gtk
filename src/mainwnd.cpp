@@ -185,8 +185,8 @@ void MainWnd::setup_about_dialog()
     aboutDlg.set_comments(_("ScorePress is a WYSIWYG music typesetting program."));
     aboutDlg.set_license(licence);
     aboutDlg.set_license_type(Gtk::LICENSE_CUSTOM);
-    //aboutDlg.set_website("http://sourceforge.net/projects/scorepress");
-    //aboutDlg.set_website_label("Website");
+    aboutDlg.set_website("https://github.com/Euwoyne/scorepress-gtk");
+    aboutDlg.set_website_label("GitHub Repository");
     authors.push_back("Dominik Lehmann");
     authors.push_back("Gereon Kaiping");
     aboutDlg.set_authors(authors);

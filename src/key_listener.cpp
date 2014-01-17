@@ -37,7 +37,7 @@ KeyListener::KeyListener() : mode(NORMAL),
 static const std::string ids[57] = {
     "KEY_UP", "KEY_DOWN", "KEY_RIGHT", "KEY_LEFT", "KEY_HOME", "KEY_END",
     "KEY_NEWLINE", "KEY_PAGEBREAK", "KEY_NEWVOICE",
-    "KEY_DELETE",  "KEY_BACKSPACE", "KEY_DELVOICE",
+    "KEY_DELETE",  "KEY_BACKSPACE", "KEY_DELVOICE", "KEY_DELBREAK",
     "KEY_LONGA", "KEY_BREVE", "KEY_WHOLE", "KEY_HALF", "KEY_QUARTER", "KEY_EIGHTH",
                  "KEY_16TH",  "KEY_32TH",  "KEY_64TH", "KEY_128TH",
     "KEY_C", "KEY_D", "KEY_E", "KEY_F", "KEY_G", "KEY_A", "KEY_B", "KEY_REST",
@@ -71,11 +71,12 @@ void KeyListener::action_on(const ActionKey code, ScorePress::EditCursor& cursor
     case KEY_NEWLINE:   cursor.insert_newline();        break;
     case KEY_PAGEBREAK: cursor.insert_pagebreak();      break;
     case KEY_NEWVOICE:                                  break;
-    case KEY_DELETE:    if (cursor.at_end()) break;
+    case KEY_DELETE:    if (cursor.at_end())            break;
                         cursor.remove();                break;
-    case KEY_BACKSPACE: if (!cursor.has_prev()) break;
+    case KEY_BACKSPACE: if (!cursor.has_prev())         break;
                         cursor.prev(); cursor.remove(); break;
     case KEY_DELVOICE:  cursor.remove_voice();          break;
+    case KEY_DELBREAK:  cursor.remove_break();          break;
     
     // note value
     case KEY_LONGA:   note.exp = ScorePress::VALUE_BASE + 2; if (!insert_on_name) insert(cursor); break;

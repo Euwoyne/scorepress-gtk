@@ -42,7 +42,7 @@ class KeyMap
                     
                     // special action
                     KEY_NEWLINE, KEY_PAGEBREAK, KEY_NEWVOICE,
-                    KEY_DELETE,  KEY_BACKSPACE, KEY_DELVOICE,
+                    KEY_DELETE,  KEY_BACKSPACE, KEY_DELVOICE, KEY_DELBREAK,
                 
                     // note value
                     KEY_LONGA, KEY_BREVE, KEY_WHOLE, KEY_HALF, KEY_QUARTER, KEY_EIGHTH,

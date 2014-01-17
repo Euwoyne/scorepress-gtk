@@ -60,6 +60,7 @@ void ScorePressApp::on_activate()
     key_listener.assign(KeyMap::KEY_DELETE,    GDK_KEY_Delete);
     key_listener.assign(KeyMap::KEY_BACKSPACE, GDK_KEY_BackSpace);
     key_listener.assign(KeyMap::KEY_DELVOICE,  GDK_KEY_Delete, true);
+    key_listener.assign(KeyMap::KEY_DELBREAK,  GDK_KEY_BackSpace, true);
     
     key_listener.assign(KeyMap::KEY_LONGA,   GDK_KEY_0); key_listener.assign(KeyMap::KEY_LONGA,   GDK_KEY_KP_0);
     key_listener.assign(KeyMap::KEY_BREVE,   GDK_KEY_5); key_listener.assign(KeyMap::KEY_BREVE,   GDK_KEY_KP_5);
@@ -143,7 +144,7 @@ int ScorePressApp::on_command_line(const Glib::RefPtr<Gio::ApplicationCommandLin
     CmdlineOptions options;
     int argn = 0;
     char** argv = command_line->get_arguments(argn);
-    int ret = parse_cmdline(options, argn, argv) != 0;
+    int ret = parse_cmdline(options, argn, argv);
     if (ret != 0) return (ret < 0) ? ret : 0;
     
     try
@@ -154,10 +155,11 @@ int ScorePressApp::on_command_line(const Glib::RefPtr<Gio::ApplicationCommandLin
         log.echo_warn(!options.stdout.silent);
         log.echo_error(!options.stdout.silent);
         log.log_info(false);
-        log.log_debug(!options.log.silent && options.log.debug);
-        log.log_verbose(!options.log.silent && options.log.verbose);
-        log.log_warn(!options.log.silent);
-        log.log_error(!options.log.silent);
+        log.log_debug(options.log.debug);
+        log.log_verbose(options.log.verbose);
+        log.log_warn(true);
+        log.log_error(true);
+        log.open(options.log.file.c_str());
         
         if (options.files.empty())
         {

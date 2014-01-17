@@ -1,0 +1,7 @@
+scorepress-gtk - TODO List
+==========================
+
+  controller.cpp    file parsing
+  mainwnd.cpp       ask for save
+  score_widget.cpp  automatic scrolling on cursor movement
+
