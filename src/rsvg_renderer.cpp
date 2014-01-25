@@ -17,15 +17,32 @@
   permissions and limitations under the Licence.
 */
 
-#include <libxml/xmlreader.h>       // xmlReaderForMemory, ...
+#include <scorepress/file_format.hh>    // XMLSpritesetReader
+#include <libxml/xmlreader.h>           // xmlReaderForMemory, ...
+#include <cstring>                      // strlen
+#include <iostream>
 
-#include "rsvg_renderer.hh"     // RsvgRenderer
-#include "i18n.hh"              // _()
+#include "rsvg_renderer.hh"             // RsvgRenderer
+#include "i18n.hh"                      // _()
 
 #define STR_CAST(str)    reinterpret_cast<const xmlChar*>(str)
 #define XML_CAST(xmlstr) reinterpret_cast<const char*>(xmlstr)
 
-RSVGRenderer::RSVGRenderer(cairo_t* _drawingCtx) : libs(), drawingCtx(_drawingCtx), clipped(0), font_underline(false)
+// throwing function (general file error)
+void mythrow(const char* trns, const std::string& filename) throw(ScorePress::FileReader::IOException)
+{
+    char* msg = new char[strlen(trns) + filename.size() + 1];   // allocate memory
+    sprintf(msg, trns, filename.c_str());                       // assemble message
+    std::string s(msg);                                         // convert to string
+    delete[] msg;                                               // delete buffer
+    throw ScorePress::FileReader::IOException(s);               // throw message
+}
+
+// constructor
+RSVGRenderer::RSVGRenderer(cairo_t* _drawingCtx) : Renderer("RSVG Renderer", "image/svg+xml", "svg"),
+                                                   drawingCtx(_drawingCtx),
+                                                   clipped(0),
+                                                   font_underline(false)
 {
     text_layout = (drawingCtx != NULL) ? pango_cairo_create_layout(drawingCtx) : NULL;
     text_attributes = pango_attr_list_new();
@@ -36,84 +53,7 @@ RSVGRenderer::RSVGRenderer(cairo_t* _drawingCtx) : libs(), drawingCtx(_drawingCt
 #endif
 }
 
-void RSVGRenderer::load(const std::string& _filename) throw(Renderer::Error)
-{
-    const std::string filename = _filename.substr(_filename.rfind('/') + 1);
-    const xmlChar* tag = NULL;  // tag string
-    xmlChar* title = NULL;      // <title> content
-    xmlChar* desc = NULL;       // <desc> content
-    
-    // get title and desc
-    xmlTextReader* parser = NULL;   // parser instance
-    parser = xmlReaderForFile(_filename.c_str(), NULL, XML_PARSE_NOBLANKS | XML_PARSE_NOENT | XML_PARSE_NONET);
-    if (parser == NULL) mythrow(_("Unable to open file \"%s\""), _filename);
-    
-    
-    // run while the parser has got data
-    setlocale(LC_ALL, "C");         // set default locale (for parsing)
-    while (xmlTextReaderRead(parser) == 1)
-    {
-        // ignore <!DOCTYPE> and comments
-        if (xmlTextReaderNodeType(parser) == XML_READER_TYPE_DOCUMENT_TYPE) continue;
-        if (xmlTextReaderNodeType(parser) == XML_READER_TYPE_COMMENT) continue;
-        
-        tag = xmlTextReaderConstName(parser);   // get the current tag
-        
-        if (xmlTextReaderDepth(parser) == 1 && xmlStrEqual(tag, STR_CAST("title")) == 1 && title == NULL)
-            title = xmlNodeGetContent(xmlTextReaderCurrentNode(parser));
-        
-        if (xmlTextReaderDepth(parser) == 1 && xmlStrEqual(tag, STR_CAST("desc")) == 1 && desc == NULL)
-            desc = xmlNodeGetContent(xmlTextReaderCurrentNode(parser));
-    };
-    setlocale(LC_ALL, "");          // reset locale
-    xmlFreeTextReader(parser);      // delete parser instance
-    
-    if (title == NULL) {if (desc)  xmlFree(desc);  mythrow(_("Title missing (in file \"%s\")"), filename);};
-    if (desc  == NULL) {if (title) xmlFree(title); mythrow(_("Description missing (in file \"%s\")"), filename);};
-    
-    // create SVG handle
-    RsvgHandle* lib = rsvg_handle_new_from_file(_filename.c_str(), NULL);
-    if (!lib) mythrow(_("Unable to open file \"%s\""), _filename);
-    
-    // parse the sprite info
-    try
-    {
-        sprites.push_back(ScorePress::SpriteSet());
-        sprites.back().title = XML_CAST(title);
-        libs.push_back(lib);
-        setlocale(LC_ALL, "C");
-        parse(XML_CAST(desc), _filename, sprites.size() - 1);
-        setlocale(LC_ALL, "");
-    }
-    catch (Renderer::Error)
-    {
-        xmlFree(title);
-        xmlFree(desc);
-        g_object_unref(lib);
-        sprites.pop_back();
-        libs.pop_back();
-        setlocale(LC_ALL, "");
-        throw;
-    };
-    
-    // get dimensions
-    RsvgPositionData pos;
-    RsvgDimensionData dim;
-    RsvgDimensionData libdim;
-    rsvg_handle_get_dimensions(lib, &libdim);
-    for (ScorePress::SpriteSet::iterator i = sprites.back().begin(); i != sprites.back().end(); i++)
-    {
-        rsvg_handle_get_position_sub(lib, &pos, ("#" + i->path).c_str());
-        rsvg_handle_get_dimensions_sub(lib, &dim, ("#" + i->path).c_str());
-        if (dim.width != libdim.width || i->width == 0) i->width = dim.width + pos.x;
-        if (dim.height != libdim.height || i->height == 0) i->height = dim.height + pos.y;
-    };
-    
-    // cleanup
-    xmlFree(title);
-    xmlFree(desc);
-}
-
+// initialize rendering on given context
 void RSVGRenderer::begin(cairo_t* _drawingCtx)
 {
     if (text_layout) g_object_unref(text_layout);
@@ -121,6 +61,7 @@ void RSVGRenderer::begin(cairo_t* _drawingCtx)
     text_layout = pango_cairo_create_layout(drawingCtx);
 }
 
+// finalize rendering on current context
 void RSVGRenderer::end()
 {
     if (this->text_layout) g_object_unref(this->text_layout);
@@ -128,6 +69,7 @@ void RSVGRenderer::end()
     this->text_layout = NULL;
 }
 
+// remove sprite-set from sprites collection
 void RSVGRenderer::unload_set(const size_t setid)
 {
     clear_cache(setid);
@@ -136,6 +78,7 @@ void RSVGRenderer::unload_set(const size_t setid)
     sprites.erase(sprites.begin() + setid);
 }
 
+// erase image cache
 void RSVGRenderer::clear_cache()
 {
 #ifdef CAIRO_HAS_IMAGE_SURFACE
@@ -147,6 +90,7 @@ void RSVGRenderer::clear_cache()
 #endif
 }
 
+// erase sprites of given set from cache
 void RSVGRenderer::clear_cache(const size_t setid)
 {
 #ifdef CAIRO_HAS_IMAGE_SURFACE
@@ -161,6 +105,7 @@ void RSVGRenderer::clear_cache(const size_t setid)
 #endif
 }
 
+// enable/disable caching of image data
 bool RSVGRenderer::enable_cache(bool enable)
 {
 #ifdef CAIRO_HAS_IMAGE_SURFACE
@@ -169,6 +114,7 @@ bool RSVGRenderer::enable_cache(bool enable)
     return use_cache;
 }
 
+// destructor
 RSVGRenderer::~RSVGRenderer()
 {
     clear_cache();
@@ -179,10 +125,199 @@ RSVGRenderer::~RSVGRenderer()
         g_object_unref(*i);
 }
 
-bool RSVGRenderer::exist(const std::string& path, const size_t setid)
+void RSVGRenderer::load(xmlTextReader* parser, RsvgHandle* lib, const std::string& filename)
+{
+    // strip the filename of its path (for the use in error messages)
+    const std::string err_file = (filename.rfind('/') != std::string::npos) ?
+                                    filename.substr(filename.rfind('/') + 1) :
+                                    filename;
+    
+    // local temp data
+    const xmlChar* tag = NULL;  // tag string
+    xmlChar* title     = NULL;  // <title> content
+    xmlChar* desc      = NULL;  // <desc> content
+    
+    // get <title> and <desc>
+    setlocale(LC_ALL, "C");         // set default locale (for parsing)
+    while (xmlTextReaderRead(parser) == 1)
+    {
+        tag = xmlTextReaderConstName(parser);   // get the current tag
+        
+        if (xmlTextReaderDepth(parser) == 1 && xmlStrEqual(tag, STR_CAST("title")) == 1 && title == NULL)
+            title = xmlNodeGetContent(xmlTextReaderCurrentNode(parser));
+        
+        if (xmlTextReaderDepth(parser) == 1 && xmlStrEqual(tag, STR_CAST("desc")) == 1 && desc == NULL)
+            desc = xmlNodeGetContent(xmlTextReaderCurrentNode(parser));
+    };
+    setlocale(LC_ALL, "");          // reset locale
+    
+    // check title
+    if (title == NULL)
+    {
+        if (desc) xmlFree(desc);
+        mythrow(_("Title missing (in file \"%s\")"), err_file);
+    };
+    
+    // push rsvg handle
+    libs.push_back(lib);
+    
+    // create sprite info
+    sprites.push_back(ScorePress::SpriteSet()); // add new spriteset
+    sprites.back().title = XML_CAST(title);     // set title
+    
+    // parse the sprite info
+    try
+    {
+        // create parser
+        ScorePress::XMLSpritesetReader desc_parser;
+        
+        // if we have no spriteinfo
+        if (desc == NULL)
+        {
+            // try to open the XML-file which is named as the spriteset-file
+            std::string infofile(filename, 0, filename.rfind('/') + 1);     // extract the full path
+            if (err_file.rfind('.') != std::string::npos)                   // append filename
+                infofile.append(err_file, 0, err_file.rfind('.'));          //    without extension
+            else
+                infofile.append(err_file);
+            infofile.insert(0, "file://");                                  // insert protocol
+            infofile.append(".xml");                                        // append new extension
+            
+            // create parser
+            desc_parser.open(infofile.c_str());
+        }
+        
+        // if the spriteinfo is external
+        else if (strncmp(XML_CAST(desc), "file://", 7) == 0)
+        {
+            // try to open the external XML-file
+            std::string infofile(XML_CAST(desc));
+            if (desc[7] != '/' && filename.rfind('/') != std::string::npos) // interpret relative path
+                infofile.insert(7, filename, 0, filename.rfind('/') + 1);
+            
+            // create parser
+            desc_parser.open(infofile.c_str());
+        }
+        
+        // if the spriteinfo is within the description
+        else
+        {
+            // create parser for the description itself
+            desc_parser.open(XML_CAST(desc), ("file://" + filename).c_str());
+        };
+        
+        // parse description
+        setlocale(LC_ALL, "C");
+        desc_parser.parse_spriteset(sprites.back(), *this, sprites.size() - 1);
+        setlocale(LC_ALL, "");
+    }
+    catch (ScorePress::XMLFileReader::Error)
+    {
+        xmlFree(title);
+        xmlFree(desc);
+        sprites.pop_back();
+        setlocale(LC_ALL, "");
+        throw;
+    };
+    
+    // get dimensions
+    RsvgPositionData  pos;
+    RsvgDimensionData dim;
+    RsvgDimensionData libdim;
+    rsvg_handle_get_dimensions(lib, &libdim);
+    for (ScorePress::SpriteSet::iterator i = sprites.back().begin(); i != sprites.back().end(); i++)
+    {
+        rsvg_handle_get_position_sub(lib, &pos, ("#" + i->path).c_str());
+        rsvg_handle_get_dimensions_sub(lib, &dim, ("#" + i->path).c_str());
+        if (dim.width != libdim.width   || i->width == 0)  i->width  = dim.width  + pos.x;
+        if (dim.height != libdim.height || i->height == 0) i->height = dim.height + pos.y;
+    };
+    
+    // cleanup
+    xmlFree(title);
+    xmlFree(desc);
+}
+
+// add spriteset from file
+size_t RSVGRenderer::load(const char* data, const std::string& filename)
+{
+    // create XML parser
+    xmlTextReader* parser = xmlReaderForMemory(data, strlen(data), filename.c_str(), NULL, XML_PARSE_NOBLANKS | XML_PARSE_NOENT | XML_PARSE_NONET);
+    if (parser == NULL) throw IOException(_("Unable to read RSVG sprite-set from memory"));
+    
+    // create SVG handle
+    RsvgHandle* lib = rsvg_handle_new_from_data(reinterpret_cast<const guint8*>(data), strlen(data), NULL);
+    if (lib == NULL) throw IOException(_("Unable to read RSVG sprite-set from memory"));
+    
+    // process file
+    try
+    {
+        // load the spriteset
+        load(parser, lib, filename);
+        
+        // clean up and return
+        xmlFreeTextReader(parser);      // delete parser instance
+        return sprites.size() - 1;      // return index
+    }
+    catch (...)
+    {
+        // clean up and rethrow error
+        xmlFreeTextReader(parser);  // delete parser instance
+        g_object_unref(lib);        // delete SVG handle
+        throw;
+    };
+}
+
+// add spriteset from file
+size_t RSVGRenderer::load(const std::string& filename)
+{
+    // create XML parser
+    xmlTextReader* parser = xmlReaderForFile(filename.c_str(), NULL, XML_PARSE_NOBLANKS | XML_PARSE_NOENT | XML_PARSE_NONET);
+    if (parser == NULL) mythrow(_("Unable to open RSVG sprite-set \"%s\""), filename);
+    
+    // create SVG handle
+    RsvgHandle* lib = rsvg_handle_new_from_file(filename.c_str(), NULL);
+    if (lib == NULL) mythrow(_("Unable to open RSVG sprite-set \"%s\""), filename);
+    
+    // process file
+    try
+    {
+        // load the spriteset
+        load(parser, lib, filename);
+        
+        // clean up and return
+        xmlFreeTextReader(parser);      // delete parser instance
+        return sprites.size() - 1;      // return index
+    }
+    catch (...)
+    {
+        // clean up and rethrow error
+        xmlFreeTextReader(parser);  // delete parser instance
+        g_object_unref(lib);        // delete SVG handle
+        throw;
+    };
+}
+
+// is the object ready to render?
+bool RSVGRenderer::ready() const
+{
+    return (!libs.empty() && drawingCtx != NULL);
+}
+
+// does the path exist?
+bool RSVGRenderer::exist(const std::string& path) const
+{
+    for (std::vector<RsvgHandle*>::const_iterator lib = libs.begin(); lib != libs.end(); ++lib)
+        if (rsvg_handle_has_sub(*lib, ("#" + path).c_str())) return true;
+    return false;
+}
+
+// does the path exist in given sprite-set?
+bool RSVGRenderer::exist(const std::string& path, const size_t setid) const
 {
     return rsvg_handle_has_sub(libs[setid], ("#" + path).c_str());
 }
+
 
 #ifndef ABS
 #   define ABS(x) (((x)<0)?-(x):(x))    // should already be defined by glib-2.0, included by "rsvg-cairo"

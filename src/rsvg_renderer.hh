@@ -20,18 +20,27 @@
 #ifndef RSVG_RENDERER_HH
 #define RSVG_RENDERER_HH
 
-#include <vector>               // std::vector
-#include <librsvg/rsvg.h>       // RsvgHandle
+#include <vector>                    // std::vector
+#include <librsvg/rsvg.h>            // RsvgHandle
 #ifndef RSVG_CAIRO_H
-#   include <librsvg/rsvg-cairo.h> // cairo_t
+#   include <librsvg/rsvg-cairo.h>   // cairo_t
 #endif
-#include <pango/pangocairo.h>   // PangoLayout, PangoFontDescription
+#include <pango/pangocairo.h>        // PangoLayout, PangoFontDescription
 
-#include <scorepress/renderer.hh>  // Renderer, std::string, std::map
+#include <scorepress/renderer.hh>    // Renderer, std::string, std::map
+#include <scorepress/file_reader.hh> // FileReader::Error
 
+// libxml2 prototype
+struct _xmlTextReader;
+
+//
+//     class RSVGRenderer 
+//    ====================
+//
 class RSVGRenderer : public ScorePress::Renderer
 {
  private:
+    // image cache
 #ifdef CAIRO_HAS_IMAGE_SURFACE
     class CacheKey
     {
@@ -56,8 +65,11 @@ class RSVGRenderer : public ScorePress::Renderer
 #else
     static const bool use_cache = false;
 #endif
+    
+    // RGB font color structure
     struct FontColor {unsigned char r, g, b;};
     
+ private:
     std::vector<RsvgHandle*> libs;  // handles for the loaded sprite-set SVG files
     
     cairo_t*       drawingCtx;      // target drawing context
@@ -71,28 +83,30 @@ class RSVGRenderer : public ScorePress::Renderer
     bool                  font_underline;   // temporary font description (underline property)
     FontColor             font_color;       // temporary font description (color property)
     
+ private:   // helper function (common code for both "load" methods)
+    void load(_xmlTextReader* parser, RsvgHandle* lib, const std::string& filename);
+    
  public:
-    RSVGRenderer(cairo_t* drawingCtx = NULL);
+    RSVGRenderer(cairo_t* drawingCtx = NULL);   // constructor
     
-    void load(const std::string& filename) throw(ScorePress::Renderer::Error);
-    void begin(cairo_t* drawingCtx);
-    void end();
-    void unload_set(const size_t setid);
+    void begin(cairo_t* drawingCtx);            // initialize rendering on given context
+    void end();                                 // finalize rendering on current context
+    void unload_set(const size_t setid);        // remove sprite-set from sprites collection
     
-    void clear_cache();
-    void clear_cache(const size_t setid);
-    bool enable_cache(bool enable);
-    bool has_cache() {return use_cache;};
+    void clear_cache();                         // erase image cache
+    void clear_cache(const size_t setid);       // erase sprites of given set from cache
+    bool enable_cache(bool enable);             // enable/disable caching of image data (return actual status)
+    bool has_cache() {return use_cache;};       // return, if the cache is used
     
-    ~RSVGRenderer();
-    
- protected:
-    // path existance method
-    virtual bool exist(const std::string& path, const size_t setid);    // does the given path exist within the set?
+    ~RSVGRenderer();                            // destructor
     
  public:
     // renderer methods (to be implemented by actual renderer)
-    virtual bool ready() const {return (!libs.empty() && drawingCtx != NULL);}; // is the object ready to render?
+    virtual size_t load(const char* data, const std::string& filename);     // add spritest from memory
+    virtual size_t load(const std::string& filename);                       // add spriteset from file
+    virtual bool   ready() const;                                           // is the object ready to render?
+    virtual bool   exist(const std::string& path) const;                    // does the path exist?
+    virtual bool   exist(const std::string& path, const size_t setid) const;
     
     // sprite rendering
     virtual void draw_sprite(const ScorePress::SpriteId sprite_id, double x, double y);
