@@ -28,7 +28,7 @@
 #include <pango/pangocairo.h>        // PangoLayout, PangoFontDescription
 
 #include <scorepress/renderer.hh>    // Renderer, std::string, std::map
-#include <scorepress/file_reader.hh> // FileReader::Error
+#include <scorepress/file_format.hh> // SpritesetReader
 
 // libxml2 prototype
 struct _xmlTextReader;
@@ -40,6 +40,32 @@ struct _xmlTextReader;
 class RSVGRenderer : public ScorePress::Renderer
 {
  private:
+    // SVG spriteset parser
+    class RSVGSpritesetReader : public ScorePress::SpritesetReader
+    {
+     private:
+        _xmlTextReader* parser;
+        RsvgHandle*     lib;
+        std::string     filename;
+        
+     public:
+        // constructor
+        RSVGSpritesetReader();
+        
+        // virtual parser interface
+        virtual void open(const char* data, const std::string& filename);   // use memory for reading
+        virtual void open(const std::string& filename);     // open file for reading
+        virtual void close();                               // close file
+        
+        virtual bool is_open() const;                       // check if a file is opened
+        virtual const char* get_filename() const;           // return the filename (or NULL)
+        
+        virtual void parse_spriteset(ScorePress::SpriteSet&   target,   // sprite-set parser
+                                     ScorePress::Renderer&    renderer,
+                                     const size_t setid);
+    };
+    friend class RSVGSpritesetReader;
+    
     // image cache
 #ifdef CAIRO_HAS_IMAGE_SURFACE
     class CacheKey
@@ -72,6 +98,8 @@ class RSVGRenderer : public ScorePress::Renderer
  private:
     std::vector<RsvgHandle*> libs;  // handles for the loaded sprite-set SVG files
     
+    RSVGSpritesetReader filereader; // spriteset reader instance
+    
     cairo_t*       drawingCtx;      // target drawing context
     unsigned int   clipped;         // number of "clip" calls
     
@@ -102,11 +130,16 @@ class RSVGRenderer : public ScorePress::Renderer
     
  public:
     // renderer methods (to be implemented by actual renderer)
-    virtual size_t load(const char* data, const std::string& filename);     // add spritest from memory
-    virtual size_t load(const std::string& filename);                       // add spriteset from file
     virtual bool   ready() const;                                           // is the object ready to render?
     virtual bool   exist(const std::string& path) const;                    // does the path exist?
     virtual bool   exist(const std::string& path, const size_t setid) const;
+    
+    // sprite-set readers
+    typedef ScorePress::SpritesetReader SpritesetReader;
+    
+    virtual size_t    spriteset_format_count() const;           // number of supported formats
+    virtual ReaderPtr spriteset_reader(const size_t idx = 0);   // get file-reader for spriteset
+    virtual size_t    add_spriteset(ReaderPtr reader);          // read new spriteset from reader (returns index)
     
     // sprite rendering
     virtual void draw_sprite(const ScorePress::SpriteId sprite_id, double x, double y);

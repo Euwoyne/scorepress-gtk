@@ -100,7 +100,7 @@ DEBUG   := @DEBUG@
 PROFILE := @PROFILE@
 RELEASE := @RELEASE@
 
-CONFIGFLAGS  := -DDATADIR="\"${DESTDIR}${datadir_pkg}\"" -DICONDIR="\"${DESTDIR}${datadir}/icons\"" -DAPPICONDIR="\"${DESTDIR}${datadir_pkg}/icons\""
+CONFIGFLAGS  := -DDATADIR="\"${datadir_pkg}\"" -DICONDIR="\"${datadir}/icons\"" -DAPPICONDIR="\"${datadir_pkg}/icons\""
 USER_CFLAGS  := @CFLAGS@
 USER_FLAGS   := ${USER_CFLAGS} ${CFLAGS}
 USER_LIBS    := @LIBS@

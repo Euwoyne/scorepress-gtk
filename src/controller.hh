@@ -51,7 +51,6 @@ class Controller : public ScorePress::Logging
  public:
     // constructors
     Controller(MainWnd& window, KeyListener& keylistener);
-    Controller(MainWnd& window, KeyListener& keylistener, const std::string& sprite_file);
     
     // data access
     RSVGRenderer&           get_renderer();

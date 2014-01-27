@@ -81,8 +81,8 @@ bool ScoreWidget::on_button_press(GdkEventButton* evnt)
     catch (ScorePress::Cursor::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_button_press(): " << s << " (Cursor Error)\n";
     }
-    catch (ScorePress::Renderer::Error& s) {
-        std::cerr << "[ERROR] ScoreWidget::on_button_press(): " << s << " (Renderer Error)\n";
+    catch (ScorePress::FileReader::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_button_press(): " << s << " (File Reader Error)\n";
     }
     catch (ScorePress::Press::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_button_press(): " << s << " (Press Error)\n";
@@ -119,8 +119,8 @@ bool ScoreWidget::on_button_release(GdkEventButton* evnt)
     catch (ScorePress::Cursor::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_button_release(): " << s << " (Cursor Error)\n";
     }
-    catch (ScorePress::Renderer::Error& s) {
-        std::cerr << "[ERROR] ScoreWidget::on_button_release(): " << s << " (Renderer Error)\n";
+    catch (ScorePress::FileReader::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_button_release(): " << s << " (File Reader Error)\n";
     }
     catch (ScorePress::Press::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_button_release(): " << s << " (Press Error)\n";
@@ -161,8 +161,8 @@ bool ScoreWidget::on_key_press(GdkEventKey* evnt)
     catch (ScorePress::Cursor::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_key_press(): " << s << " (Cursor Error)\n";
     }
-    catch (ScorePress::Renderer::Error& s) {
-        std::cerr << "[ERROR] ScoreWidget::on_key_press(): " << s << " (Renderer Error)\n";
+    catch (ScorePress::FileReader::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_key_press(): " << s << " (File Reader Error)\n";
     }
     catch (ScorePress::Press::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_key_press(): " << s << " (Press Error)\n";
@@ -201,8 +201,8 @@ bool ScoreWidget::on_key_release(GdkEventKey* evnt)
     catch (ScorePress::Cursor::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_key_release(): " << s << " (Cursor Error)\n";
     }
-    catch (ScorePress::Renderer::Error& s) {
-        std::cerr << "[ERROR] ScoreWidget::on_key_release(): " << s << " (Renderer Error)\n";
+    catch (ScorePress::FileReader::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_key_release(): " << s << " (File Reader Error)\n";
     }
     catch (ScorePress::Press::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_key_release(): " << s << " (Press Error)\n";
@@ -244,8 +244,8 @@ bool ScoreWidget::on_blink()
     catch (ScorePress::Cursor::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_blink(): " << s << " (Cursor Error)\n";
     }
-    catch (ScorePress::Renderer::Error& s) {
-        std::cerr << "[ERROR] ScoreWidget::on_blink(): " << s << " (Renderer Error)\n";
+    catch (ScorePress::FileReader::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_blink(): " << s << " (File Reader Error)\n";
     }
     catch (ScorePress::Press::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_blink(): " << s << " (Press Error)\n";
@@ -286,8 +286,8 @@ bool ScoreWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& drawingCtx)
     catch (ScorePress::Cursor::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_draw(): " << s << " (Cursor Error)\n";
     }
-    catch (ScorePress::Renderer::Error& s) {
-        std::cerr << "[ERROR] ScoreWidget::on_draw(): " << s << " (Renderer Error)\n";
+    catch (ScorePress::FileReader::Error& s) {
+        std::cerr << "[ERROR] ScoreWidget::on_draw(): " << s << " (File Reader Error)\n";
     }
     catch (ScorePress::Press::Error& s) {
         std::cerr << "[ERROR] ScoreWidget::on_draw(): " << s << " (Press Error)\n";

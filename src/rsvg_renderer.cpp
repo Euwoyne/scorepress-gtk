@@ -35,12 +35,192 @@ void mythrow(const char* trns, const std::string& filename) throw(ScorePress::Fi
     sprintf(msg, trns, filename.c_str());                       // assemble message
     std::string s(msg);                                         // convert to string
     delete[] msg;                                               // delete buffer
-    throw ScorePress::FileReader::IOException(s);               // throw message
+    throw ScorePress::FileReader::Error(s);                     // throw message
+}
+
+// SVG spriteset parser
+RSVGRenderer::RSVGSpritesetReader::RSVGSpritesetReader() : ScorePress::FileReader("SVG Spriteset", "image/svg+xml", "svg"), ScorePress::SpritesetReader("SVG Spriteset", "image/svg+xml", "svg"), parser(NULL), lib(NULL) {}
+
+// use memory for reading
+void RSVGRenderer::RSVGSpritesetReader::open(const char* data, const std::string& _filename)
+{
+    // create XML parser
+    if (parser) xmlFreeTextReader(parser);
+    parser = xmlReaderForMemory(data, strlen(data), _filename.c_str(), NULL, XML_PARSE_NOBLANKS | XML_PARSE_NOENT | XML_PARSE_NONET);
+    if (parser == NULL) throw ScorePress::FileReader::IOException(_("Unable to read SVG sprite-set from memory"));
+    
+    // create SVG handle
+    if (lib) g_object_unref(lib);
+    lib = rsvg_handle_new_from_data(reinterpret_cast<const guint8*>(data), strlen(data), NULL);
+    if (lib == NULL) throw ScorePress::FileReader::IOException(_("Unable to read SVG sprite-set from memory"));
+    
+    // save filename
+    filename = _filename;
+}
+
+// open file for reading
+void RSVGRenderer::RSVGSpritesetReader::open(const std::string& _filename)
+{
+    // create XML parser
+    if (parser) xmlFreeTextReader(parser);
+    parser = xmlReaderForFile(_filename.c_str(), NULL, XML_PARSE_NOBLANKS | XML_PARSE_NOENT | XML_PARSE_NONET);
+    if (parser == NULL) mythrow(_("Unable to open RSVG sprite-set \"%s\""), _filename);
+    
+    // create SVG handle
+    if (lib) g_object_unref(lib);
+    lib = rsvg_handle_new_from_file(_filename.c_str(), NULL);
+    if (lib == NULL) mythrow(_("Unable to open RSVG sprite-set \"%s\""), _filename);
+    
+    // save filename
+    filename = _filename;
+}
+
+// close file
+void RSVGRenderer::RSVGSpritesetReader::close()
+{
+    if (!parser) return;        // do nothing, of no file is open
+    xmlFreeTextReader(parser);  // delete parser instance
+    parser = NULL;              // erase parser
+}
+
+// check if a file is opened
+bool RSVGRenderer::RSVGSpritesetReader::is_open() const
+{
+    return (parser != NULL);
+}
+
+// return the filename (or NULL)
+const char* RSVGRenderer::RSVGSpritesetReader::get_filename() const
+{
+    return (parser ? filename.c_str() : NULL);
+}
+
+// virtual parser interface
+void RSVGRenderer::RSVGSpritesetReader::parse_spriteset(ScorePress::SpriteSet& target, ScorePress::Renderer& _renderer, const size_t setid)
+{
+    // check, if a file is open
+    if (!parser)
+        throw ScorePress::FileReader::Error("FileReader has no open file (please call 'RSVGFileReader::open' first).");
+    
+    // cast the target renderer
+    RSVGRenderer& renderer(static_cast<RSVGRenderer&>(_renderer));
+    
+    // strip the filename of its path (for the use in error messages)
+    const std::string err_file = (filename.rfind('/') != std::string::npos) ?
+                                    filename.substr(filename.rfind('/') + 1) :
+                                    filename;
+    
+    // local temp data
+    const xmlChar* tag = NULL;  // tag string
+    xmlChar* title     = NULL;  // <title> content
+    xmlChar* desc      = NULL;  // <desc> content
+    
+    // get <title> and <desc>
+    setlocale(LC_ALL, "C");         // set default locale (for parsing)
+    while (xmlTextReaderRead(parser) == 1)
+    {
+        tag = xmlTextReaderConstName(parser);   // get the current tag
+        
+        if (xmlTextReaderDepth(parser) == 1 && xmlStrEqual(tag, STR_CAST("title")) == 1 && title == NULL)
+            title = xmlNodeGetContent(xmlTextReaderCurrentNode(parser));
+        
+        if (xmlTextReaderDepth(parser) == 1 && xmlStrEqual(tag, STR_CAST("desc")) == 1 && desc == NULL)
+            desc = xmlNodeGetContent(xmlTextReaderCurrentNode(parser));
+    };
+    setlocale(LC_ALL, "");          // reset locale
+    
+    // check title
+    if (title == NULL)
+    {
+        if (desc) xmlFree(desc);
+        mythrow(_("Title missing (in file \"%s\")"), err_file);
+    };
+    
+    // push rsvg handle
+    renderer.libs.push_back(lib);
+    
+    // parse the sprite info
+    try
+    {
+        // create parser
+        ScorePress::XMLSpritesetReader desc_parser;
+        
+        // if we have no spriteinfo
+        if (desc == NULL)
+        {
+            // try to open the XML-file which is named as the spriteset-file
+            std::string infofile(filename, 0, filename.rfind('/') + 1);     // extract the full path
+            if (err_file.rfind('.') != std::string::npos)                   // append filename
+                infofile.append(err_file, 0, err_file.rfind('.'));          //    without extension
+            else
+                infofile.append(err_file);
+            infofile.insert(0, "file://");                                  // insert protocol
+            infofile.append(".xml");                                        // append new extension
+            
+            // create parser
+            desc_parser.open(infofile.c_str());
+        }
+        
+        // if the spriteinfo is external
+        else if (strncmp(XML_CAST(desc), "file://", 7) == 0)
+        {
+            // try to open the external XML-file
+            std::string infofile(XML_CAST(desc));
+            if (desc[7] != '/' && filename.rfind('/') != std::string::npos) // interpret relative path
+                infofile.insert(7, filename, 0, filename.rfind('/') + 1);
+            
+            // create parser
+            desc_parser.open(infofile.c_str());
+        }
+        
+        // if the spriteinfo is within the description
+        else
+        {
+            // create parser for the description itself
+            desc_parser.open(XML_CAST(desc), ("file://" + filename).c_str());
+        };
+        
+        // parse description
+        setlocale(LC_ALL, "C");
+        desc_parser.parse_spriteset(target, renderer, setid);
+        setlocale(LC_ALL, "");
+    }
+    catch (ScorePress::XMLFileReader::Error)
+    {
+        renderer.libs.pop_back();
+        xmlFree(title);
+        xmlFree(desc);
+        xmlFreeTextReader(parser);
+        g_object_unref(lib);
+        parser = NULL;
+        lib = NULL;
+        setlocale(LC_ALL, "");
+        throw;
+    };
+    
+    // get dimensions
+    RsvgPositionData  pos;
+    RsvgDimensionData dim;
+    RsvgDimensionData libdim;
+    rsvg_handle_get_dimensions(lib, &libdim);
+    for (ScorePress::SpriteSet::iterator i = target.begin(); i != target.end(); i++)
+    {
+        rsvg_handle_get_position_sub(lib, &pos, ("#" + i->path).c_str());
+        rsvg_handle_get_dimensions_sub(lib, &dim, ("#" + i->path).c_str());
+        if (dim.width != libdim.width   || i->width == 0)  i->width  = dim.width  + pos.x;
+        if (dim.height != libdim.height || i->height == 0) i->height = dim.height + pos.y;
+    };
+    
+    // cleanup
+    xmlFree(title);
+    xmlFree(desc);
+    xmlFreeTextReader(parser);
+    parser = NULL;
+    lib = NULL;
 }
 
 // constructor
-RSVGRenderer::RSVGRenderer(cairo_t* _drawingCtx) : Renderer("RSVG Renderer", "image/svg+xml", "svg"),
-                                                   drawingCtx(_drawingCtx),
+RSVGRenderer::RSVGRenderer(cairo_t* _drawingCtx) : drawingCtx(_drawingCtx),
                                                    clipped(0),
                                                    font_underline(false)
 {
@@ -125,179 +305,6 @@ RSVGRenderer::~RSVGRenderer()
         g_object_unref(*i);
 }
 
-void RSVGRenderer::load(xmlTextReader* parser, RsvgHandle* lib, const std::string& filename)
-{
-    // strip the filename of its path (for the use in error messages)
-    const std::string err_file = (filename.rfind('/') != std::string::npos) ?
-                                    filename.substr(filename.rfind('/') + 1) :
-                                    filename;
-    
-    // local temp data
-    const xmlChar* tag = NULL;  // tag string
-    xmlChar* title     = NULL;  // <title> content
-    xmlChar* desc      = NULL;  // <desc> content
-    
-    // get <title> and <desc>
-    setlocale(LC_ALL, "C");         // set default locale (for parsing)
-    while (xmlTextReaderRead(parser) == 1)
-    {
-        tag = xmlTextReaderConstName(parser);   // get the current tag
-        
-        if (xmlTextReaderDepth(parser) == 1 && xmlStrEqual(tag, STR_CAST("title")) == 1 && title == NULL)
-            title = xmlNodeGetContent(xmlTextReaderCurrentNode(parser));
-        
-        if (xmlTextReaderDepth(parser) == 1 && xmlStrEqual(tag, STR_CAST("desc")) == 1 && desc == NULL)
-            desc = xmlNodeGetContent(xmlTextReaderCurrentNode(parser));
-    };
-    setlocale(LC_ALL, "");          // reset locale
-    
-    // check title
-    if (title == NULL)
-    {
-        if (desc) xmlFree(desc);
-        mythrow(_("Title missing (in file \"%s\")"), err_file);
-    };
-    
-    // push rsvg handle
-    libs.push_back(lib);
-    
-    // create sprite info
-    sprites.push_back(ScorePress::SpriteSet()); // add new spriteset
-    sprites.back().title = XML_CAST(title);     // set title
-    
-    // parse the sprite info
-    try
-    {
-        // create parser
-        ScorePress::XMLSpritesetReader desc_parser;
-        
-        // if we have no spriteinfo
-        if (desc == NULL)
-        {
-            // try to open the XML-file which is named as the spriteset-file
-            std::string infofile(filename, 0, filename.rfind('/') + 1);     // extract the full path
-            if (err_file.rfind('.') != std::string::npos)                   // append filename
-                infofile.append(err_file, 0, err_file.rfind('.'));          //    without extension
-            else
-                infofile.append(err_file);
-            infofile.insert(0, "file://");                                  // insert protocol
-            infofile.append(".xml");                                        // append new extension
-            
-            // create parser
-            desc_parser.open(infofile.c_str());
-        }
-        
-        // if the spriteinfo is external
-        else if (strncmp(XML_CAST(desc), "file://", 7) == 0)
-        {
-            // try to open the external XML-file
-            std::string infofile(XML_CAST(desc));
-            if (desc[7] != '/' && filename.rfind('/') != std::string::npos) // interpret relative path
-                infofile.insert(7, filename, 0, filename.rfind('/') + 1);
-            
-            // create parser
-            desc_parser.open(infofile.c_str());
-        }
-        
-        // if the spriteinfo is within the description
-        else
-        {
-            // create parser for the description itself
-            desc_parser.open(XML_CAST(desc), ("file://" + filename).c_str());
-        };
-        
-        // parse description
-        setlocale(LC_ALL, "C");
-        desc_parser.parse_spriteset(sprites.back(), *this, sprites.size() - 1);
-        setlocale(LC_ALL, "");
-    }
-    catch (ScorePress::XMLFileReader::Error)
-    {
-        xmlFree(title);
-        xmlFree(desc);
-        sprites.pop_back();
-        setlocale(LC_ALL, "");
-        throw;
-    };
-    
-    // get dimensions
-    RsvgPositionData  pos;
-    RsvgDimensionData dim;
-    RsvgDimensionData libdim;
-    rsvg_handle_get_dimensions(lib, &libdim);
-    for (ScorePress::SpriteSet::iterator i = sprites.back().begin(); i != sprites.back().end(); i++)
-    {
-        rsvg_handle_get_position_sub(lib, &pos, ("#" + i->path).c_str());
-        rsvg_handle_get_dimensions_sub(lib, &dim, ("#" + i->path).c_str());
-        if (dim.width != libdim.width   || i->width == 0)  i->width  = dim.width  + pos.x;
-        if (dim.height != libdim.height || i->height == 0) i->height = dim.height + pos.y;
-    };
-    
-    // cleanup
-    xmlFree(title);
-    xmlFree(desc);
-}
-
-// add spriteset from file
-size_t RSVGRenderer::load(const char* data, const std::string& filename)
-{
-    // create XML parser
-    xmlTextReader* parser = xmlReaderForMemory(data, strlen(data), filename.c_str(), NULL, XML_PARSE_NOBLANKS | XML_PARSE_NOENT | XML_PARSE_NONET);
-    if (parser == NULL) throw IOException(_("Unable to read RSVG sprite-set from memory"));
-    
-    // create SVG handle
-    RsvgHandle* lib = rsvg_handle_new_from_data(reinterpret_cast<const guint8*>(data), strlen(data), NULL);
-    if (lib == NULL) throw IOException(_("Unable to read RSVG sprite-set from memory"));
-    
-    // process file
-    try
-    {
-        // load the spriteset
-        load(parser, lib, filename);
-        
-        // clean up and return
-        xmlFreeTextReader(parser);      // delete parser instance
-        return sprites.size() - 1;      // return index
-    }
-    catch (...)
-    {
-        // clean up and rethrow error
-        xmlFreeTextReader(parser);  // delete parser instance
-        g_object_unref(lib);        // delete SVG handle
-        throw;
-    };
-}
-
-// add spriteset from file
-size_t RSVGRenderer::load(const std::string& filename)
-{
-    // create XML parser
-    xmlTextReader* parser = xmlReaderForFile(filename.c_str(), NULL, XML_PARSE_NOBLANKS | XML_PARSE_NOENT | XML_PARSE_NONET);
-    if (parser == NULL) mythrow(_("Unable to open RSVG sprite-set \"%s\""), filename);
-    
-    // create SVG handle
-    RsvgHandle* lib = rsvg_handle_new_from_file(filename.c_str(), NULL);
-    if (lib == NULL) mythrow(_("Unable to open RSVG sprite-set \"%s\""), filename);
-    
-    // process file
-    try
-    {
-        // load the spriteset
-        load(parser, lib, filename);
-        
-        // clean up and return
-        xmlFreeTextReader(parser);      // delete parser instance
-        return sprites.size() - 1;      // return index
-    }
-    catch (...)
-    {
-        // clean up and rethrow error
-        xmlFreeTextReader(parser);  // delete parser instance
-        g_object_unref(lib);        // delete SVG handle
-        throw;
-    };
-}
-
 // is the object ready to render?
 bool RSVGRenderer::ready() const
 {
@@ -316,6 +323,34 @@ bool RSVGRenderer::exist(const std::string& path) const
 bool RSVGRenderer::exist(const std::string& path, const size_t setid) const
 {
     return rsvg_handle_has_sub(libs[setid], ("#" + path).c_str());
+}
+
+// number of supported formats
+size_t RSVGRenderer::spriteset_format_count() const
+{
+    return 1;
+}
+
+// get file-reader for spriteset
+RSVGRenderer::ReaderPtr RSVGRenderer::spriteset_reader(const size_t)
+{
+    return ReaderPtr(new RSVGSpritesetReader());
+}
+
+// read new spriteset from reader (returns index)
+size_t RSVGRenderer::add_spriteset(ReaderPtr reader)
+{
+    sprites.push_back(ScorePress::SpriteSet());
+    try
+    {
+        reader->parse_spriteset(sprites.back(), *this, sprites.size() - 1);
+        return sprites.size() - 1;
+    }
+    catch (...)
+    {
+        sprites.pop_back();
+        throw;
+    };
 }
 
 

@@ -39,17 +39,9 @@ Controller::Controller(MainWnd& wnd, KeyListener& keys) : engine(document, rende
                                                           keylistener(keys),
                                                           window(wnd)
 {
-    renderer.load(std::string(libscorepress_datadir) += "/symbol/default.svg");
-    setup_engine();
-    cursor = &engine.get_cursor();
-    window.add_view(*this);
-}
-
-Controller::Controller(MainWnd& wnd, KeyListener& keys, const std::string& sprite_file) : engine(document, renderer.get_sprites()),
-                                                                                          keylistener(keys),
-                                                                                          window(wnd)
-{
-    renderer.load(sprite_file);
+    ScorePress::Renderer::ReaderPtr reader = renderer.spriteset_reader();
+    reader->open(std::string(libscorepress_datadir) += "/symbol/default.svg");
+    renderer.add_spriteset(reader);
     setup_engine();
     cursor = &engine.get_cursor();
     window.add_view(*this);
