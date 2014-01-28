@@ -622,6 +622,7 @@ ac_includes_default="\
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 CFLAGS
+RPATH
 EGREP
 GREP
 CXXCPP
@@ -649,6 +650,7 @@ INSTALL_SCRIPT
 INSTALL_PROGRAM
 CTRLFLAGS
 WARNINGS
+RPATHFLAG
 RELEASE
 PROFILE
 DEBUG
@@ -2265,6 +2267,8 @@ else
 fi
 
 
+MODE=RELEASE
+
 
 if test "x$with_debug" != "xno"; then :
   $as_echo "#define SCOREPRESS_DEBUG 1" >>confdefs.h
@@ -2273,9 +2277,6 @@ else
   $as_echo "#define SCOREPRESS_DEBUG 0" >>confdefs.h
 
 fi
-
-MODE=RELEASE
-
 if test "x$with_profile" != "xno"; then :
   MODE=PROFILE
 
@@ -2285,10 +2286,8 @@ if test "x$with_debug" != "xno"; then :
 
 fi
 
-if test "x$with_rpath" != "x"; then :
-  USER_RPATH=$with_rpath
+USER_RPATH=$with_rpath
 
-fi
 
 # check shell
 if test "x$SHELL" != "x"; then :
@@ -2892,6 +2891,12 @@ fi
 
     RELEASE="-O2"
 
+    if test "x$with_rpath" == "xno"; then :
+
+else
+  RPATHFLAG="-Wl,-rpath,"
+
+fi
     WARNINGS="-W                   \\
              -Wall                \\
              -Wextra              \\
@@ -3246,7 +3251,7 @@ elif test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $scorepress_pkg; echo $?` -eq 
 else
     LIBSCOREPRESS_CFLAGS=-I/usr/include/libscorepress
 
-    LIBSCOREPRESS_LIBS=-lscorepress -Wl,-R$libscorepress_path
+    LIBSCOREPRESS_LIBS=-lscorepress
 
 
 fi
@@ -4261,6 +4266,83 @@ if test "x$ac_cv_func_xmlReaderForMemory" = xyes; then :
 else
   as_fn_error $? "library 'libxml2' does not provide the 'xmlReader' interface" "$LINENO" 5
 fi
+
+
+# create rpath
+RPATH=
+if test -n "$RPATHFLAG"; then
+    buffer=$LIBSCOREPRESS_LIBS
+    for path in $buffer; do
+        path=$(expr "$path" : "-L\(.*\)")
+        if test -n "$path"; then
+            LIBSCOREPRESS_LIBS="$LIBSCOREPRESS_LIBS $RPATHFLAG$path"
+        fi
+    done
+    LIBSCOREPRESS_LIBS=$LIBSCOREPRESS_LIBS
+
+
+    buffer=$LIBGTKMM_LIBS
+    for path in $buffer; do
+        path=$(expr "$path" : "-L\(.*\)")
+        if test -n "$path"; then
+            LIBGTKMM_LIBS="$LIBGTKMM_LIBS $RPATHFLAG$path"
+        fi
+    done
+    LIBGTKMM_LIBS=$LIBGTKMM_LIBS
+
+
+    buffer=$LIBCAIROMM_LIBS
+    for path in $buffer; do
+        path=$(expr "$path" : "-L\(.*\)")
+        if test -n "$path"; then
+            LIBCAIROMM_LIBS="$LIBCAIROMM_LIBS $RPATHFLAG$path"
+        fi
+    done
+    LIBCAIROMM_LIBS=$LIBCAIROMM_LIBS
+
+
+    buffer=$LIBPANGO_LIBS
+    for path in $buffer; do
+        path=$(expr "$path" : "-L\(.*\)")
+        if test -n "$path"; then
+            LIBPANGO_LIBS="$LIBPANGO_LIBS $RPATHFLAG$path"
+        fi
+    done
+    LIBPANGO_LIBS=$LIBPANGO_LIBS
+
+
+    buffer=$LIBRSVG_LIBS
+    for path in $buffer; do
+        path=$(expr "$path" : "-L\(.*\)")
+        if test -n "$path"; then
+            LIBRSVG_LIBS="$LIBRSVG_LIBS $RPATHFLAG$path"
+        fi
+    done
+    LIBRSVG_LIBS=$LIBRSVG_LIBS
+
+
+    buffer=$LIBXML_LIBS
+    for path in $buffer $USER_LIBXML; do
+        path=$(expr "$path" : "-L\(.*\)")
+        if test -n "$path"; then
+            LIBXML_LIBS="$LIBXML_LIBS $RPATHFLAG$path"
+        fi
+    done
+    LIBXML_LIBS=$LIBXML_LIBS
+
+
+    if test "x$with_rpath" != "xno" -a "x$with_rpath" != "xyes" -a "x$with_rpath" != "x"; then
+        RPATH="$RPATHFLAG$with_rpath"
+    fi
+
+    for path in $LDFLAGS; do
+        path=$(expr "$path" : "-L\(.*\)")
+        if test -n "$path"; then
+            RPATH="$RPATH $RPATHFLAG$path"
+        fi
+    done
+fi
+RPATH=$RPATH
 
 
 # generate output

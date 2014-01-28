@@ -69,20 +69,17 @@ AC_ARG_WITH([rpath],
             [with_rpath="$withval"],
             [with_rpath=""])
 
-
-AS_IF([test "x$with_debug" != "xno"],
-    AC_DEFINE([SCOREPRESS_DEBUG], [1]),
-    AC_DEFINE([SCOREPRESS_DEBUG], [0]))
-
 AC_SUBST([MODE], [RELEASE])
-AS_IF([test "x$with_profile" != "xno"],
-    AC_SUBST([MODE], [PROFILE]))
-AS_IF([test "x$with_debug" != "xno"],
-    AC_SUBST([MODE], [DEBUG]))
 
-AS_IF([test "x$with_rpath" != "x"],
-    AC_SUBST([USER_RPATH], [$with_rpath]),
-    AC_SUBST([USER_RPATH], []))
+AS_IF([test "x$with_debug" != "xno"],
+      [AC_DEFINE([SCOREPRESS_DEBUG], [1])],
+      [AC_DEFINE([SCOREPRESS_DEBUG], [0])])
+AS_IF([test "x$with_profile" != "xno"],
+      [AC_SUBST([MODE], [PROFILE])])
+AS_IF([test "x$with_debug" != "xno"],
+      [AC_SUBST([MODE], [DEBUG])])
+
+AC_SUBST([USER_RPATH], [$with_rpath])
 
 # check shell
 AS_IF([test "x$SHELL" != "x"],
@@ -98,6 +95,9 @@ if test "x$CXX" = "xgcc" || test "x$CXX" = "xg++"; then
     AC_SUBST([DEBUG],      ["$DEBUG -fno-inline -Werror"])
     AC_SUBST([PROFILE],    ["-O2 -fno-omit-frame-pointer"])
     AC_SUBST([RELEASE],    ["-O2"])
+    AS_IF([test "x$with_rpath" == "xno"],
+        [AC_SUBST([RPATHFLAG],  [])],
+        [AC_SUBST([RPATHFLAG],  ["-Wl,-rpath,"])])
     AC_SUBST([WARNINGS],   ["-W                   \\
              -Wall                \\
              -Wextra              \\
@@ -153,7 +153,7 @@ elif test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $scorepress_pkg; echo $?` -eq 
     AC_SUBST([USER_LIBSCOREPRESS], [])
 else
     AC_SUBST([LIBSCOREPRESS_CFLAGS], [-I/usr/include/libscorepress])
-    AC_SUBST([LIBSCOREPRESS_LIBS], [-lscorepress -Wl,-R$libscorepress_path])
+    AC_SUBST([LIBSCOREPRESS_LIBS], [-lscorepress])
     AC_SUBST([USER_LIBSCOREPRESS], [])
 fi
 
@@ -274,6 +274,76 @@ LDFLAGS="$LDFLAGS_ORI $LIBXML_LIBS"
 LIBS="$LIBS_ORI $LIBXML_LIBS"
 AC_CHECK_FUNC([xmlReaderForFile],, AC_MSG_ERROR([library 'libxml2' does not provide the 'xmlReader' interface]))
 AC_CHECK_FUNC([xmlReaderForMemory],, AC_MSG_ERROR([library 'libxml2' does not provide the 'xmlReader' interface]))
+
+# create rpath
+RPATH=
+if test -n "$RPATHFLAG"; then
+    buffer=$LIBSCOREPRESS_LIBS
+    for path in $buffer; do
+        path=$(expr "$path" : "-L\(.*\)")
+        if test -n "$path"; then
+            LIBSCOREPRESS_LIBS="$LIBSCOREPRESS_LIBS $RPATHFLAG$path"
+        fi
+    done
+    AC_SUBST([LIBSCOREPRESS_LIBS], [$LIBSCOREPRESS_LIBS])
+    
+    buffer=$LIBGTKMM_LIBS
+    for path in $buffer; do
+        path=$(expr "$path" : "-L\(.*\)")
+        if test -n "$path"; then
+            LIBGTKMM_LIBS="$LIBGTKMM_LIBS $RPATHFLAG$path"
+        fi
+    done
+    AC_SUBST([LIBGTKMM_LIBS], [$LIBGTKMM_LIBS])
+    
+    buffer=$LIBCAIROMM_LIBS
+    for path in $buffer; do
+        path=$(expr "$path" : "-L\(.*\)")
+        if test -n "$path"; then
+            LIBCAIROMM_LIBS="$LIBCAIROMM_LIBS $RPATHFLAG$path"
+        fi
+    done
+    AC_SUBST([LIBCAIROMM_LIBS], [$LIBCAIROMM_LIBS])
+    
+    buffer=$LIBPANGO_LIBS
+    for path in $buffer; do
+        path=$(expr "$path" : "-L\(.*\)")
+        if test -n "$path"; then
+            LIBPANGO_LIBS="$LIBPANGO_LIBS $RPATHFLAG$path"
+        fi
+    done
+    AC_SUBST([LIBPANGO_LIBS], [$LIBPANGO_LIBS])
+    
+    buffer=$LIBRSVG_LIBS
+    for path in $buffer; do
+        path=$(expr "$path" : "-L\(.*\)")
+        if test -n "$path"; then
+            LIBRSVG_LIBS="$LIBRSVG_LIBS $RPATHFLAG$path"
+        fi
+    done
+    AC_SUBST([LIBRSVG_LIBS], [$LIBRSVG_LIBS])
+    
+    buffer=$LIBXML_LIBS
+    for path in $buffer $USER_LIBXML; do
+        path=$(expr "$path" : "-L\(.*\)")
+        if test -n "$path"; then
+            LIBXML_LIBS="$LIBXML_LIBS $RPATHFLAG$path"
+        fi
+    done
+    AC_SUBST([LIBXML_LIBS], [$LIBXML_LIBS])
+    
+    if test "x$with_rpath" != "xno" -a "x$with_rpath" != "xyes" -a "x$with_rpath" != "x"; then
+        RPATH="$RPATHFLAG$with_rpath"
+    fi
+    
+    for path in $LDFLAGS; do
+        path=$(expr "$path" : "-L\(.*\)")
+        if test -n "$path"; then
+            RPATH="$RPATH $RPATHFLAG$path"
+        fi
+    done
+fi
+AC_SUBST([RPATH], [$RPATH])
 
 # generate output
 AC_SUBST([CFLAGS],[$CFLAGS_ORI])

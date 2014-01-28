@@ -100,6 +100,9 @@ DEBUG   := @DEBUG@
 PROFILE := @PROFILE@
 RELEASE := @RELEASE@
 
+RPATHFLAG    := @RPATHFLAG@
+RPATH        := @RPATH@
+
 CONFIGFLAGS  := -DDATADIR="\"${datadir_pkg}\"" -DICONDIR="\"${datadir}/icons\"" -DAPPICONDIR="\"${datadir_pkg}/icons\""
 USER_CFLAGS  := @CFLAGS@
 USER_FLAGS   := ${USER_CFLAGS} ${CFLAGS}
@@ -111,7 +114,8 @@ USER_LIBSCOREPRESS := @USER_LIBSCOREPRESS@
 USER_LIBXML        := @USER_LIBXML@
 
 FLAGS := ${WARNINGS} ${CTRLFLAGS} ${${MODE}} -I${cppsrc} ${SCOREPRESSFLAGS} ${USER_CFLAGS}
-LIBS  := ${SCOREPRESSLIBS} ${GTKLIBS} ${CAIROLIBS} ${PANGOLIBS} ${RSVGLIBS} ${XMLLIBS} ${USER_LIBS} ${USER_LDFLAGS}
+LIBS  := ${SCOREPRESSLIBS} ${GTKLIBS} ${CAIROLIBS} ${PANGOLIBS} ${RSVGLIBS} ${XMLLIBS} \
+         ${USER_LIBS} ${USER_LDFLAGS} ${RPATH} ${RPATHFLAG}${USER_RPATH}
 
 # file lists
 cfiles := ${cppsrc}/main.cpp            \
@@ -262,17 +266,17 @@ update-icon-cache:
 ${builddir}/${desktopfile}: ${desktopac}
 	$(PRE_INSTALL)
 	@echo "  Generating:   ${PACKAGE_TARNAME}.desktop"; \
-	_desktop_icon=${icondir}/${desktopiconsize}x${desktopiconsize}/${iconctx}/scorepress.png; \
-	_desktop_exec=${bindir}/${binfile};                 \
+	_desktop_icon=${DESTDIR}${icondir}/${desktopiconsize}x${desktopiconsize}/${iconctx}/scorepress.png; \
+	_desktop_exec=${DESTDIR}${bindir}/${binfile};       \
 	IFS_ORI=$$IFS;                                      \
 	IFS=:;                                              \
 	for path in $$XDG_DATA_DIRS; do                     \
-	    if test "$(echo $$path | sed --posix 's|\/*$||g')" = "${datarootdir}"; then \
+	    if test "$(echo $$path | sed --posix 's|\/*$||g')" = "${DESTDIR}${datarootdir}"; then \
 	        _desktop_icon=scorepress;                   \
 	    fi;                                             \
 	done;                                               \
 	for path in $$PATH; do                              \
-	    if test "$(echo $$path | sed --posix 's|\/*$||g')" = "${bindir}"; then \
+	    if test "$(echo $$path | sed --posix 's|\/*$||g')" = "${DESTDIR}${bindir}"; then \
 	        _desktop_exec=${binfile};                   \
 	    fi;                                             \
 	done;                                               \
@@ -356,13 +360,13 @@ configinfo:
 	@if test -n "${USER_CFLAGS}";  then echo "  CFLAGS:   ${USER_CFLAGS}";  fi
 	@if test -n "${USER_LIBS}";    then echo "  LIBS:     ${USER_LIBS}";    fi
 	@if test -n "${USER_LDFLAGS}"; then echo "  LDFLAGS:  ${USER_LDFLAGS}"; fi
-	@if test -n "${USER_RPATH}";   then echo "  rpath:    ${USER_RPATH}";   fi
 	@echo
 	@echo "CONFIGURE OPTIONS:"
 	@if test "${MODE}" = "DEBUG";        then echo "  --enable-debug";   fi
 	@if test "${MODE}" = "PROFILE";      then echo "  --enable-profile"; fi
 	@if test -n "${USER_LIBSCOREPRESS}"; then echo "  --with-libscorepress=${USER_LIBSCOREPRESS}"; fi
 	@if test -n "${USER_LIBXML}";        then echo "  --with-libxml2=${USER_LIBXML}"; fi
+	@if test -n "${USER_RPATH}";         then echo "  --with-rpath=${USER_RPATH}";    fi
 	@echo
 
 confargs := --srcdir=${srcdir}               \
