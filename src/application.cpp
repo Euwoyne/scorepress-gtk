@@ -169,7 +169,6 @@ int ScorePressApp::on_command_line(const Glib::RefPtr<Gio::ApplicationCommandLin
                 add_tab(true);
             };
             controllers.back()->set_filename(get_next_unnamed());
-            controllers.back()->get_engine().get_document().meta.title = controllers.back()->get_filename();
             controllers.back()->change();
         };
         

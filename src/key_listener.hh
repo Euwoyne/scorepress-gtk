@@ -35,6 +35,8 @@ class KeyListener : public KeyMap
     bool head_input;        // flag for head-insert-mode
     bool got_home;          // just read KEY_HOME (consequent home-stoke results in movement to line-front)
     bool got_end;           // just read KEY_END  (consequent end-stoke results in movement to line-end)
+    bool got_octaveup;
+    bool got_octavedown;
     
  private:
     void insert(ScorePress::EditCursor& cursor);

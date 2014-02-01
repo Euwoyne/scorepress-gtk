@@ -181,7 +181,7 @@ void add1(Staff& staff, const Sprites& sprites, int toneoffset)
 {
     // main-voice notes
     add(staff, 5, 69 + toneoffset, 6);
-    static_cast<Chord&>(*staff.notes.back()).subvoice = RefPtr<SubVoice>(new SubVoice(&staff));
+    static_cast<Chord&>(*staff.notes.back()).subvoice = RefPtr<SubVoice>(new SubVoice(staff));
     SubVoice& subvoice = *static_cast<Chord&>(*staff.notes.back()).subvoice;
     subvoice.stem_direction = Voice::STEM_DOWNWARDS;
     static_cast<Chord&>(*staff.notes.back()).attached.push_back(MovablePtr(new Slur()));
@@ -218,7 +218,7 @@ void add2(Staff& staff, const Sprites& sprites, int toneoffset, int staffdist)
 {
     // main-voice notes
     add(staff, 5, 69 + toneoffset, 6);
-    static_cast<Chord&>(*staff.notes.back()).subvoice = RefPtr<SubVoice>(new SubVoice(&staff));
+    static_cast<Chord&>(*staff.notes.back()).subvoice = RefPtr<SubVoice>(new SubVoice(staff));
     SubVoice& subvoice = *static_cast<Chord&>(*staff.notes.back()).subvoice;
     subvoice.stem_direction = Voice::STEM_DOWNWARDS;
     add_head(staff, 71 + toneoffset);

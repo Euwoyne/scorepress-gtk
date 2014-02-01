@@ -30,7 +30,9 @@ void KeyListener::insert(ScorePress::EditCursor& cursor)
 KeyListener::KeyListener() : mode(NORMAL),
                              head_input(false),
                              got_home(false),
-                             got_end(false) {}
+                             got_end(false),
+                             got_octaveup(false),
+                             got_octavedown(false) {}
 
 //#include <iostream>
 /*
@@ -70,7 +72,7 @@ void KeyListener::action_on(const ActionKey code, ScorePress::EditCursor& cursor
     // special action
     case KEY_NEWLINE:   cursor.insert_newline();        break;
     case KEY_PAGEBREAK: cursor.insert_pagebreak();      break;
-    case KEY_NEWVOICE:                                  break;
+    case KEY_NEWVOICE:  cursor.add_voice();             break;
     case KEY_DELETE:    if (cursor.at_end())            break;
                         cursor.remove();                break;
     case KEY_BACKSPACE: if (!cursor.has_prev())         break;
@@ -112,9 +114,9 @@ void KeyListener::action_on(const ActionKey code, ScorePress::EditCursor& cursor
     case KEY_FLATANDAHALF:  note.accidental = ScorePress::Accidental::flat_andahalf; break;
     
     // octave modification
-    case KEY_8VA:
+    case KEY_8VA:        got_octaveup = true;
     case KEY_OCTAVEUP:   ++note.octave; break;
-    case KEY_8VAB:
+    case KEY_8VAB:       got_octavedown = true;
     case KEY_OCTAVEDOWN: --note.octave; break;
     
     // dot input
@@ -176,8 +178,14 @@ void KeyListener::action_off(const ActionKey code)
     switch (code)
     {
     // octave modification
-    case KEY_8VA:  --note.octave; break;
-    case KEY_8VAB: ++note.octave; break;
+    case KEY_8VA:  if (!got_octaveup) break;
+                   --note.octave;
+                   got_octaveup = false;
+                   break;
+    case KEY_8VAB: if (!got_octavedown) break;
+                   ++note.octave;
+                   got_octavedown = false;
+                   break;
     
     // note modification
     case KEY_STEMLENGTH: if (mode == STEMLENGTH_INPUT) mode = NORMAL; break;

@@ -190,6 +190,13 @@ bool ScoreWidget::on_key_release(GdkEventKey* evnt)
     {
         controller->key_release(KeyListener::Key(evnt->keyval, true));
         controller->key_release(KeyListener::Key(evnt->keyval, false));
+        if (evnt->state & GDK_SHIFT_MASK)
+        {
+            controller->key_release(KeyListener::Key(GDK_KEY_Shift_R, true));
+            controller->key_release(KeyListener::Key(GDK_KEY_Shift_R, false));
+            controller->key_release(KeyListener::Key(GDK_KEY_Shift_L, true));
+            controller->key_release(KeyListener::Key(GDK_KEY_Shift_L, false));
+        };
         this->get_window()->invalidate(false);
     }
     catch (ScorePress::Engine::Error& s) {

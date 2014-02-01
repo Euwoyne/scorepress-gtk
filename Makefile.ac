@@ -266,17 +266,17 @@ update-icon-cache:
 ${builddir}/${desktopfile}: ${desktopac}
 	$(PRE_INSTALL)
 	@echo "  Generating:   ${PACKAGE_TARNAME}.desktop"; \
-	_desktop_icon=${DESTDIR}${icondir}/${desktopiconsize}x${desktopiconsize}/${iconctx}/scorepress.png; \
-	_desktop_exec=${DESTDIR}${bindir}/${binfile};       \
+	_desktop_icon=${icondir}/${desktopiconsize}x${desktopiconsize}/${iconctx}/scorepress.png; \
+	_desktop_exec=${bindir}/${binfile};       \
 	IFS_ORI=$$IFS;                                      \
 	IFS=:;                                              \
 	for path in $$XDG_DATA_DIRS; do                     \
-	    if test "$(echo $$path | sed --posix 's|\/*$||g')" = "${DESTDIR}${datarootdir}"; then \
+	    if test "$(echo $$path | sed --posix 's|\/*$||g')" = "${datarootdir}"; then \
 	        _desktop_icon=scorepress;                   \
 	    fi;                                             \
 	done;                                               \
 	for path in $$PATH; do                              \
-	    if test "$(echo $$path | sed --posix 's|\/*$||g')" = "${DESTDIR}${bindir}"; then \
+	    if test "$(echo $$path | sed --posix 's|\/*$||g')" = "${bindir}"; then \
 	        _desktop_exec=${binfile};                   \
 	    fi;                                             \
 	done;                                               \

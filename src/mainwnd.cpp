@@ -210,7 +210,7 @@ void MainWnd::on_switch_tab(Gtk::Widget* page, guint)
         zoomScl->set_value(engine->get_press_parameters().scale / 50.0);
         
         // set window title
-        this->set_title(Glib::ustring(engine->get_document().meta.title) += " - ScorePress " SCOREPRESS_VERSION_STRING);
+        this->set_title(Glib::ustring(engine->get_document().meta.title) += " - ScorePress");
         
         // refresh menus
         static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/LineboundsMnu"))->set_active(
