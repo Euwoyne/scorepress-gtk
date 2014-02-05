@@ -4,28 +4,28 @@
 
 using namespace ScorePress;
 
-void add(MainVoice& voice, unsigned char exp, int tone, int stem_length, Chord::BeamType beam = Chord::NO_BEAM);
+void add(Staff& voice, unsigned char exp, int tone, int stem_length, Chord::BeamType beam = Chord::NO_BEAM);
 void add(SubVoice& voice, unsigned char exp, int tone, int stem_length, Chord::BeamType beam = Chord::NO_BEAM);
-void add(MainVoice& voice, unsigned char exp, int tone, int stem_length,
+void add(Staff& voice, unsigned char exp, int tone, int stem_length,
          int x1, int y1, int cx1, int cy1, int cx2, int cy2, int x2, int y2, Chord::BeamType beam = Chord::NO_BEAM);
 void add(SubVoice& voice, unsigned char exp, int tone, int stem_length,
          int x1, int y1, int cx1, int cy1, int cx2, int cy2, int x2, int y2, Chord::BeamType beam = Chord::NO_BEAM);
-void addr(MainVoice& voice, unsigned char exp, int offset_y = 0);
+void addr(Staff& voice, unsigned char exp, int offset_y = 0);
 void addr(SubVoice& voice, unsigned char exp, int offset_y = 0);
-void add_head(MainVoice& voice, int tone);
+void add_head(Staff& voice, int tone);
 void add_head(SubVoice& voice, int tone);
-void add_accidental(MainVoice& voice, Accidental::Type type, int offset_x);
+void add_accidental(Staff& voice, Accidental::Type type, int offset_x);
 void add_accidental(SubVoice& voice, Accidental::Type type, int offset_x);
-void add_articulation(MainVoice& voice, const SpriteId& sprite, int offset_y, bool far = false);
+void add_articulation(Staff& voice, const SpriteId& sprite, int offset_y, bool far = false);
 void add_articulation(SubVoice& voice, const SpriteId& sprite, int offset_y, bool far = false);
-void add_newline(MainVoice& voice, unsigned int distance, int indent = 0, int right_margin = 0, bool justify = false, bool force = false);
+void add_newline(Staff& voice, unsigned int distance, int indent = 0, int right_margin = 0, bool justify = false, bool force = false);
 void add_newline(SubVoice& voice, unsigned int distance, int indent = 0, int right_margin = 0, bool justify = false, bool force = false);
-void add_pagebreak(MainVoice& voice, unsigned int distance, int indent = 0, int right_margin = 0, bool justify = false, bool force = false);
+void add_pagebreak(Staff& voice, unsigned int distance, int indent = 0, int right_margin = 0, bool justify = false, bool force = false);
 void add_pagebreak(SubVoice& voice, unsigned int distance, int indent = 0, int right_margin = 0, bool justify = false, bool force = false);
 void add1(Staff& staff, const Sprites& sprites, int toneoffset = 0);
 void add2(Staff& staff, const Sprites& sprites, int toneoffset = 0, int staffdist = 0);
 
-void add(MainVoice& voice, unsigned char exp, int tone, int stem_length, Chord::BeamType beam)
+void add(Staff& voice, unsigned char exp, int tone, int stem_length, Chord::BeamType beam)
 {
     voice.notes.push_back(StaffObjectPtr(new Chord()));
     static_cast<Chord&>(*voice.notes.back()).val.exp = exp & 0x0F;
@@ -45,7 +45,7 @@ void add(SubVoice& voice, unsigned char exp, int tone, int stem_length, Chord::B
     static_cast<Chord&>(*voice.notes.back()).beam = beam;
 }
 
-void add(MainVoice& voice, unsigned char exp, int tone, int stem_length,
+void add(Staff& voice, unsigned char exp, int tone, int stem_length,
          int x1, int y1, int cx1, int cy1, int cx2, int cy2, int x2, int y2, Chord::BeamType beam)
 {
     voice.notes.push_back(StaffObjectPtr(new Chord()));
@@ -83,7 +83,7 @@ void add(SubVoice& voice, unsigned char exp, int tone, int stem_length,
     static_cast<Chord&>(*voice.notes.back()).beam = beam;
 }
 
-void addr(MainVoice& voice, unsigned char exp, int offset_y)
+void addr(Staff& voice, unsigned char exp, int offset_y)
 {
     voice.notes.push_back(StaffObjectPtr(new Rest()));
     static_cast<Rest&>(*voice.notes.back()).val.exp = exp & 0x0F;
@@ -97,7 +97,7 @@ void addr(SubVoice& voice, unsigned char exp, int offset_y)
     static_cast<Rest&>(*voice.notes.back()).offset_y = offset_y;
 }
 
-void add_head(MainVoice& voice, int tone)
+void add_head(Staff& voice, int tone)
 {
     static_cast<Chord&>(*voice.notes.back()).heads.push_back(HeadPtr(new Head()));
     static_cast<Chord&>(*voice.notes.back()).heads.back()->tone = static_cast<tone_t>(tone);
@@ -109,7 +109,7 @@ void add_head(SubVoice& voice, int tone)
     static_cast<Chord&>(*voice.notes.back()).heads.back()->tone = static_cast<tone_t>(tone);
 }
 
-void add_accidental(MainVoice& voice, Accidental::Type type, int offset_x)
+void add_accidental(Staff& voice, Accidental::Type type, int offset_x)
 {
     static_cast<Chord&>(*voice.notes.back()).heads.back()->accidental.type = type;
     static_cast<Chord&>(*voice.notes.back()).heads.back()->accidental.offset_x = offset_x;
@@ -121,7 +121,7 @@ void add_accidental(SubVoice& voice, Accidental::Type type, int offset_x)
     static_cast<Chord&>(*voice.notes.back()).heads.back()->accidental.offset_x = offset_x;
 }
 
-void add_articulation(MainVoice& voice, const SpriteId& sprite, int offset_y, bool far)
+void add_articulation(Staff& voice, const SpriteId& sprite, int offset_y, bool far)
 {
     static_cast<Chord&>(*voice.notes.back()).articulation.push_back(Articulation());
     static_cast<Chord&>(*voice.notes.back()).articulation.back().sprite = sprite;
@@ -137,7 +137,7 @@ void add_articulation(SubVoice& voice, const SpriteId& sprite, int offset_y, boo
     static_cast<Chord&>(*voice.notes.back()).articulation.back().far = far;
 }
 
-void add_newline(MainVoice& voice, unsigned int distance, int indent, int right_margin, bool justify, bool force)
+void add_newline(Staff& voice, unsigned int distance, int indent, int right_margin, bool justify, bool force)
 {
     voice.notes.push_back(StaffObjectPtr(new Newline()));
     static_cast<Newline&>(*voice.notes.back()).distance = distance;
@@ -157,7 +157,7 @@ void add_newline(SubVoice& voice, unsigned int distance, int indent, int right_m
     static_cast<Newline&>(*voice.notes.back()).forced_justification = force;
 }
 
-void add_pagebreak(MainVoice& voice, unsigned int distance, int indent, int right_margin, bool justify, bool force)
+void add_pagebreak(Staff& voice, unsigned int distance, int indent, int right_margin, bool justify, bool force)
 {
     voice.notes.push_back(StaffObjectPtr(new Pagebreak()));
     static_cast<Pagebreak&>(*voice.notes.back()).distance = distance;

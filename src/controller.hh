@@ -73,6 +73,7 @@ class Controller : public ScorePress::Logging
     // renderer interface
     void render_document(ScorePress::Position<ScorePress::mpx_t> offset);
     void render_cursor(ScorePress::Position<ScorePress::mpx_t> offset);
+    void render_selection(ScorePress::Position<ScorePress::mpx_t> offset);
     void reengrave();
     
     // open file
@@ -111,9 +112,10 @@ inline void                Controller::change(bool b)                     {chang
 inline unsigned int        Controller::layout_width() const  {return engine.layout_width(layout);}
 inline unsigned int        Controller::layout_height() const {return engine.layout_height(layout);}
 
-inline void                Controller::render_document(ScorePress::Position<ScorePress::mpx_t> offset) {engine.render_all(renderer, layout, offset, true);}
-inline void                Controller::render_cursor(ScorePress::Position<ScorePress::mpx_t> offset)   {engine.render_cursor(renderer, *cursor, layout, offset);}
-inline void                Controller::reengrave()                                                     {cursor->reengrave();}
+inline void                Controller::render_document(ScorePress::Position<ScorePress::mpx_t> offset)  {engine.render_all(renderer, layout, offset, true);}
+inline void                Controller::render_cursor(ScorePress::Position<ScorePress::mpx_t> offset)    {engine.render_cursor(renderer, *cursor, layout, offset);}
+inline void                Controller::render_selection(ScorePress::Position<ScorePress::mpx_t> offset) {engine.render_selection(renderer, layout, offset);}
+inline void                Controller::reengrave()                                                      {cursor->reengrave();}
 
 inline void Controller::key_press(const KeyMap::Key key)   {keylistener.press(key, *cursor);}
 inline void Controller::key_release(const KeyMap::Key key) {keylistener.release(key);}

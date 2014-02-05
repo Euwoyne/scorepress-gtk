@@ -586,6 +586,7 @@ void RSVGRenderer::rect_invert(double x1, double y1, double x2, double y2)
     cairo_line_to(drawingCtx, x2, y2);
     cairo_line_to(drawingCtx, x1, y2);
     cairo_fill(drawingCtx);
+    cairo_set_operator(drawingCtx, CAIRO_OPERATOR_OVER);
 }
 
 // render a cubic bézier curve

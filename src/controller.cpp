@@ -65,7 +65,11 @@ bool Controller::open(const Glib::RefPtr<Gio::File>& file)
 
 void Controller::mouse_on(double x, double y)
 {
-    cursor = &engine.get_cursor(ScorePress::Position<ScorePress::mpx_t>(static_cast<int>(x), static_cast<int>(y)), layout);
+    if (!engine.select_object(ScorePress::Position<ScorePress::mpx_t>(static_cast<int>(x), static_cast<int>(y)), layout))
+    {
+        engine.deselect_object();
+        cursor = &engine.get_cursor(ScorePress::Position<ScorePress::mpx_t>(static_cast<int>(x), static_cast<int>(y)), layout);
+    };
     window.refresh();
 }
 

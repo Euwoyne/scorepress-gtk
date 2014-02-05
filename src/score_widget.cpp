@@ -282,6 +282,7 @@ bool ScoreWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& drawingCtx)
         controller->render_document(offset);
         drawingCtx->set_antialias(Cairo::ANTIALIAS_NONE);
         controller->render_cursor(offset);
+        controller->render_selection(offset);
         controller->get_renderer().end();
     }
     catch (ScorePress::Engine::Error& s) {
