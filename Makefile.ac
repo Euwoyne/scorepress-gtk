@@ -475,7 +475,7 @@ ${builddir}/key_map.o:			${deps_key_map_cpp}
 
 ${builddir}/key_listener.o:		${deps_key_listener_cpp}
 								echo "  Compiling:    key_listener.cpp..."
-								${CXX} -c ${cppsrc}/key_listener.cpp -o ${builddir}/key_listener.o ${FLAGS}
+								${CXX} -c ${cppsrc}/key_listener.cpp -o ${builddir}/key_listener.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
 
 ${builddir}/mainwnd.o:			${deps_mainwnd_cpp}
 								echo "  Compiling:    mainwnd.cpp..."

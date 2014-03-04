@@ -150,13 +150,17 @@ class MainWnd : public Gtk::Window, public ScorePress::Logging
     bool refresh_label(Controller& ctrl);                   // refresh tab label
     bool select_view(Controller& ctrl);                     // show tab with given Controller
     bool select_view(int idx);                              // show tab with given index
+    
+    // ScorePress signal interface
+    void on_score_resize();     // score resize handler
+
 };
 
 
 // inline method implementations
 #include "controller.hh"
 
-inline void MainWnd::reengrave()         {controller->reengrave();}
+inline void MainWnd::reengrave()         {controller->reengrave_all();}
 inline void MainWnd::refresh()           {views.find(controller)->second->widget.refresh();}
 
 inline void MainWnd::menu_linebounds()   {controller->set_linebounds(get_linebounds());}
@@ -171,6 +175,8 @@ inline bool MainWnd::get_linebounds()    {return static_cast<Gtk::CheckMenuItem*
 inline bool MainWnd::get_attachbounds()  {return static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/AttachboundsMnu"))->get_active();}
 inline bool MainWnd::get_notebounds()    {return static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/NoteboundsMnu"))->get_active();}
 inline bool MainWnd::get_eovbounds()     {return static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/EOVboundsMnu"))->get_active();}
+
+inline void MainWnd::on_score_resize()   {views.find(controller)->second->widget.on_score_resize();}
 
 #endif
 

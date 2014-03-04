@@ -1,0 +1,32 @@
+ScorePress - Music Engraving Software  (scorepress-gtk)
+
+Copyright (C) 2014 Dominik Lehmann
+Licensed under the EUPL V.1.1
+
+
+The following libraries are used:
+
+libscorepress
+Copyright (C) 2014 Dominik Lehmann
+Licensed under the EUPL V.1.1
+
+libxml 2
+Copyright (C) by Daniel Veillard
+Licensed under the MIT License
+
+librsvg 2
+Copyright (C) 2000 Eazel, Inc.
+Licensed under the GNU Library General Public License (version 2 or later)
+
+libgtkmm 3
+Copyright (C) 1999-2002 The gtkmm Development Team
+Licensed under the GNU Library General Public License (version 2 or later)
+
+libcairomm
+Copyright (C) 2005 The cairomm Development Team
+Licensed under the GNU Library General Public License (version 2 or later)
+
+libpango
+Copyright (C) 1999 Red Hat Software
+Licensed under the GNU Library General Public License (version 2 or later)
+

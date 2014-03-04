@@ -233,8 +233,8 @@ void add2(Staff& staff, const Sprites& sprites, int toneoffset, int staffdist)
     add_accidental(staff, Accidental::sharp, 200);
     //*/
     add(staff, 5, 69 + toneoffset, 6, 0, -1100, 1500, -600, -800, -650, 0, -1100);
-    //add_newline(staff, staffdist, 0, 0, JUSTIFY, FORCE_JUSTIFY);
-    add_pagebreak(staff, staffdist, 0, 0, JUSTIFY, FORCE_JUSTIFY);
+    add_newline(staff, staffdist, 0, 0, JUSTIFY, FORCE_JUSTIFY);
+    //add_pagebreak(staff, staffdist, 0, 0, JUSTIFY, FORCE_JUSTIFY);
     
     // sub-voice notes
     addr(subvoice, 5, 3000);
@@ -264,8 +264,8 @@ void add2(Staff& staff, const Sprites& sprites, int toneoffset, int staffdist)
     add_accidental(subvoice, Accidental::natural, 0);
     add_head(subvoice, 67 + toneoffset);
     add_accidental(subvoice, Accidental::natural, 250);
-    //add_newline(subvoice, staffdist, 0, 0, JUSTIFY, FORCE_JUSTIFY);
-    add_pagebreak(subvoice, staffdist, 0, 0, JUSTIFY, FORCE_JUSTIFY);
+    add_newline(subvoice, staffdist, 0, 0, JUSTIFY, FORCE_JUSTIFY);
+    //add_pagebreak(subvoice, staffdist, 0, 0, JUSTIFY, FORCE_JUSTIFY);
 }
 
 void set_test(Document& document, const Sprites& sprites)

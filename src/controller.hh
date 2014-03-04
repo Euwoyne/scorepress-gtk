@@ -73,14 +73,19 @@ class Controller : public ScorePress::Logging
     // renderer interface
     void render_document(ScorePress::Position<ScorePress::mpx_t> offset);
     void render_cursor(ScorePress::Position<ScorePress::mpx_t> offset);
-    void render_selection(ScorePress::Position<ScorePress::mpx_t> offset);
+    void render_selection(ScorePress::Position<ScorePress::mpx_t> offset, ScorePress::Position<ScorePress::mpx_t> move_offset);
+    void render_selected(ScorePress::Position<ScorePress::mpx_t> offset, ScorePress::Position<ScorePress::mpx_t> move_offset);
     void reengrave();
+    void reengrave_all();
+    
+    // ScorePress signal interface
+    void on_score_resize();
     
     // open file
     bool open(const Glib::RefPtr<Gio::File>& file);
     
     // action listeners
-    void mouse_on(double x, double y);
+    bool mouse_on(double x, double y);
     void mouse_off(double x, double y);
     void key_press(const KeyMap::Key key);
     void key_release(const KeyMap::Key key);
@@ -102,22 +107,30 @@ inline ScorePress::Engine&     Controller::get_engine()        {return engine;}
 inline ScorePress::EditCursor& Controller::get_cursor()        {return *cursor;}
 inline MainWnd&                Controller::get_window()        {return window;}
 
-inline const std::string&  Controller::get_filename() const               {return filename;}
-inline const std::string&  Controller::get_filepath() const               {return filepath;}
-inline void                Controller::set_filepath(const std::string& s) {filepath = s;}
-inline bool                Controller::is_new() const                     {return filepath.empty();}
-inline bool                Controller::is_changed() const                 {return changed;}
-inline void                Controller::change(bool b)                     {changed = b;}
+inline const std::string& Controller::get_filename() const               {return filename;}
+inline const std::string& Controller::get_filepath() const               {return filepath;}
+inline void               Controller::set_filepath(const std::string& s) {filepath = s;}
+inline bool               Controller::is_new() const                     {return filepath.empty();}
+inline bool               Controller::is_changed() const                 {return changed;}
+inline void               Controller::change(bool b)                     {changed = b;}
 
-inline unsigned int        Controller::layout_width() const  {return engine.layout_width(layout);}
-inline unsigned int        Controller::layout_height() const {return engine.layout_height(layout);}
+inline unsigned int Controller::layout_width() const  {return engine.layout_width(layout);}
+inline unsigned int Controller::layout_height() const {return engine.layout_height(layout);}
 
-inline void                Controller::render_document(ScorePress::Position<ScorePress::mpx_t> offset)  {engine.render_all(renderer, layout, offset, true);}
-inline void                Controller::render_cursor(ScorePress::Position<ScorePress::mpx_t> offset)    {engine.render_cursor(renderer, *cursor, layout, offset);}
-inline void                Controller::render_selection(ScorePress::Position<ScorePress::mpx_t> offset) {engine.render_selection(renderer, layout, offset);}
-inline void                Controller::reengrave()                                                      {cursor->reengrave();}
+inline void Controller::render_document(ScorePress::Position<ScorePress::mpx_t> offset)  {engine.render_all(renderer, layout, offset, true);}
+inline void Controller::render_cursor(ScorePress::Position<ScorePress::mpx_t> offset)    {engine.render_cursor(renderer, *cursor, layout, offset);}
 
-inline void Controller::key_press(const KeyMap::Key key)   {keylistener.press(key, *cursor);}
+inline void Controller::render_selection(ScorePress::Position<ScorePress::mpx_t> offset, ScorePress::Position<ScorePress::mpx_t> move_offset) {
+    engine.render_selection(renderer, layout, offset, move_offset);}
+
+inline void Controller::render_selected(ScorePress::Position<ScorePress::mpx_t> offset, ScorePress::Position<ScorePress::mpx_t> move_offset)  {
+    engine.render_object(renderer, engine.selected_object(), layout, offset + move_offset);}
+
+
+inline void Controller::reengrave()                                                      {engine.reengrave(*cursor);}
+inline void Controller::reengrave_all()                                                  {engine.reengrave();}
+
+inline void Controller::key_press(const KeyMap::Key key)   {keylistener.press(key, *this);}
 inline void Controller::key_release(const KeyMap::Key key) {keylistener.release(key);}
 
 #endif

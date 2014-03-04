@@ -28,8 +28,18 @@
 class ScoreWidget : public Gtk::DrawingArea
 {
  private:
-    Controller* controller;             // corresponding controller
-    clock_t     t;
+    struct MoveInfo
+    {
+        gdouble                                 x, y;   // start of movement
+        bool                                    rdy;    // move ready
+        bool                                    ack;    // move acknowledged
+        ScorePress::Position<ScorePress::mpx_t> offset; // current position offset
+    };
+    
+ private:
+    Controller*  controller;    // corresponding controller
+    clock_t      t;             // timing reference point
+    MoveInfo     move;          // object move info
     
  public:
     ScorePress::Position<ScorePress::mpx_t> margin; // margin around the page (i.e. minimal offset)
@@ -44,22 +54,25 @@ class ScoreWidget : public Gtk::DrawingArea
     void center(unsigned int width);    // center the score on the widget
     
     // signal handlers
-    virtual bool on_button_press(GdkEventButton* event);
-    virtual bool on_button_release(GdkEventButton* event);
+    bool on_draw(const Cairo::RefPtr<Cairo::Context>& context);
+    bool on_blink();
+    void on_score_resize();
     
-    virtual bool on_key_press(GdkEventKey* event);
-    virtual bool on_key_release(GdkEventKey* event);
+    bool on_button_press(GdkEventButton* event);
+    bool on_button_release(GdkEventButton* event);
+    bool on_motion_notify(GdkEventMotion* event);
     
-    virtual bool on_blink();
-    virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>& context);
+    bool on_key_press(GdkEventKey* event);
+    bool on_key_release(GdkEventKey* event);
 };
 
 
 // inline method implementations
 #include "controller.hh"
 
-inline Controller& ScoreWidget::get_controller() {return *controller;}
-inline void        ScoreWidget::refresh()        {get_window()->invalidate(false);}
+inline Controller& ScoreWidget::get_controller()  {return *controller;}
+inline void        ScoreWidget::refresh()         {get_window()->invalidate(false);}
+inline void        ScoreWidget::on_score_resize() {center(get_allocated_width());}
 
 #endif
 

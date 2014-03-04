@@ -53,6 +53,11 @@ void Controller::set_filename(const std::string& s)
     window.refresh_label(*this);
 }
 
+void Controller::on_score_resize()
+{
+    window.on_score_resize();
+}
+
 #include <iostream>
 bool Controller::open(const Glib::RefPtr<Gio::File>& file)
 {
@@ -63,14 +68,17 @@ bool Controller::open(const Glib::RefPtr<Gio::File>& file)
     return true;
 }
 
-void Controller::mouse_on(double x, double y)
+bool Controller::mouse_on(double x, double y)
 {
     if (!engine.select_object(ScorePress::Position<ScorePress::mpx_t>(static_cast<int>(x), static_cast<int>(y)), layout))
     {
         engine.deselect_object();
         cursor = &engine.get_cursor(ScorePress::Position<ScorePress::mpx_t>(static_cast<int>(x), static_cast<int>(y)), layout);
+        window.refresh();
+        return false;
     };
     window.refresh();
+    return true;
 }
 
 void Controller::mouse_off(double, double)

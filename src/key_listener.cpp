@@ -18,11 +18,14 @@
 */
 
 #include "key_listener.hh"
+#include "controller.hh"
 
-void KeyListener::insert(ScorePress::EditCursor& cursor)
+void KeyListener::insert(Controller& controller)
 {
-    if (head_input) cursor.insert_head(note);
-    else            cursor.insert(note);
+    if (head_input) controller.get_cursor().insert_head(note);
+    else            controller.get_cursor().insert(note);
+    controller.reengrave();
+    controller.get_cursor().next();
     note.dots = 0;
     note.accidental = ScorePress::Accidental::natural;
 }
@@ -34,40 +37,23 @@ KeyListener::KeyListener() : mode(NORMAL),
                              got_octaveup(false),
                              got_octavedown(false) {}
 
-//#include <iostream>
-/*
-static const std::string ids[57] = {
-    "KEY_UP", "KEY_DOWN", "KEY_RIGHT", "KEY_LEFT", "KEY_HOME", "KEY_END",
-    "KEY_NEWLINE", "KEY_PAGEBREAK", "KEY_NEWVOICE",
-    "KEY_DELETE",  "KEY_BACKSPACE", "KEY_DELVOICE", "KEY_DELBREAK",
-    "KEY_LONGA", "KEY_BREVE", "KEY_WHOLE", "KEY_HALF", "KEY_QUARTER", "KEY_EIGHTH",
-                 "KEY_16TH",  "KEY_32TH",  "KEY_64TH", "KEY_128TH",
-    "KEY_C", "KEY_D", "KEY_E", "KEY_F", "KEY_G", "KEY_A", "KEY_B", "KEY_REST",
-    "KEY_SHARP",  "KEY_FLAT",  "KEY_DOUBLESHARP",    "KEY_DOUBLEFLAT",
-                               "KEY_HALFSHARP",      "KEY_HALFFLAT",
-                               "KEY_SHARPANDAHALF",  "KEY_FLATANDAHALF",
-    "KEY_8VA", "KEY_8VAB", "KEY_OCTAVEUP", "KEY_OCTAVEDOWN",
-    "KEY_DOT", "KEY_2DOT", "KEY_NDOT",
-    "KEY_STEMLENGTH", "KEY_STEMDIR", "KEY_CHROMATIC", "KEY_MOVE", "KEY_ACCMOVE", "KEY_STAFFSHIFT",
-    "KEY_NOBEAM", "KEY_AUTOBEAM", "KEY_FORCEBEAM", "KEY_CUTBEAM",
-    "KEY_HEAD_MODE", "__COUNT__"};
-//*/
-
-void KeyListener::action_on(const ActionKey code, ScorePress::EditCursor& cursor)
+void KeyListener::action_on(const ActionKey code, Controller& controller)
 {
-    //std::cout << ids[code] << "\n";
+    ScorePress::EditCursor& cursor = controller.get_cursor();
     
     switch (code)
     {
     // cursor movement
     case KEY_UP:    if      (cursor.has_prev_voice()) cursor.prev_voice();
-                    else if (cursor.has_prev_line())  cursor.prev_line();  break;
+                    else if (cursor.has_prev_line())  cursor.prev_line();  return;
     case KEY_DOWN:  if      (cursor.has_next_voice()) cursor.next_voice();
-                    else if (cursor.has_next_line())  cursor.next_line();  break;
-    case KEY_RIGHT: if      (!cursor.at_end())        cursor.next();       break;
-    case KEY_LEFT:  if      (cursor.has_prev())       cursor.prev();       break;
-    case KEY_HOME:  if (got_home) cursor.home(); else cursor.home_voice(); break;
-    case KEY_END:   if (got_end)  cursor.end();  else cursor.end_voice();  break;
+                    else if (cursor.has_next_line())  cursor.next_line();  return;
+    case KEY_RIGHT: if      (!cursor.at_end())        cursor.next();       return;
+    case KEY_LEFT:  if      (cursor.has_prev())       cursor.prev();       return;
+    case KEY_HOME:  if (got_home) cursor.home(); else cursor.home_voice();
+                    got_home = false;                                      return;
+    case KEY_END:   if (got_end)  cursor.end();  else cursor.end_voice(); 
+                    got_end  = false;                                      return;
     
     // special action
     case KEY_NEWLINE:   cursor.insert_newline();        break;
@@ -81,56 +67,56 @@ void KeyListener::action_on(const ActionKey code, ScorePress::EditCursor& cursor
     case KEY_DELBREAK:  cursor.remove_break();          break;
     
     // note value
-    case KEY_LONGA:   note.exp = ScorePress::VALUE_BASE + 2; if (!insert_on_name) insert(cursor); break;
-    case KEY_BREVE:   note.exp = ScorePress::VALUE_BASE + 1; if (!insert_on_name) insert(cursor); break;
-    case KEY_WHOLE:   note.exp = ScorePress::VALUE_BASE;     if (!insert_on_name) insert(cursor); break;
-    case KEY_HALF:    note.exp = ScorePress::VALUE_BASE - 1; if (!insert_on_name) insert(cursor); break;
-    case KEY_QUARTER: note.exp = ScorePress::VALUE_BASE - 2; if (!insert_on_name) insert(cursor); break;
-    case KEY_EIGHTH:  note.exp = ScorePress::VALUE_BASE - 3; if (!insert_on_name) insert(cursor); break;
-    case KEY_16TH:    note.exp = ScorePress::VALUE_BASE - 4; if (!insert_on_name) insert(cursor); break;
-    case KEY_32TH:    note.exp = ScorePress::VALUE_BASE - 5; if (!insert_on_name) insert(cursor); break;
-    case KEY_64TH:    note.exp = ScorePress::VALUE_BASE - 6; if (!insert_on_name) insert(cursor); break;
-    case KEY_128TH:   note.exp = ScorePress::VALUE_BASE - 7; if (!insert_on_name) insert(cursor); break;
+    case KEY_LONGA:   note.exp = ScorePress::VALUE_BASE + 2; if (!insert_on_name) insert(controller); return;
+    case KEY_BREVE:   note.exp = ScorePress::VALUE_BASE + 1; if (!insert_on_name) insert(controller); return;
+    case KEY_WHOLE:   note.exp = ScorePress::VALUE_BASE;     if (!insert_on_name) insert(controller); return;
+    case KEY_HALF:    note.exp = ScorePress::VALUE_BASE - 1; if (!insert_on_name) insert(controller); return;
+    case KEY_QUARTER: note.exp = ScorePress::VALUE_BASE - 2; if (!insert_on_name) insert(controller); return;
+    case KEY_EIGHTH:  note.exp = ScorePress::VALUE_BASE - 3; if (!insert_on_name) insert(controller); return;
+    case KEY_16TH:    note.exp = ScorePress::VALUE_BASE - 4; if (!insert_on_name) insert(controller); return;
+    case KEY_32TH:    note.exp = ScorePress::VALUE_BASE - 5; if (!insert_on_name) insert(controller); return;
+    case KEY_64TH:    note.exp = ScorePress::VALUE_BASE - 6; if (!insert_on_name) insert(controller); return;
+    case KEY_128TH:   note.exp = ScorePress::VALUE_BASE - 7; if (!insert_on_name) insert(controller); return;
     
     case KEY_REST:    cursor.insert_rest(note.exp, note.dots); break;
     
     // note name
-    case KEY_C: note.name = ScorePress::EditCursor::C; if (insert_on_name) insert(cursor); break;
-    case KEY_D: note.name = ScorePress::EditCursor::D; if (insert_on_name) insert(cursor); break;
-    case KEY_E: note.name = ScorePress::EditCursor::E; if (insert_on_name) insert(cursor); break;
-    case KEY_F: note.name = ScorePress::EditCursor::F; if (insert_on_name) insert(cursor); break;
-    case KEY_G: note.name = ScorePress::EditCursor::G; if (insert_on_name) insert(cursor); break;
-    case KEY_A: note.name = ScorePress::EditCursor::A; if (insert_on_name) insert(cursor); break;
-    case KEY_B: note.name = ScorePress::EditCursor::B; if (insert_on_name) insert(cursor); break;
+    case KEY_C: note.name = ScorePress::EditCursor::C; if (insert_on_name) insert(controller); return;
+    case KEY_D: note.name = ScorePress::EditCursor::D; if (insert_on_name) insert(controller); return;
+    case KEY_E: note.name = ScorePress::EditCursor::E; if (insert_on_name) insert(controller); return;
+    case KEY_F: note.name = ScorePress::EditCursor::F; if (insert_on_name) insert(controller); return;
+    case KEY_G: note.name = ScorePress::EditCursor::G; if (insert_on_name) insert(controller); return;
+    case KEY_A: note.name = ScorePress::EditCursor::A; if (insert_on_name) insert(controller); return;
+    case KEY_B: note.name = ScorePress::EditCursor::B; if (insert_on_name) insert(controller); return;
     
     // accidentals
-    case KEY_SHARP:         note.accidental = ScorePress::Accidental::sharp;         break;
-    case KEY_FLAT:          note.accidental = ScorePress::Accidental::flat;          break;
-    case KEY_DOUBLESHARP:   note.accidental = ScorePress::Accidental::double_sharp;  break;
-    case KEY_DOUBLEFLAT:    note.accidental = ScorePress::Accidental::double_flat;   break;
-    case KEY_HALFSHARP:     note.accidental = ScorePress::Accidental::half_sharp;    break;
-    case KEY_HALFFLAT:      note.accidental = ScorePress::Accidental::half_flat;     break;
-    case KEY_SHARPANDAHALF: note.accidental = ScorePress::Accidental::flat_andahalf; break;
-    case KEY_FLATANDAHALF:  note.accidental = ScorePress::Accidental::flat_andahalf; break;
+    case KEY_SHARP:         note.accidental = ScorePress::Accidental::sharp;         return;
+    case KEY_FLAT:          note.accidental = ScorePress::Accidental::flat;          return;
+    case KEY_DOUBLESHARP:   note.accidental = ScorePress::Accidental::double_sharp;  return;
+    case KEY_DOUBLEFLAT:    note.accidental = ScorePress::Accidental::double_flat;   return;
+    case KEY_HALFSHARP:     note.accidental = ScorePress::Accidental::half_sharp;    return;
+    case KEY_HALFFLAT:      note.accidental = ScorePress::Accidental::half_flat;     return;
+    case KEY_SHARPANDAHALF: note.accidental = ScorePress::Accidental::flat_andahalf; return;
+    case KEY_FLATANDAHALF:  note.accidental = ScorePress::Accidental::flat_andahalf; return;
     
     // octave modification
     case KEY_8VA:        got_octaveup = true;
-    case KEY_OCTAVEUP:   ++note.octave; break;
+    case KEY_OCTAVEUP:   ++note.octave; return;
     case KEY_8VAB:       got_octavedown = true;
-    case KEY_OCTAVEDOWN: --note.octave; break;
+    case KEY_OCTAVEDOWN: --note.octave; return;
     
     // dot input
-    case KEY_DOT:  note.dots = 1;     break;
-    case KEY_2DOT: note.dots = 2;     break;
-    case KEY_NDOT: mode = NDOT_INPUT; break;
+    case KEY_DOT:  note.dots = 1;     return;
+    case KEY_2DOT: note.dots = 2;     return;
+    case KEY_NDOT: mode = NDOT_INPUT; return;
     
     // note modification
-    case KEY_STEMLENGTH: mode = STEMLENGTH_INPUT; break;
-    case KEY_STEMDIR:    mode = STEMDIR_INPUT;    break;
-    case KEY_CHROMATIC:  mode = CHROMATIC_INPUT;  break;
-    case KEY_MOVE:       mode = MOVE_INPUT;       break;
-    case KEY_ACCMOVE:    mode = ACCMOVE_INPUT;    break;
-    case KEY_STAFFSHIFT: mode = STAFFSHIFT_INPUT; break;
+    case KEY_STEMLENGTH: mode = STEMLENGTH_INPUT; return;
+    case KEY_STEMDIR:    mode = STEMDIR_INPUT;    return;
+    case KEY_CHROMATIC:  mode = CHROMATIC_INPUT;  return;
+    case KEY_MOVE:       mode = MOVE_INPUT;       return;
+    case KEY_ACCMOVE:    mode = ACCMOVE_INPUT;    return;
+    case KEY_STAFFSHIFT: mode = STAFFSHIFT_INPUT; return;
     case KEY_NOBEAM:
     case KEY_AUTOBEAM:
     case KEY_CUTBEAM:
@@ -155,22 +141,30 @@ void KeyListener::action_on(const ActionKey code, ScorePress::EditCursor& cursor
                     break;
                 default: break;};
                 cursor.next();
-                cursor.reengrave();
             }
-            else cursor.next();
+            else return cursor.next();
         };
         break;
     
     // mode modification
-    case KEY_HEAD_MODE: head_input = (insert_head_hold || !head_input); break;
+    case KEY_HEAD_MODE: head_input = (insert_head_hold || !head_input); return;
     
     // ignore key-count indicator (shouldn't be set anyway)
-    case KEY__COUNT__: break;
+    case KEY__COUNT__: return;
     };
     
-    // remember KEY_HOME
-    got_home = (code == KEY_HOME);
-    got_end  = (code == KEY_END);
+    // reengrave score
+    controller.reengrave();
+    if (code == KEY_NEWLINE || code == KEY_PAGEBREAK)
+    {
+        cursor.next_line_home();
+        controller.on_score_resize();
+    }
+    else if (code == KEY_DELBREAK)
+    {
+        cursor.update_voices();
+        controller.on_score_resize();
+    };
 }
 
 void KeyListener::action_off(const ActionKey code)
@@ -203,8 +197,10 @@ void KeyListener::action_off(const ActionKey code)
     };
 }
 
-void KeyListener::action_stemlength(const ActionKey code, ScorePress::EditCursor& cursor)
+void KeyListener::action_stemlength(const ActionKey code, Controller& controller)
 {
+    ScorePress::EditCursor& cursor = controller.get_cursor();
+    
     if (cursor.at_end()) return;
     if (!cursor.ready()) return;
     if (!cursor.get_cursor()->is(ScorePress::Class::CHORD)) return;
@@ -227,14 +223,16 @@ void KeyListener::action_stemlength(const ActionKey code, ScorePress::EditCursor
     default: return;
     };
     
-    cursor.reengrave();
+    controller.reengrave();
 }
 
 inline void _positive(int& i) {i = (i < 0) ? -i : i;}
 inline void _negative(int& i) {i = (i > 0) ? -i : i;}
 
-void KeyListener::action_stemdir(const ActionKey code, ScorePress::EditCursor& cursor)
+void KeyListener::action_stemdir(const ActionKey code, Controller& controller)
 {
+    ScorePress::EditCursor& cursor = controller.get_cursor();
+    
     if (cursor.at_end()) return;
     if (!cursor.ready()) return;
     if (!cursor.get_cursor()->is(ScorePress::Class::CHORD)) return;
@@ -250,11 +248,13 @@ void KeyListener::action_stemdir(const ActionKey code, ScorePress::EditCursor& c
     default: return;
     };
     
-    cursor.reengrave();
+    controller.reengrave();
 }
 
-void KeyListener::action_chromatic(const ActionKey code, ScorePress::EditCursor& cursor)
+void KeyListener::action_chromatic(const ActionKey code, Controller& controller)
 {
+    ScorePress::EditCursor& cursor = controller.get_cursor();
+    
     if (cursor.at_end()) return;
     if (!cursor.ready()) return;
     if (!cursor.get_cursor()->is(ScorePress::Class::CHORD)) return;
@@ -279,11 +279,12 @@ void KeyListener::action_chromatic(const ActionKey code, ScorePress::EditCursor&
     default: return;
     };
     
-    cursor.reengrave();
+    controller.reengrave();
 }
 
-void KeyListener::action_move(const ActionKey code, ScorePress::EditCursor& cursor)
+void KeyListener::action_move(const ActionKey code, Controller& controller)
 {
+    ScorePress::EditCursor& cursor = controller.get_cursor();
     if (cursor.at_end()) return;
     
     switch (code)
@@ -315,12 +316,13 @@ void KeyListener::action_move(const ActionKey code, ScorePress::EditCursor& curs
     default: return;
     };
     
-    cursor.reengrave();
+    controller.reengrave();
 }
 
 #include <iostream>
-void KeyListener::action_accmove(const ActionKey code, ScorePress::EditCursor& cursor)
+void KeyListener::action_accmove(const ActionKey code, Controller& controller)
 {
+    ScorePress::EditCursor& cursor = controller.get_cursor();
     if (cursor.at_end()) return;
     
     switch (code)
@@ -334,11 +336,13 @@ void KeyListener::action_accmove(const ActionKey code, ScorePress::EditCursor& c
     default: return;
     };
     
-    cursor.reengrave();
+    controller.reengrave();
 }
 
-void KeyListener::action_staffshift(const ActionKey code, ScorePress::EditCursor& cursor)
+void KeyListener::action_staffshift(const ActionKey code, Controller& controller)
 {
+    ScorePress::EditCursor& cursor = controller.get_cursor();
+    
     if (cursor.at_end()) return;
     if (!cursor.ready()) return;
     if (!cursor.get_cursor()->is(ScorePress::Class::NOTEOBJECT)) return;
@@ -362,10 +366,10 @@ void KeyListener::action_staffshift(const ActionKey code, ScorePress::EditCursor
     default: return;
     };
     
-    cursor.reengrave();
+    controller.reengrave();
 }
 
-bool KeyListener::press(const Key key, ScorePress::EditCursor& cursor)
+bool KeyListener::press(const Key key, Controller& controller)
 {
     if (mode == NDOT_INPUT)
     {
@@ -384,14 +388,14 @@ bool KeyListener::press(const Key key, ScorePress::EditCursor& cursor)
     if (!has_key(key)) return false;
     switch (mode)
     {
-    case NORMAL:           action_on(codes[key], cursor);         break;
-    case NDOT_INPUT:       /* see above */                        break;
-    case STEMLENGTH_INPUT: action_stemlength(codes[key], cursor); break;
-    case STEMDIR_INPUT:    action_stemdir(codes[key], cursor);    break;
-    case CHROMATIC_INPUT:  action_chromatic(codes[key], cursor);  break;
-    case MOVE_INPUT:       action_move(codes[key], cursor);       break;
-    case ACCMOVE_INPUT:    action_accmove(codes[key], cursor);    break;
-    case STAFFSHIFT_INPUT: action_staffshift(codes[key], cursor); break;
+    case NORMAL:           action_on(codes[key], controller);         break;
+    case NDOT_INPUT:       /* see above */                            break;
+    case STEMLENGTH_INPUT: action_stemlength(codes[key], controller); break;
+    case STEMDIR_INPUT:    action_stemdir(codes[key], controller);    break;
+    case CHROMATIC_INPUT:  action_chromatic(codes[key], controller);  break;
+    case MOVE_INPUT:       action_move(codes[key], controller);       break;
+    case ACCMOVE_INPUT:    action_accmove(codes[key], controller);    break;
+    case STAFFSHIFT_INPUT: action_staffshift(codes[key], controller); break;
     };
     return true;
 }

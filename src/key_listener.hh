@@ -23,6 +23,8 @@
 #include "key_map.hh"
 #include <scorepress/engine.hh>
 
+class Controller;
+
 class KeyListener : public KeyMap
 {
  public:
@@ -39,21 +41,21 @@ class KeyListener : public KeyMap
     bool got_octavedown;
     
  private:
-    void insert(ScorePress::EditCursor& cursor);
+    void insert(Controller& controller);
     
  public:
     KeyListener();
     
-    void action_on(         const ActionKey code, ScorePress::EditCursor& cursor);
+    void action_on(         const ActionKey code, Controller& controller);
     void action_off(        const ActionKey code);
-    void action_stemlength( const ActionKey code, ScorePress::EditCursor& cursor);
-    void action_stemdir(    const ActionKey code, ScorePress::EditCursor& cursor);
-    void action_chromatic(  const ActionKey code, ScorePress::EditCursor& cursor);
-    void action_move(       const ActionKey code, ScorePress::EditCursor& cursor);
-    void action_accmove(    const ActionKey code, ScorePress::EditCursor& cursor);
-    void action_staffshift( const ActionKey code, ScorePress::EditCursor& cursor);
+    void action_stemlength( const ActionKey code, Controller& controller);
+    void action_stemdir(    const ActionKey code, Controller& controller);
+    void action_chromatic(  const ActionKey code, Controller& controller);
+    void action_move(       const ActionKey code, Controller& controller);
+    void action_accmove(    const ActionKey code, Controller& controller);
+    void action_staffshift( const ActionKey code, Controller& controller);
     
-    bool press(const Key key, ScorePress::EditCursor& cursor);
+    bool press(const Key key, Controller& controller);
     bool release(const Key key);
 };
 
