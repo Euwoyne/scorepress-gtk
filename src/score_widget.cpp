@@ -7,7 +7,8 @@
   will be approved by the European Commission - subsequent
   versions of the EUPL (the "Licence");
   You may not use this work except in compliance with the
-  Licence.
+  Licence. You may obtain a copy of the Licence at
+  <http://ec.europa.eu/idabc/eupl/>.
   
   Unless required by applicable law or agreed to in
   writing, software distributed under the Licence is
@@ -225,13 +226,6 @@ bool ScoreWidget::on_key_release(GdkEventKey* evnt)
     {
         controller->key_release(KeyListener::Key(evnt->keyval, true));
         controller->key_release(KeyListener::Key(evnt->keyval, false));
-        if (evnt->state & GDK_SHIFT_MASK)
-        {
-            controller->key_release(KeyListener::Key(GDK_KEY_Shift_R, true));
-            controller->key_release(KeyListener::Key(GDK_KEY_Shift_R, false));
-            controller->key_release(KeyListener::Key(GDK_KEY_Shift_L, true));
-            controller->key_release(KeyListener::Key(GDK_KEY_Shift_L, false));
-        };
         this->get_window()->invalidate(false);
     }
     CATCH_ERRORS("on_key_release");

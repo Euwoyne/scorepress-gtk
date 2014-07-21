@@ -188,6 +188,8 @@ void add1(Staff& staff, const Sprites& sprites, int toneoffset)
     static_cast<Slur&>(*static_cast<Chord&>(*staff.notes.back()).attached.front()).duration = 5;
     static_cast<Slur&>(*static_cast<Chord&>(*staff.notes.back()).attached.front()).typeX = Movable::PARENT;
     static_cast<Slur&>(*static_cast<Chord&>(*staff.notes.back()).attached.front()).typeY = Movable::STAFF;
+    static_cast<Slur&>(*static_cast<Chord&>(*staff.notes.back()).attached.front()).unitX = Movable::HEAD;
+    static_cast<Slur&>(*static_cast<Chord&>(*staff.notes.back()).attached.front()).unitY = Movable::HEAD;
     static_cast<Slur&>(*static_cast<Chord&>(*staff.notes.back()).attached.front()).position.x = 0;
     static_cast<Slur&>(*static_cast<Chord&>(*staff.notes.back()).attached.front()).position.y = 0;
     static_cast<Slur&>(*static_cast<Chord&>(*staff.notes.back()).attached.front()).control1.x = 2000;
@@ -244,6 +246,8 @@ void add2(Staff& staff, const Sprites& sprites, int toneoffset, int staffdist)
     static_cast<Hairpin&>(*static_cast<Chord&>(*subvoice.notes.back()).attached.back()).duration = 4;
     static_cast<Hairpin&>(*static_cast<Chord&>(*subvoice.notes.back()).attached.back()).typeX = Movable::PARENT;
     static_cast<Hairpin&>(*static_cast<Chord&>(*subvoice.notes.back()).attached.back()).typeY = Movable::STAFF;
+    static_cast<Hairpin&>(*static_cast<Chord&>(*subvoice.notes.back()).attached.back()).unitX = Movable::HEAD;
+    static_cast<Hairpin&>(*static_cast<Chord&>(*subvoice.notes.back()).attached.back()).unitY = Movable::HEAD;
     static_cast<Hairpin&>(*static_cast<Chord&>(*subvoice.notes.back()).attached.back()).position.x = 0;
     static_cast<Hairpin&>(*static_cast<Chord&>(*subvoice.notes.back()).attached.back()).position.y = 8000;
     static_cast<Hairpin&>(*static_cast<Chord&>(*subvoice.notes.back()).attached.back()).end_position.x = 0;
@@ -315,7 +319,6 @@ void set_test(Document& document, const Sprites& sprites)
     
     // setup staff
     score.staves.push_back(Staff());
-    score.staves.back().head_height = 1760;     // µm
     score.staves.back().offset_y = 5000;        // pohh
     score.staves.back().line_count = 5;
     score.staves.back().long_barlines = true;
@@ -350,7 +353,6 @@ void set_test(Document& document, const Sprites& sprites)
     add2(score.staves.back(), sprites, 0, 3000);
     //*/
     score.staves.push_back(Staff());
-    score.staves.back().head_height = 1760;     // µm
     score.staves.back().offset_y = 6000;        // pohh
     score.staves.back().line_count = 5;
     score.staves.back().long_barlines = false;

@@ -143,18 +143,17 @@ AC_PATH_PROG([PKGCONFIG], [pkg-config])
 
 # check libraries
 #   libscorepress
+AC_SUBST([LIBSCOREPRESS])
 if test "x$with_libscorepress" != "xauto"; then
     AC_SUBST([LIBSCOREPRESS_CFLAGS], [-I$with_libscorepress])
     AC_SUBST([LIBSCOREPRESS_LIBS], [-lscorepress])
-    AC_SUBST([USER_LIBSCOREPRESS], [$with_libscorepress])
+    AC_SUBST([LIBSCOREPRESS], [$with_libscorepress])
 elif test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $scorepress_pkg; echo $?` -eq 0; then
     AC_SUBST([LIBSCOREPRESS_CFLAGS], [`$PKGCONFIG $scorepress_pkg --cflags`])
     AC_SUBST([LIBSCOREPRESS_LIBS], [`$PKGCONFIG $scorepress_pkg --libs`])
-    AC_SUBST([USER_LIBSCOREPRESS], [])
 else
     AC_SUBST([LIBSCOREPRESS_CFLAGS], [-I/usr/include/libscorepress])
     AC_SUBST([LIBSCOREPRESS_LIBS], [-lscorepress])
-    AC_SUBST([USER_LIBSCOREPRESS], [])
 fi
 
 CFLAGS="$CFLAGS_ORI $LIBSCOREPRESS_CFLAGS"
@@ -208,18 +207,17 @@ LIBS="$LIBS_ORI $LIBRSVG_LIBS"
 AC_CHECK_LIB([rsvg-2], [rsvg_handle_new],, AC_MSG_ERROR([cannot find library '$rsvg_pkg']))
 
 #   libxml
+AC_SUBST([LIBXML])
 if test "x$with_libxml2" != "xauto"; then
     AC_SUBST([LIBXML_CFLAGS], [-I$with_libxml2])
     AC_SUBST([LIBXML_LIBS], [-lxml2])
-    AC_SUBST([USER_LIBXML], [$with_libxml2])
+    AC_SUBST([LIBXML], [$with_libxml2])
 elif test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $libxml_pkg; echo $?` -eq 0; then
     AC_SUBST([LIBXML_CFLAGS], [`$PKGCONFIG $libxml_pkg --cflags`])
     AC_SUBST([LIBXML_LIBS], [`$PKGCONFIG $libxml_pkg --libs`])
-    AC_SUBST([USER_LIBXML], [])
 else
     AC_SUBST([LIBXML_CFLAGS], [-I/usr/include/libxml2])
     AC_SUBST([LIBXML_LIBS], [-lxml2])
-    AC_SUBST([USER_LIBXML], [])
 fi
 
 CFLAGS="$CFLAGS_ORI $LIBXML_CFLAGS"

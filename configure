@@ -626,9 +626,9 @@ RPATH
 EGREP
 GREP
 CXXCPP
-USER_LIBXML
 LIBXML_LIBS
 LIBXML_CFLAGS
+LIBXML
 LIBRSVG_LIBS
 LIBRSVG_CFLAGS
 LIBPANGO_LIBS
@@ -637,9 +637,9 @@ LIBCAIROMM_LIBS
 LIBCAIROMM_CFLAGS
 LIBGTKMM_LIBS
 LIBGTKMM_CFLAGS
-USER_LIBSCOREPRESS
 LIBSCOREPRESS_LIBS
 LIBSCOREPRESS_CFLAGS
+LIBSCOREPRESS
 PKGCONFIG
 SED
 LDCONFIG
@@ -3235,24 +3235,23 @@ fi
 
 # check libraries
 #   libscorepress
+
 if test "x$with_libscorepress" != "xauto"; then
     LIBSCOREPRESS_CFLAGS=-I$with_libscorepress
 
     LIBSCOREPRESS_LIBS=-lscorepress
 
-    USER_LIBSCOREPRESS=$with_libscorepress
+    LIBSCOREPRESS=$with_libscorepress
 
 elif test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $scorepress_pkg; echo $?` -eq 0; then
     LIBSCOREPRESS_CFLAGS=`$PKGCONFIG $scorepress_pkg --cflags`
 
     LIBSCOREPRESS_LIBS=`$PKGCONFIG $scorepress_pkg --libs`
 
-
 else
     LIBSCOREPRESS_CFLAGS=-I/usr/include/libscorepress
 
     LIBSCOREPRESS_LIBS=-lscorepress
-
 
 fi
 
@@ -3594,24 +3593,23 @@ fi
 
 
 #   libxml
+
 if test "x$with_libxml2" != "xauto"; then
     LIBXML_CFLAGS=-I$with_libxml2
 
     LIBXML_LIBS=-lxml2
 
-    USER_LIBXML=$with_libxml2
+    LIBXML=$with_libxml2
 
 elif test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $libxml_pkg; echo $?` -eq 0; then
     LIBXML_CFLAGS=`$PKGCONFIG $libxml_pkg --cflags`
 
     LIBXML_LIBS=`$PKGCONFIG $libxml_pkg --libs`
 
-
 else
     LIBXML_CFLAGS=-I/usr/include/libxml2
 
     LIBXML_LIBS=-lxml2
-
 
 fi
 
