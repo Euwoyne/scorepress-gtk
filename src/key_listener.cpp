@@ -31,6 +31,15 @@ void KeyListener::insert(Controller& controller)
     note.accidental = ScorePress::Accidental::natural;
 }
 
+void KeyListener::insert_rest(Controller& controller)
+{
+    controller.get_cursor().insert_rest(note.exp, note.dots);
+    controller.reengrave();
+    controller.get_cursor().next();
+    note.dots = 0;
+    note.accidental = ScorePress::Accidental::natural;
+}
+
 KeyListener::KeyListener() : mode(NORMAL),
                              head_input(false),
                              got_home(false),
@@ -79,7 +88,7 @@ void KeyListener::action_on(const ActionKey code, Controller& controller)
     case KEY_64TH:    note.exp = ScorePress::VALUE_BASE - 6; if (!insert_on_name) insert(controller); return;
     case KEY_128TH:   note.exp = ScorePress::VALUE_BASE - 7; if (!insert_on_name) insert(controller); return;
     
-    case KEY_REST:    cursor.insert_rest(note.exp, note.dots); break;
+    case KEY_REST:    insert_rest(controller); break;
     
     // note name
     case KEY_C: note.name = ScorePress::EditCursor::C; if (insert_on_name) insert(controller); return;

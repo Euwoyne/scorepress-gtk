@@ -43,6 +43,7 @@ class KeyListener : public KeyMap
     
  private:
     void insert(Controller& controller);
+    void insert_rest(Controller& controller);
     
  public:
     KeyListener();

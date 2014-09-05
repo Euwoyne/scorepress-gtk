@@ -39,7 +39,7 @@ LDFLAGS_ORI="$LDFLAGS"
 LIBS_ORI="$LIBS"
 
 # package names (for use with pkg-config)
-scorepress_pkg="libscorepress"
+scorepress_pkg="scorepress"
 gtkmm_pkg="gtkmm-3.0"
 cairomm_pkg="cairomm-1.0"
 pango_pkg="pango"
@@ -159,7 +159,7 @@ fi
 CFLAGS="$CFLAGS_ORI $LIBSCOREPRESS_CFLAGS"
 LDFLAGS="$LDFLAGS_ORI $LIBSCOREPRESS_LIBS"
 LIBS="$LIBS_ORI $LIBSCOREPRESS_LIBS"
-AC_CHECK_LIB([scorepress], [main],, AC_MSG_ERROR([cannot find library '$scorepress_pkg']))
+AC_CHECK_LIB([scorepress], [libscorepress_autoconf_check],, AC_MSG_ERROR([cannot find library '$scorepress_pkg']))
 
 #   libgtkmm
 AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $gtkmm_pkg; echo $?` -ne 0],

@@ -104,14 +104,14 @@ Usage: score [options] [filename]\n\
 This application is licensed under the EUPL, Version 1.1\n\n\
 "       , stdout);
     };
-    
+#if SCOREPRESS_DEBUG
     if (version)
     {
         puts(_("Libraries:"));
         print_library_info();
         puts("");
     };
-    
+#endif
     if (dirs)
     {
         puts(_("Directories:"));

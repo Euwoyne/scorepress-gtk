@@ -2219,7 +2219,7 @@ LDFLAGS_ORI="$LDFLAGS"
 LIBS_ORI="$LIBS"
 
 # package names (for use with pkg-config)
-scorepress_pkg="libscorepress"
+scorepress_pkg="scorepress"
 gtkmm_pkg="gtkmm-3.0"
 cairomm_pkg="cairomm-1.0"
 pango_pkg="pango"
@@ -3259,9 +3259,9 @@ CFLAGS="$CFLAGS_ORI $LIBSCOREPRESS_CFLAGS"
 LDFLAGS="$LDFLAGS_ORI $LIBSCOREPRESS_LIBS"
 LIBS="$LIBS_ORI $LIBSCOREPRESS_LIBS"
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lscorepress" >&5
-$as_echo_n "checking for main in -lscorepress... " >&6; }
-if ${ac_cv_lib_scorepress_main+:} false; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libscorepress_autoconf_check in -lscorepress" >&5
+$as_echo_n "checking for libscorepress_autoconf_check in -lscorepress... " >&6; }
+if ${ac_cv_lib_scorepress_libscorepress_autoconf_check+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -3269,27 +3269,33 @@ LIBS="-lscorepress  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char libscorepress_autoconf_check ();
 int
 main ()
 {
-return main ();
+return libscorepress_autoconf_check ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_scorepress_main=yes
+  ac_cv_lib_scorepress_libscorepress_autoconf_check=yes
 else
-  ac_cv_lib_scorepress_main=no
+  ac_cv_lib_scorepress_libscorepress_autoconf_check=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_scorepress_main" >&5
-$as_echo "$ac_cv_lib_scorepress_main" >&6; }
-if test "x$ac_cv_lib_scorepress_main" = xyes; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_scorepress_libscorepress_autoconf_check" >&5
+$as_echo "$ac_cv_lib_scorepress_libscorepress_autoconf_check" >&6; }
+if test "x$ac_cv_lib_scorepress_libscorepress_autoconf_check" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_LIBSCOREPRESS 1
 _ACEOF

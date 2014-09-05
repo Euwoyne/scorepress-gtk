@@ -41,7 +41,7 @@ Controller::Controller(MainWnd& wnd, KeyListener& keys) : engine(document, rende
                                                           window(wnd)
 {
     ScorePress::Renderer::ReaderPtr reader = renderer.spriteset_reader();
-    reader->open(std::string(libscorepress_datadir) += "/symbol/default.svg");
+    reader->open(std::string(scorepress_config.datadir) += "/symbol/default.svg");
     renderer.add_spriteset(reader);
     setup_engine();
     cursor = &engine.get_cursor();
