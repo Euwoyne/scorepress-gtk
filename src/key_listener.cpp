@@ -23,10 +23,10 @@
 
 void KeyListener::insert(Controller& controller)
 {
-    if (head_input) controller.get_cursor().insert_head(note);
-    else            controller.get_cursor().insert(note);
+    if (head_input)  controller.get_cursor().insert_head(note);
+    else             controller.get_cursor().insert(note);
     controller.reengrave();
-    controller.get_cursor().next();
+    if (!head_input) controller.get_cursor().next();
     note.dots = 0;
     note.accidental = ScorePress::Accidental::natural;
 }
@@ -131,31 +131,37 @@ void KeyListener::action_on(const ActionKey code, Controller& controller)
     case KEY_AUTOBEAM:
     case KEY_CUTBEAM:
     case KEY_FORCEBEAM:
-        if (cursor.has_prev())
         {
-            cursor.prev();
-            if (cursor.get_cursor()->is(ScorePress::Class::CHORD))
+        ScorePress::EditCursor cur(cursor);
+        if (!cur.has_prev()) break;
+        do
+        {
+            cur.prev();
+        } while (cur.has_prev() && !cur.get_cursor()->is(ScorePress::Class::CHORD));
+        
+        if (cur.get_cursor()->is(ScorePress::Class::CHORD))
+        {
+            switch (code)
             {
-                switch (code) {
-                case KEY_NOBEAM:
-                    static_cast<ScorePress::Chord&>(*cursor.get_cursor()).beam = ScorePress::Chord::NO_BEAM;
-                    break;
-                case KEY_AUTOBEAM:
-                    static_cast<ScorePress::Chord&>(*cursor.get_cursor()).beam = ScorePress::Chord::AUTO_BEAM;
-                    break;
-                case KEY_FORCEBEAM:
-                    static_cast<ScorePress::Chord&>(*cursor.get_cursor()).beam = ScorePress::Chord::FORCE_BEAM;
-                    break;
-                case KEY_CUTBEAM:
-                    static_cast<ScorePress::Chord&>(*cursor.get_cursor()).beam = ScorePress::Chord::CUT_BEAM;
-                    break;
-                default: break;};
-                cursor.next();
-            }
-            else return cursor.next();
+            case KEY_NOBEAM:
+                static_cast<ScorePress::Chord&>(*cur.get_cursor()).beam = ScorePress::Chord::NO_BEAM;
+                break;
+            case KEY_AUTOBEAM:
+                static_cast<ScorePress::Chord&>(*cur.get_cursor()).beam = ScorePress::Chord::AUTO_BEAM;
+                break;
+            case KEY_FORCEBEAM:
+                static_cast<ScorePress::Chord&>(*cur.get_cursor()).beam = ScorePress::Chord::FORCE_BEAM;
+                break;
+            case KEY_CUTBEAM:
+                static_cast<ScorePress::Chord&>(*cur.get_cursor()).beam = ScorePress::Chord::CUT_BEAM;
+                break;
+            default:
+                break;
+            };
+        }
+        else return;
         };
         break;
-    
     // mode modification
     case KEY_HEAD_MODE: head_input = (insert_head_hold || !head_input); return;
     
