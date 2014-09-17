@@ -180,7 +180,7 @@ void add_pagebreak(SubVoice& voice, unsigned int distance, int indent, int right
 void add1(Staff& staff, const Sprites& sprites, int toneoffset)
 {
     // main-voice notes
-    add(staff, 5, 69 + toneoffset, 6);
+    add(staff, VALUE_BASE-2, 69 + toneoffset, 6);
     static_cast<Chord&>(*staff.notes.back()).subvoice = RefPtr<SubVoice>(new SubVoice(staff));
     SubVoice& subvoice = *static_cast<Chord&>(*staff.notes.back()).subvoice;
     subvoice.stem_direction = Voice::STEM_DOWNWARDS;
@@ -198,34 +198,34 @@ void add1(Staff& staff, const Sprites& sprites, int toneoffset)
     static_cast<Slur&>(*static_cast<Chord&>(*staff.notes.back()).attached.front()).control2.y = -3000;
     static_cast<Slur&>(*static_cast<Chord&>(*staff.notes.back()).attached.front()).end_position.x = 0;
     static_cast<Slur&>(*static_cast<Chord&>(*staff.notes.back()).attached.front()).end_position.y = 0;
-    add(staff, 5, 70 + toneoffset, 6, 100, -700, 1500, -600, -1500, -600, -100, -700);
+    add(staff, VALUE_BASE-2, 70 + toneoffset, 6, 100, -700, 1500, -600, -1500, -600, -100, -700);
     add_accidental(staff, Accidental::flat, 0);
     add_articulation(staff, SpriteId(0, sprites.front().index("articulation.tenuto")), 0, true);
-    add(staff, 4, 70 + toneoffset, 6, Chord::NO_BEAM);
+    add(staff, VALUE_BASE-3, 70 + toneoffset, 6, Chord::NO_BEAM);
     add_accidental(staff, Accidental::flat, 0);
-    /**/add(staff, 4, 69 + toneoffset, 6);
-    add(staff, 5, 72 + toneoffset, 6);
+    /**/add(staff, VALUE_BASE-3, 69 + toneoffset, 6);
+    add(staff, VALUE_BASE-2, 72 + toneoffset, 6);
     add_articulation(staff, SpriteId(0, sprites.front().index("articulation.marcato")), 0, true);
     
     // sub-voice notes
-    add(subvoice, 5, 65 + toneoffset, -6);
-    add(subvoice, 5, 63 + toneoffset, -6);
+    add(subvoice, VALUE_BASE-2, 65 + toneoffset, -6);
+    add(subvoice, VALUE_BASE-2, 63 + toneoffset, -6);
     add_accidental(subvoice, Accidental::flat, 500);
-    add(subvoice, 5, 67 + toneoffset, -6);
-    add(subvoice, 5, 67 + toneoffset, -6, Chord::NO_BEAM);
+    add(subvoice, VALUE_BASE-2, 67 + toneoffset, -6);
+    add(subvoice, VALUE_BASE-2, 67 + toneoffset, -6, Chord::NO_BEAM);
     add_articulation(subvoice, SpriteId(0, sprites.front().index("articulation.marcato")), 0, true);
 }
 
 void add2(Staff& staff, const Sprites& sprites, int toneoffset, int staffdist)
 {
     // main-voice notes
-    add(staff, 5, 69 + toneoffset, 6);
+    add(staff, VALUE_BASE-2, 69 + toneoffset, 6);
     static_cast<Chord&>(*staff.notes.back()).subvoice = RefPtr<SubVoice>(new SubVoice(staff));
     SubVoice& subvoice = *static_cast<Chord&>(*staff.notes.back()).subvoice;
     subvoice.stem_direction = Voice::STEM_DOWNWARDS;
     add_head(staff, 71 + toneoffset);
     add_articulation(staff, SpriteId(0, sprites.front().index("articulation.staccato")), 0, false);
-    add(staff, 6, 71 + toneoffset, 6);
+    add(staff, VALUE_BASE-1, 71 + toneoffset, 6);
     /*
     add(staff, 5, 72 + toneoffset, 4);
     add_accidental(staff, Accidental::natural, 1200);
@@ -234,13 +234,13 @@ void add2(Staff& staff, const Sprites& sprites, int toneoffset, int staffdist)
     add_head(staff, 78 + toneoffset);
     add_accidental(staff, Accidental::sharp, 200);
     //*/
-    add(staff, 5, 69 + toneoffset, 6, 0, -1100, 1500, -600, -800, -650, 0, -1100);
+    add(staff, VALUE_BASE-2, 69 + toneoffset, 6, 0, -1100, 1500, -600, -800, -650, 0, -1100);
     add_newline(staff, staffdist, 0, 0, JUSTIFY, FORCE_JUSTIFY);
     //add_pagebreak(staff, staffdist, 0, 0, JUSTIFY, FORCE_JUSTIFY);
     
     // sub-voice notes
-    addr(subvoice, 5, 3000);
-    add(subvoice, 4, 65 + toneoffset, -6, Chord::FORCE_BEAM);
+    addr(subvoice, VALUE_BASE-2, 3000);
+    add(subvoice, VALUE_BASE-3, 65 + toneoffset, -6, Chord::FORCE_BEAM);
     /**/static_cast<Chord&>(*subvoice.notes.back()).val.dots = 1;
     static_cast<Chord&>(*subvoice.notes.back()).attached.push_back(MovablePtr(new Hairpin()));
     static_cast<Hairpin&>(*static_cast<Chord&>(*subvoice.notes.back()).attached.back()).duration = 4;
@@ -261,10 +261,10 @@ void add2(Staff& staff, const Sprites& sprites, int toneoffset, int staffdist)
     add_accidental(subvoice, Accidental::sharp, 0);
     add_head(subvoice, 66 + toneoffset);
     add_accidental(subvoice, Accidental::sharp, 0);
-    //addr(subvoice, 3, 2000);
-    add(subvoice, 3, 69 + toneoffset, -8);
-    add(subvoice, 5, 67 + toneoffset, -6);
-    add(subvoice, 5, 65 + toneoffset, -6);
+    //addr(subvoice, VALUE_BASE-4, 2000);
+    add(subvoice, VALUE_BASE-4, 69 + toneoffset, -8);
+    add(subvoice, VALUE_BASE-2, 67 + toneoffset, -6);
+    add(subvoice, VALUE_BASE-2, 65 + toneoffset, -6);
     add_accidental(subvoice, Accidental::natural, 0);
     add_head(subvoice, 67 + toneoffset);
     add_accidental(subvoice, Accidental::natural, 250);
@@ -344,7 +344,7 @@ void set_test(Document& document, const Sprites& sprites)
     score.staves.back().notes.push_back(StaffObjectPtr(new CustomTimeSig()));
     static_cast<CustomTimeSig&>(*score.staves.back().notes.back()).number = 4;
     static_cast<CustomTimeSig&>(*score.staves.back().notes.back()).beat = 4;
-    static_cast<CustomTimeSig&>(*score.staves.back().notes.back()).sprite = SpriteId(0, sprites.front().index("timesig.symbol4_4_timesigC"));
+    static_cast<CustomTimeSig&>(*score.staves.back().notes.back()).sprite = SpriteId(0, sprites.front().index("timesig.symbol_4_4_timesigC"));
     
     //*
     add1(score.staves.back(), sprites);
@@ -378,7 +378,7 @@ void set_test(Document& document, const Sprites& sprites)
     score.staves.back().notes.push_back(StaffObjectPtr(new CustomTimeSig()));
     static_cast<CustomTimeSig&>(*score.staves.back().notes.back()).number = 4;
     static_cast<CustomTimeSig&>(*score.staves.back().notes.back()).beat = 4;
-    static_cast<CustomTimeSig&>(*score.staves.back().notes.back()).sprite = SpriteId(0, sprites.front().index("timesig.symbol4_4_timesigC"));
+    static_cast<CustomTimeSig&>(*score.staves.back().notes.back()).sprite = SpriteId(0, sprites.front().index("timesig.symbol_4_4_timesigC"));
     //*
     add1(score.staves.back(), sprites, -24);
     add2(score.staves.back(), sprites, -24);

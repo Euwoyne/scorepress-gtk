@@ -128,7 +128,8 @@ cfiles := ${cppsrc}/main.cpp            \
           ${cppsrc}/key_listener.cpp    \
           ${cppsrc}/mainwnd.cpp         \
           ${cppsrc}/score_widget.cpp    \
-          ${cppsrc}/icon_manager.cpp
+          ${cppsrc}/icon_manager.cpp    \
+          ${cppsrc}/_testdoc.cpp
 
 hfiles := ${cppsrc}/application.hh      \
           ${cppsrc}/controller.hh       \
@@ -180,7 +181,7 @@ deps_application_hh      := ${cppsrc}/application.hh ${deps_icon_manager_hh} ${d
 
 deps_main_cpp            := ${cppsrc}/main.cpp ${application_hh}
 deps_application_cpp     := ${cppsrc}/application.cpp ${deps_application_hh} ${deps_cmdline_options_hh} ${deps_controller_hh} ${deps_config_hh} ${deps_i18n_hh}
-deps_controller_cpp      := ${cppsrc}/controller.cpp ${deps_controller_hh} ${deps_mainwnd_hh} ${deps_config_hh}
+deps_controller_cpp      := ${cppsrc}/controller.cpp ${cppsrc}/_testdoc.cpp ${deps_controller_hh} ${deps_mainwnd_hh} ${deps_config_hh}
 deps_cmdline_options_cpp := ${cppsrc}/cmdline_options.cpp ${deps_cmdline_options_hh} ${deps_i18n_hh} ${deps_config_hh}
 deps_config_cpp          := ${cppsrc}/config.cpp ${deps_config_hh} ${deps_config_hh} ${srcdir}/Makefile
 deps_rsvg_renderer_cpp   := ${cppsrc}/rsvg_renderer.cpp ${deps_rsvg_renderer_hh} ${deps_i18n_hh}
