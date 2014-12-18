@@ -33,16 +33,19 @@ class IconManager
 {
  public:
     class Error : public std::string {public: Error(const std::string& msg) : std::string(msg) {};};
-
+    
  private:
-    std::map<std::string, Icon> icons;
-    Glib::RefPtr<Gtk::IconTheme> theme;
-
+    std::map<std::string, Icon>  icons;     // icon cache
+    Glib::RefPtr<Gtk::IconTheme> theme;     // used icon theme (i.e. default theme)
+    
  public:
-    void load(const std::string iconname, const std::string alias) throw(Error);
-    void load(const std::string iconname) throw(Error) {load(iconname, iconname);};
-    const Icon& get(const std::string alias) const throw(Error);
+    void        load(const std::string icon, const std::string alias) throw(Error); // load icon into memory
+    void        load(const std::string icon) throw(Error);                          // load icon into memory
+    const Icon& get(const std::string alias) const throw(Error);                    // get icon (throws, if not loaded)
 };
+
+// inline method implementation
+inline void IconManager::load(const std::string iconname) throw(Error) {load(iconname, iconname);}
 
 #endif
 

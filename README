@@ -12,3 +12,5 @@ Changelog:
 
 0.1.1   * incorporated Document and Cursor (removed from Engine)
 
+0.1.2   * more strict MVC modeling
+        * new cursor ownership management

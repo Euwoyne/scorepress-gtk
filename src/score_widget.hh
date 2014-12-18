@@ -22,42 +22,55 @@
 #define SCOREWIDGET_HH
 
 #define GTK_DISABLE_DEPRECATED 1
+#include <scorepress/basetypes.hh>
 #include <gtkmm.h>
 #include <cairomm/surface.h>
-#include "controller.hh"
+#include <cairo.h>
 
+class Controller;
 class ScoreWidget : public Gtk::DrawingArea
 {
+ public:
+    typedef ScorePress::Position<ScorePress::mpx_t> Offset;
+    
  private:
+    // move info struct
     struct MoveInfo
     {
-        gdouble                                 x, y;   // start of movement
-        bool                                    rdy;    // move ready
-        bool                                    ack;    // move acknowledged
-        ScorePress::Position<ScorePress::mpx_t> offset; // current position offset
+        gdouble x, y;   // start of movement
+        bool    rdy;    // move ready
+        bool    ack;    // move acknowledged
+        Offset  offset; // current position offset
     };
     
  private:
-    Controller*  controller;    // corresponding controller
-    clock_t      t;             // timing reference point
-    MoveInfo     move;          // object move info
+    Controller& controller; // corresponding controller
+    clock_t     t;          // timing reference point
+    MoveInfo    move;       // object move info
+    
+    // view cache
+    Cairo::RefPtr<Cairo::Surface>        cache;         // cache surface (rendered score without cursors)
+    Cairo::RefPtr<Cairo::SurfacePattern> cache_pattern; // pattern referencing the cache
+    bool                                 cache_valid;   // cache validity (mark for rerender)
     
  public:
-    ScorePress::Position<ScorePress::mpx_t> margin; // margin around the page (i.e. minimal offset)
-    ScorePress::Position<ScorePress::mpx_t> offset; // actual offset (after centering)
+    // public parameters
+    Offset  margin;     // margin around the page (i.e. minimal offset)
+    Offset  offset;     // actual offset (after centering)
+    int     min_move;   // minimal moving distance
     
  public:
     ScoreWidget(Controller& ctrl);      // constructor
     
-    Controller& get_controller();       // return the corresponding controller
+    void center(unsigned int width, bool layout_changed);   // center the score on the widget
     
-    void refresh();                     // redraw the widget
-    void center(unsigned int width);    // center the score on the widget
+    void redraw_cache();                // render the score to the cache
+    void invalidate_cache();            // trigger cache re-render
     
+ protected:
     // signal handlers
-    bool on_draw(const Cairo::RefPtr<Cairo::Context>& context);
+    bool on_draw(const Cairo::RefPtr<Cairo::Context>&);
     bool on_blink();
-    void on_score_resize();
     
     bool on_button_press(GdkEventButton* event);
     bool on_button_release(GdkEventButton* event);
@@ -67,13 +80,7 @@ class ScoreWidget : public Gtk::DrawingArea
     bool on_key_release(GdkEventKey* event);
 };
 
-
-// inline method implementations
-#include "controller.hh"
-
-inline Controller& ScoreWidget::get_controller()  {return *controller;}
-inline void        ScoreWidget::refresh()         {get_window()->invalidate(false);}
-inline void        ScoreWidget::on_score_resize() {center(get_allocated_width());}
+inline void ScoreWidget::invalidate_cache() {cache_valid = false;}
 
 #endif
 

@@ -19,20 +19,78 @@
 */
 
 #include "application.hh"
-#include "cmdline_options.hh"
-#include "controller.hh"
-#include "config.hh"
-#include "i18n.hh"
+#include "mainwnd.hh"       // MainWnd
+#include "config.hh"        // SCOREPRESS_TITLE
+#include "i18n.hh"          // I18N, _
 
-#include <scorepress/log.hh>
-#include <sstream>
 #include <iostream>
 
-void ScorePressApp::on_activate()
+// return "Unsaved Score #", with number # not used in controllers
+std::string Application::get_next_unnamed() const
 {
+    ///  Application
+    /// =============
+    ///
+    /// Tab-title for unsaved files
+    static const std::string unnamed_str = _("Unsaved Score");
+    
+    unsigned int n = 1;
+    std::string name;
+    std::ostringstream ss;
+    ss << unnamed_str << ' ' << n;
+    name = ss.str();
+    for (std::list<Controller*>::const_iterator c = controllers.begin(); c != controllers.end();)
+    {
+        if ((*c)->get_basename() == name)
+        {
+            ss.seekp(0);
+            ss << unnamed_str << ' ' << ++n;
+            name = ss.str();
+            c = controllers.begin();
+        } else ++c;
+    };
+    return name;
+}
+
+// default constructor
+Application::Application() : Gtk::Application("ScorePress.Gtk.Main", Gio::APPLICATION_HANDLES_OPEN | Gio::APPLICATION_HANDLES_COMMAND_LINE)
+{
+    Glib::set_application_name(SCOREPRESS_TITLE);
+    
+    about_dialog.authors.push_back("Dominik Lehmann");
+    about_dialog.authors.push_back("Gereon Kaiping");
+    about_dialog.artists.push_back("Micha Schinzel");
+    about_dialog.setup();
+}
+
+// default destructor
+Application::~Application()
+{
+    for (std::list<Controller*>::iterator i = controllers.begin(); i != controllers.end(); ++i)
+        delete *i;
+}
+
+// add new window to the application
+void Application::add_window()
+{
+    MainWnd* window = new MainWnd();
+    Gtk::Application::add_window(*window);
+    window->log_set(log);
+    window->setup(icon_manager.get("main-small"), about_dialog);
+    window->show();
+    window->grab_focus();
+}
+
+// application startup code
+void Application::on_startup()
+{
+    // call base GTK startup
+    Gtk::Application::on_startup();
+    
+    // load icons
     try
     {
-        icon_manager.load("scorepress", "main");
+        icon_manager.load("scorepress",    "main");
         icon_manager.load("scorepress-sm", "main-small");
     }
     catch (IconManager::Error e)
@@ -40,6 +98,7 @@ void ScorePressApp::on_activate()
         std::cerr << "[WARNING] ScorePressApp::on_activate(): " << e << "\n";
     };
     
+    // setup key-listener
     key_listener.assign(KeyMap::KEY_UP,    GDK_KEY_Up);
     key_listener.assign(KeyMap::KEY_UP,    GDK_KEY_KP_Up);
     key_listener.assign(KeyMap::KEY_DOWN,  GDK_KEY_Down);
@@ -115,149 +174,234 @@ void ScorePressApp::on_activate()
     
     key_listener.set_head_insert_method(KeyMap::HEAD_HOLD);
     key_listener.assign(KeyMap::KEY_HEAD_MODE, GDK_KEY_Insert);
+    
+    // TODO:
+    //   load general configuration file
+    //   setup plugins
 }
 
-std::string ScorePressApp::get_next_unnamed() const
+// command line entry point
+int Application::on_command_line(const Glib::RefPtr<Gio::ApplicationCommandLine>& command_line)
 {
-    static const std::string unnamed_str = _("Unsaved Score");
-    unsigned int n = 1;
-    std::string name;
-    std::ostringstream ss;
-    ss << unnamed_str << ' ' << n;
-    name = ss.str();
-    for (std::vector<Controller*>::const_iterator c = controllers.begin(); c != controllers.end();)
-    {
-        if ((*c)->get_filename() == name)
-        {
-            ss.seekp(0);
-            ss << unnamed_str << ' ' << ++n;
-            name = ss.str();
-            c = controllers.begin();
-        } else ++c;
-    };
-    return name;
-}
-
-int ScorePressApp::on_command_line(const Glib::RefPtr<Gio::ApplicationCommandLine>& command_line)
-{
-    if (controllers.empty())
-        log.info("ScorePress " SCOREPRESS_VERSION_STRING "\n" SCOREPRESS_COPYRIGHT "\nLicensed under the EUPL V.1.1\n");
-    CmdlineOptions options;
+    ///  Commandline Options
+    /// =====================
+    ///
+    /// help text
+    static const char* help_text = _("\
+    Usage: score [options] [filename]\n\
+    \n\
+     Log Options:\n\
+       --nolog            don't create any log\n\
+       --debuglog         log debug output\n\
+       --verboselog       log verbose output\n\
+       --logfile <file>   write log to file\n\
+    \n\
+     General Options:\n\
+       -s, --silent       emit no output on stdout\n\
+       -d, --debug        generate debug output\n\
+       -v, --verbose      generate verbose output\n\
+       -h, --help         print this help\n\
+       -V, --version      print program version\n");
+    // greetings text
+    static const char* greetings = "ScorePress " SCOREPRESS_VERSION_STRING;
+    // copyright notice
+    static const char* copyright = "This application is licensed under the EUPL, Version 1.1";
+    
+    puts(greetings);
+    
+    // get arguments
     int argn = 0;
     char** argv = command_line->get_arguments(argn);
-    int ret = parse_cmdline(options, argn, argv);
-    if (ret != 0) return (ret < 0) ? ret : 0;
     
+    // argument data
+    CmdlineOptions opt;
+    bool version = false;
+    bool dirs = false;
+    bool help = false;
+    bool help_gtk = false;
+    std::string arg;
+    
+    // check arguments
+    for (int i = 1; i < argn; ++i)
+    {
+        arg = argv[i];
+        if (arg[0] != '-') opt.files.push_back(arg);    // check if option or file
+        
+        if (arg[1] == '-')  // if we got a long option
+        {
+                 if (arg == "--nolog"     ) opt.log.silent = true;
+            else if (arg == "--debuglog"  ) opt.log.debug = true;
+            else if (arg == "--verboselog") opt.log.verbose = true;
+            else if (arg == "--logfile"   && i < argn-1) opt.log.file = argv[++i];
+            else if (arg == "--silent"    ) opt.stdout.silent = true;
+            else if (arg == "--debug"     ) opt.stdout.debug = true;
+            else if (arg == "--verbose"   ) opt.stdout.verbose = true;
+            else if (arg == "--version"   ) version = true;
+            else if (arg == "--dirs"      ) dirs = true;
+            else if (arg == "--help"      ) help = true;
+            else if (arg == "--help-all"  ) help = help_gtk = true;
+            else if (arg == "--help-gtk" ||
+                     arg == "--help-gapplication") help_gtk = true;
+            else if (strncmp(argv[i], "--display=", 10))
+                /// unrecognized option warning (%s is replaced by the given option)
+                printf(_("Warning: Unrecognized option \"%s\".\n"), arg.c_str());
+        }
+        else                // otherwise check for short option string
+        {
+            for (int pos = 1; argv[i][pos] != 0; ++pos)
+            {
+                switch (argv[i][pos])
+                {
+                case 's': opt.stdout.silent = true; break;
+                case 'd': opt.stdout.debug = true; break;
+                case 'v': opt.stdout.verbose = true; break;
+                case 'V': version = true; break;
+                case 'D': dirs = true; break;
+                case 'h': help = true; break;
+                /// unrecognized option warning (-%c is replaced by the given short option)
+                default:  printf(_("Warning: Unrecognized option \"-%c\".\n"), argv[i][pos]); break;
+                };
+            };
+        };
+    };
+    
+    // --help (-h)
+    if (help)
+    {
+        puts(help_text);
+        if (help_gtk)
+        {
+            puts("");
+            Gtk::Application::on_command_line(command_line);
+        };
+        puts(copyright);
+    }
+    
+    // --version (-V)
+    else if (version)
+    {
+        puts(copyright);
+        puts("");
+        if (SCOREPRESS_DEBUG || opt.stdout.verbose)
+        {
+            /// title line for library version output (argument --version, -V)
+            puts(_("Libraries:"));
+            print_library_info();
+            puts("");
+        };
+    };
+    
+    // --dirs (-D)
+    if (dirs)
+    {
+        /// title line for directory info output (argument --dirs, -D)
+        puts(_("Directories:"));
+        print_directory_info();
+        puts("");
+        return 0;
+    };
+    
+    if (help || version) return 0;
+    
+    // normal startup
     try
     {
-        log.echo_info(!options.stdout.silent);
-        log.echo_debug(!options.stdout.silent && options.stdout.debug);
-        log.echo_verbose(!options.stdout.silent && options.stdout.verbose);
-        log.echo_warn(!options.stdout.silent);
-        log.echo_error(!options.stdout.silent);
+        // parse GTK+ options
+        Gtk::Application::on_command_line(command_line);
+        
+        // setup log
+        log.echo_info(!opt.stdout.silent);
+        log.echo_debug(!opt.stdout.silent && opt.stdout.debug);
+        log.echo_verbose(!opt.stdout.silent && opt.stdout.verbose);
+        log.echo_warn(!opt.stdout.silent);
+        log.echo_error(!opt.stdout.silent);
         log.log_info(false);
-        log.log_debug(options.log.debug);
-        log.log_verbose(options.log.verbose);
+        log.log_debug(opt.log.debug);
+        log.log_verbose(opt.log.verbose);
         log.log_warn(true);
         log.log_error(true);
-        log.open(options.log.file.c_str());
+        if (!opt.log.file.empty())
+            log.open(opt.log.file.c_str());
         
-        if (options.files.empty())
+        // setup window
+        if (!get_active_window())
+            add_window();
+        
+        // if no file is specified
+        if (opt.files.empty())
         {
-            if (!add_tab())
-            {
-                add_window();
-                add_tab(true);
-            };
-            controllers.back()->set_filename(get_next_unnamed());
-            controllers.back()->change();
+            MainWnd& window = *static_cast<MainWnd*>(get_active_window());
+            controllers.push_back(new Controller(window, key_listener));
+            controllers.back()->log_set(log);
+            controllers.back()->set_basename(get_next_unnamed());
+        }
+        
+        // if files are to be opened
+        else
+        {
+            std::vector< Glib::RefPtr<Gio::File> > files;
+            for (std::vector<std::string>::const_iterator file = opt.files.begin(); file != opt.files.end(); ++file)
+                files.push_back(Gio::File::create_for_path(*file));
+            open(files);
         };
-        
-        std::vector< Glib::RefPtr<Gio::File> > files;
-        for (std::vector<std::string>::const_iterator file = options.files.begin(); file != options.files.end(); ++file)
-            files.push_back(Gio::File::create_for_path(*file));
-        
-        if (!files.empty()) open(files);
     }
     catch (std::string s)
     {
         std::cerr << "[ERROR] ScorePressApp::on_command_line(): " << s << "\n";
+        return -2;
     }
     catch (Glib::Error& e)
     {
         std::cerr << "[ERROR] ScorePressApp::on_command_line(): " << e.what() << "\n";
+        return -2;
     }
     catch (...)
     {
         std::cerr << "[ERROR] ScorePressApp::on_command_line(): Unknown Exception\n";
+        return -2;
     };
-
+    
     return 0;
 }
 
-void ScorePressApp::on_open(const std::vector< Glib::RefPtr<Gio::File> >& files, const Glib::ustring& hint)
+// open given files (entry point)
+void Application::on_open(const std::vector< Glib::RefPtr<Gio::File> >& files, const Glib::ustring& hint)
 {
+    Gtk::Application::on_open(files, hint);
+    
+    // setup window
+    if (!get_active_window())
+        add_window();
+    
+    MainWnd& window = *static_cast<MainWnd*>(get_active_window());
+    
+    // open all given files
     for (std::vector< Glib::RefPtr<Gio::File> >::const_iterator i = files.begin(); i != files.end(); ++i)
     {
         if (!*i) continue;
-        if (!add_tab())
-        {
-            add_window();
-            add_tab(true);
-        };
+        controllers.push_back(new Controller(window, key_listener));
+        controllers.back()->log_set(log);
         controllers.back()->open(*i);
     };
-    Gtk::Application::on_open(files, hint);
 }
 
-void ScorePressApp::on_window_hide(Gtk::Window* window)
+// window closing handler
+void Application::on_window_hide(Gtk::Window* window)
 {
-    for (std::vector<Controller*>::iterator i = controllers.begin(); i != controllers.end();)
+    std::cout << "Hide Window\n";
+    
+    // close all controllers within the given window
+    for (std::list<Controller*>::iterator i = controllers.begin(); i != controllers.end();)
     {
         if (&(*i)->get_window() == window)
         {
             delete *i;
             i = controllers.erase(i);
         }
-        else ++i;
+        else
+            ++i;
     };
+    
+    // dispose of the window
     delete window;
 }
-
-ScorePressApp::ScorePressApp() : Gtk::Application("ScorePress.Gtk.Main", Gio::APPLICATION_HANDLES_OPEN | Gio::APPLICATION_HANDLES_COMMAND_LINE)
-{
-    Glib::set_application_name(SCOREPRESS_TITLE);
-}
-
-ScorePressApp::~ScorePressApp()
-{
-    for (std::vector<Controller*>::iterator i = controllers.begin(); i != controllers.end(); ++i)
-        delete *i;
-}
-
-bool ScorePressApp::add_tab(bool select)
-{
-    if (!get_active_window()) return false;
-    controllers.push_back(new Controller(*static_cast<MainWnd*>(get_active_window()), key_listener));
-    controllers.back()->log_set(log);
-    static_cast<MainWnd*>(get_active_window())->add_view(*controllers.back(), select);
-    return true;
-}
-
-void ScorePressApp::add_tab(MainWnd& wnd, bool select)
-{
-    controllers.push_back(new Controller(wnd, key_listener));
-    controllers.back()->log_set(log);
-    wnd.add_view(*controllers.back(), select);
-}
-
-void ScorePressApp::add_window()
-{
-    MainWnd* window = new MainWnd();
-    Application::add_window(*window);
-    window->log_set(log);
-    window->setup(icon_manager.get("main-small"));
-    window->show();
-    window->grab_focus();
-}
-

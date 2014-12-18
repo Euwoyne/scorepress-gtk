@@ -21,36 +21,61 @@
 #ifndef APPLICATION_HH
 #define APPLICATION_HH
 
+#define GTK_DISABLE_DEPRECATED 1
 #include <gtkmm.h>
-#include "icon_manager.hh"
+#include <scorepress/log.hh>
+#include "controller.hh"
 #include "key_listener.hh"
-#include "mainwnd.hh"
+#include "icon_manager.hh"
+#include "about_dialog.hh"
 
-class Controller;
-class ScorePressApp : public Gtk::Application
+class Application : public Gtk::Application
 {
  private:
-    IconManager              icon_manager;
-    KeyListener              key_listener;
-    std::vector<Controller*> controllers;
-    ScorePress::Log          log;
+    // commandline options
+    struct CmdlineOptions
+    {
+        // print/log flags
+        struct Flags
+        {
+            bool silent;        // no output at all
+            bool debug;         // emit debug messages
+            bool verbose;       // emit verbose messages
+            Flags() : silent(false), debug(false), verbose(false) {};
+        };
+        
+        // log file flags
+        struct Log : public Flags
+        {
+            std::string file;   // log file path
+        };
+        
+        Log   log;              // log flags
+        Flags stdout;           // print flags
+        
+        std::vector<std::string> files; // files to open
+    };
+    
+    // global state
+    std::list<Controller*> controllers;     // controllers (one for each open document; owned by the Application)
+    KeyListener            key_listener;    // key listener (globally the same)
+    IconManager            icon_manager;    // icon manager
+    AboutDialog            about_dialog;    // about dialog
+    ScorePress::Log        log;             // application log
     
  private:
-    std::string get_next_unnamed() const;
+    std::string get_next_unnamed() const;   // return "Unsaved Score #"
+    
+ public:
+    Application();      // default constructor
+    ~Application();     // default destructor
+    void add_window();  // add new window to the application
     
  protected:
-    virtual void on_activate();
+    virtual void on_startup();
     virtual int  on_command_line(const Glib::RefPtr<Gio::ApplicationCommandLine>& command_line);
     virtual void on_open(const std::vector< Glib::RefPtr<Gio::File> >& files, const Glib::ustring& hint);
     virtual void on_window_hide(Gtk::Window* window);
-    
- public:
-    ScorePressApp();
-    virtual ~ScorePressApp();
-    
-    bool add_tab(bool select = false);
-    void add_tab(MainWnd& wnd, bool select = false);
-    void add_window();
 };
 
 #endif

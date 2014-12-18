@@ -18,120 +18,91 @@
   permissions and limitations under the Licence.
 */
 
-#include <scorepress/config.hh>  // libscorepress_datadir
-
 #include "controller.hh"
 #include "mainwnd.hh"
-#include "config.hh"
+#include <scorepress/test.hh>
+#include <scorepress/config.hh>
 
-#include "_testdoc.cpp"
-
-inline static int _round(const double d) {return static_cast<int>(d + 0.5);}
-
-void Controller::setup_engine()
+// constructor (with target window and key-listener)
+Controller::Controller(MainWnd& window, KeyListener& _keys) : engine(document, renderer.get_sprites()), view(*this, window), keys(_keys)
 {
-    // setup engine
-    set_test(document, renderer.get_sprites());
-    engine.set_resolution((1000L * Gdk::Screen::get_default()->get_width())  / Gdk::Screen::get_default()->get_width_mm(),
-                           (1000L * Gdk::Screen::get_default()->get_height()) / Gdk::Screen::get_default()->get_height_mm());
-}
-
-Controller::Controller(MainWnd& wnd, KeyListener& keys) : engine(document, renderer.get_sprites()),
-                                                          keylistener(keys),
-                                                          window(wnd)
-{
+    // load default spriteset
     ScorePress::Renderer::ReaderPtr reader = renderer.spriteset_reader();
     reader->open(std::string(scorepress_config.datadir) += "/symbol/default.svg");
     renderer.add_spriteset(reader);
-    setup_engine();
-    cursor = &engine.get_cursor();
-    window.add_view(*this);
+    
+    // setup engine
+    engine.set_resolution((1000L * Gdk::Screen::get_default()->get_width())  / Gdk::Screen::get_default()->get_width_mm(),
+                          (1000L * Gdk::Screen::get_default()->get_height()) / Gdk::Screen::get_default()->get_height_mm());
+    
+    // register view
+    window.register_view(view, false);
 }
 
-void Controller::set_filename(const std::string& s)
-{
-    filename = s;
-    window.refresh_label(*this);
-}
+// destructor
+Controller::~Controller() {}
 
-void Controller::on_score_resize()
+// open document-file (if NULL, load test-document)
+void Controller::open(Glib::RefPtr<Gio::File> file)
 {
-    window.on_score_resize();
-}
-
-#include <iostream>
-bool Controller::open(const Glib::RefPtr<Gio::File>& file)
-{
-    std::cout << "OPEN: " << file->get_basename() << "\n";
-    filepath = file->get_path();
-    filename = file->get_basename();
-    // TODO: file parsing
-    return true;
-}
-
-bool Controller::mouse_on(double x, double y)
-{
-    if (!engine.select_object(ScorePress::Position<ScorePress::mpx_t>(static_cast<int>(x), static_cast<int>(y)), layout))
+    // if no file is give, load test-document
+    if (!file)
     {
-        engine.deselect_object();
-        cursor = &engine.get_cursor(ScorePress::Position<ScorePress::mpx_t>(static_cast<int>(x), static_cast<int>(y)), layout);
-        window.refresh();
-        return false;
+        document = ScorePress::Test::get_document(renderer.get_sprites());
+        engine.engrave();
+        edit_cursor = engine.get_cursor();
+        on_resize();
     };
-    window.refresh();
-    return true;
+    
+    // TODO: otherwise load document from file
 }
 
-void Controller::mouse_off(double, double)
+// the document size changed (-> reengrave, reallocate cache and redraw)
+void Controller::on_resize()
 {
+    engine.reengrave();
+    view.on_resize();
 }
 
-void Controller::set_scale(unsigned int scale)
+// the document instance changed (-> reengrave and redraw)
+void Controller::reengrave()
 {
-    //if (!setup) return;
-    engine.get_press_parameters().scale = scale;
-    window.refresh();
+    engine.reengrave();
+    view.rerender();
 }
 
-void Controller::set_linebounds(bool value)
+// zoom handler
+void Controller::on_zoom_changed(const unsigned int zoom)
 {
-    //if (!setup) return;
-    engine.get_press_parameters().draw_linebounds = value;
-    window.refresh();
+    engine.get_press_parameters().scale = zoom; // set zoom parameter
+    renderer.clear_cache();                     // clear renderer cache
+    view.on_resize();                           // re-center view
 }
 
-void Controller::set_attachbounds(bool value)
+// render edit cursor
+void Controller::render_edit_cursor(const Offset& offset)
 {
-    //if (!setup) return;
-    engine.get_press_parameters().draw_attachbounds = value;
-    window.refresh();
+    if (edit_cursor)
+        engine.render_cursor(renderer, *edit_cursor, layout, offset);
 }
 
-void Controller::set_notebounds(bool value)
+// render object cursors
+void Controller::render_object_cursors(const Offset& offset)
 {
-    //if (!setup) return;
-    engine.get_press_parameters().draw_notebounds = value;
-    window.refresh();
+    for (ObjectList::iterator cur = object_cursors.begin(); cur != object_cursors.end(); ++cur)
+        engine.render_cursor(renderer, **cur, layout, offset);
 }
 
-void Controller::set_eovbounds(bool value)
-{
-    //if (!setup) return;
-    engine.get_press_parameters().draw_eov = value;
-    window.refresh();
-}
-
+// logging control
 void Controller::log_set(ScorePress::Log& log)
 {
-    ScorePress::Logging::log_set(log);
+    this->ScorePress::Logging::log_set(log);
     engine.log_set(log);
-    window.log_set(log);
 }
 
 void Controller::log_unset()
 {
-    ScorePress::Logging::log_unset();
+    this->ScorePress::Logging::log_unset();
     engine.log_unset();
-    window.log_unset();
 }
 

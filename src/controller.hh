@@ -21,118 +21,149 @@
 #ifndef CONTROLLER_HH
 #define CONTROLLER_HH
 
-#include <string>
-#include <vector>
-#include <scorepress/engine.hh>
-#include <giomm/file.h>
-#include "rsvg_renderer.hh"
-#include "key_listener.hh"
+#include <scorepress/engine.hh> // Engine, Document, MultipageLayout
+#include <giomm/file.h>         // Gio::File, Glib::RefPtr
+#include "view.hh"              // View
+#include "rsvg_renderer.hh"     // RsvgRenderer
+#include "key_listener.hh"      // KeyListener
 
-class MainWnd;
+//
+//     class Controller
+//    ==================
+//
+// Receives signals from the "KeyListener" instance and signal handlers within
+// the "View" instances (i.e. "MainWnd" and "ScoreWidget").
+// Responsible for updating the "Document" and "Engine" instances and
+// refreshing the displaying instance and its cache.
+//
 class Controller : public ScorePress::Logging
 {
+ public:
+    // convenience typedefs
+    typedef ScorePress::mpx_t                            mpx_t;
+    typedef ScorePress::Position<ScorePress::mpx_t>      Position;
+    typedef ScorePress::Position<ScorePress::mpx_t>      Offset;
+    typedef ScorePress::RefPtr<ScorePress::EditCursor>   CursorPtr;
+    typedef ScorePress::RefPtr<ScorePress::ObjectCursor> ObjectPtr;
+    typedef std::list<ObjectPtr>                         ObjectList;
+    
+    
  private:
-    ScorePress::Document         document;
-    ScorePress::Engine           engine;
-    ScorePress::MultipageLayout  layout;
-    ScorePress::EditCursor*      cursor;
+    // data instances
+    ScorePress::Document         document;      // target document instance
+    ScorePress::Engine           engine;        // engine operating on the document
+    ScorePress::MultipageLayout  layout;        // multipage layout for rendering
     
-    RSVGRenderer                 renderer;
-    KeyListener&                 keylistener;
-    MainWnd&                     window;
+    // rendering/controlling instances
+    CursorPtr    edit_cursor;       // edit cursor
+    ObjectList   object_cursors;    // object cursor
+    View         view;              // view instance (target widget)
+    RSVGRenderer renderer;          // renderer
+    KeyListener& keys;              // key listener (normally hosted by Application instance)
     
-    std::string  filename;
-    std::string  filepath;
-    bool         changed;
+    // file information
+    std::string  basename;          // the file's basename
+    std::string  filepath;          // complete filename (with path)
+    bool         changed;           // file is changed?
     
-    void setup_engine();
-    
-    Controller(Controller&);
+    // copy constructor
+    Controller(const Controller&);  // hide copy constructor
     
  public:
-    // constructors
-    Controller(MainWnd& window, KeyListener& keylistener);
+    // constructor (with target window and key-listener)
+    Controller(MainWnd& window, KeyListener& keys);
+    virtual ~Controller();
+    
+    bool has_cursor()        const;
+    bool has_object_cursor() const;
     
     // data access
-    RSVGRenderer&           get_renderer();
-    ScorePress::Engine&     get_engine();
-    ScorePress::EditCursor& get_cursor();
-    MainWnd&                get_window();
+    ScorePress::Document&   get_document();         // document instance
+    ScorePress::Engine&     get_engine();           // engine instance
+    ScorePress::EditCursor& get_cursor();           // main cursor instance
+    RSVGRenderer&           get_renderer();         // renderer instance
+    MainWnd&                get_window();           // parent window
     
-    const std::string&  get_filename() const;
-    const std::string&  get_filepath() const;
-    void                set_filename(const std::string& s);
-    void                set_filepath(const std::string& s);
-    bool                is_new() const;
-    bool                is_changed() const;
-    void                change(bool b = true);
+    // document status
+    const std::string&      get_basename() const;   // basename  (set on create)
+    const std::string&      get_filepath() const;   // file path (set on save)
+    bool                    is_new()       const;   // never saved (i.e. empty path)
+    bool                    is_changed()   const;   // changed after creation?
     
-    // engine interface
-    unsigned int layout_width() const;
-    unsigned int layout_height() const;
+    // file control
+    void open(Glib::RefPtr<Gio::File>);             // open document-file (if NULL, load test-document)
+    void set_basename(const std::string& s);        // sets the documents basename
+    void set_filepath(const std::string& s);        // sets the documents source path
+    void change(bool b = true);                     // mark the document as changed (or unchanged)
     
-    // renderer interface
-    void render_document(ScorePress::Position<ScorePress::mpx_t> offset);
-    void render_cursor(ScorePress::Position<ScorePress::mpx_t> offset);
-    void render_selection(ScorePress::Position<ScorePress::mpx_t> offset, ScorePress::Position<ScorePress::mpx_t> move_offset);
-    void render_selected(ScorePress::Position<ScorePress::mpx_t> offset, ScorePress::Position<ScorePress::mpx_t> move_offset);
-    void reengrave();
-    void reengrave_all();
+    // signal handler
+        // (from KeyListener)
+    void on_resize();   // the document size changed  (-> allocate cache, engrave and render)
+    void reengrave();   // the document data changed  (->                 engrave and render)
+    void rerender();    // the plate instance changed (->                             render)
+    void redraw();      // the cursors changed        (-> only refresh view)
     
-    // ScorePress signal interface
-    void on_score_resize();
+        // (from MainWnd)
+    void on_zoom_changed(const unsigned int);   // the zoom changed (-> redraw)
     
-    // open file
-    bool open(const Glib::RefPtr<Gio::File>& file);
+        // (from ScoreWidget)
+    bool on_key_press(  const KeyMap::Key);     // key press signal
+    bool on_key_release(const KeyMap::Key);     // key release signal
+    bool on_mouse_press(const Position&);       // mouse click signal
     
-    // action listeners
-    bool mouse_on(double x, double y);
-    void mouse_off(double x, double y);
-    void key_press(const KeyMap::Key key);
-    void key_release(const KeyMap::Key key);
+    // page layout
+    ScorePress::mpx_t layout_width()  const;    // width of complete layout
+    ScorePress::mpx_t layout_height() const;    // height of complete layout
     
-    // view (i.e. press parameters)
-    void set_scale(unsigned int scale);
-    void set_linebounds(bool value);
-    void set_attachbounds(bool value);
-    void set_notebounds(bool value);
-    void set_eovbounds(bool value);
+    // rendering
+    void render_document(      const Offset& offset, bool decor = true);    // all pages (with layout)
+    void render_edit_cursor(   const Offset& offset);                       // edit cursor
+    void render_object_cursors(const Offset& offset);                       // object cursors
     
     // logging control
-    void log_set(ScorePress::Log& log);
-    void log_unset();
+    using Logging::log_set;
+    void log_set(ScorePress::Log& log);         // set log instance
+    void log_unset();                           // unset log instance
 };
 
-inline RSVGRenderer&           Controller::get_renderer()      {return renderer;}
-inline ScorePress::Engine&     Controller::get_engine()        {return engine;}
-inline ScorePress::EditCursor& Controller::get_cursor()        {return *cursor;}
-inline MainWnd&                Controller::get_window()        {return window;}
+// inline methods
+inline bool Controller::has_cursor()        const {return edit_cursor;}
+inline bool Controller::has_object_cursor() const {return !object_cursors.empty();}
 
-inline const std::string& Controller::get_filename() const               {return filename;}
-inline const std::string& Controller::get_filepath() const               {return filepath;}
-inline void               Controller::set_filepath(const std::string& s) {filepath = s;}
-inline bool               Controller::is_new() const                     {return filepath.empty();}
-inline bool               Controller::is_changed() const                 {return changed;}
-inline void               Controller::change(bool b)                     {changed = b;}
+// inline methods (data access)
+inline ScorePress::Document&   Controller::get_document()       {return document;}
+inline ScorePress::Engine&     Controller::get_engine()         {return engine;}
+inline ScorePress::EditCursor& Controller::get_cursor()         {return *edit_cursor;}
+inline RSVGRenderer&           Controller::get_renderer()       {return renderer;}
+inline MainWnd&                Controller::get_window()         {return view.get_window();}
 
-inline unsigned int Controller::layout_width() const  {return engine.layout_width(layout);}
-inline unsigned int Controller::layout_height() const {return engine.layout_height(layout);}
+// inline methods (document status)
+inline const std::string&      Controller::get_basename() const {return basename;}
+inline const std::string&      Controller::get_filepath() const {return filepath;}
+inline bool                    Controller::is_new()       const {return filepath.empty();}
+inline bool                    Controller::is_changed()   const {return changed;}
 
-inline void Controller::render_document(ScorePress::Position<ScorePress::mpx_t> offset)  {engine.render_all(renderer, layout, offset, true);}
-inline void Controller::render_cursor(ScorePress::Position<ScorePress::mpx_t> offset)    {engine.render_cursor(renderer, *cursor, layout, offset);}
+// inline methods (file control)
+inline void Controller::set_basename(const std::string& s)  {basename = s; view.on_title_changed();}
+inline void Controller::set_filepath(const std::string& s)  {filepath = s;}
+inline void Controller::change(bool b)                      {changed  = b; view.on_title_changed();}
 
-inline void Controller::render_selection(ScorePress::Position<ScorePress::mpx_t> offset, ScorePress::Position<ScorePress::mpx_t> move_offset) {
-    engine.render_selection(renderer, layout, offset, move_offset);}
+// inline methods (signal handler)
+inline void Controller::rerender()                          {view.rerender();}
+inline void Controller::redraw()                            {view.redraw();}
+inline bool Controller::on_key_press(  const KeyMap::Key k) {return keys.press(k, *this);}
+inline bool Controller::on_key_release(const KeyMap::Key k) {return keys.release(k);}
+inline bool Controller::on_mouse_press(const Position& pos) {engine.set_cursor(edit_cursor, pos, layout); redraw(); return false;}
 
-inline void Controller::render_selected(ScorePress::Position<ScorePress::mpx_t> offset, ScorePress::Position<ScorePress::mpx_t> move_offset)  {
-    engine.render_object(renderer, engine.selected_object(), layout, offset + move_offset);}
+// inline methods (page layout)
+inline ScorePress::mpx_t Controller::layout_width()  const  {return engine.layout_width(layout);}
+inline ScorePress::mpx_t Controller::layout_height() const  {return engine.layout_height(layout);}
 
-
-inline void Controller::reengrave()                                                      {engine.reengrave(*cursor);}
-inline void Controller::reengrave_all()                                                  {engine.reengrave();}
-
-inline void Controller::key_press(const KeyMap::Key key)   {keylistener.press(key, *this);}
-inline void Controller::key_release(const KeyMap::Key key) {keylistener.release(key);}
+// inline methods (rendering)
+inline void Controller::render_document(const Offset& offset, bool decor)
+{
+    engine.render_all(renderer, layout, offset, decor);
+}
 
 #endif
 

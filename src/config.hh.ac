@@ -29,11 +29,20 @@
 #define SCOREPRESS_COPYRIGHT     "Copyright (C) 2014 Dominik Lehmann"
 #define SCOREPRESS_COPYRIGHT_UTF "Copyright \u00A9 2014 Dominik Lehmann"
 
-extern const char* scorepress_datadir;
-extern const char* scorepress_icondir;
-extern const char* scorepress_appicondir;
+extern "C" {
+struct ScorePressGtk_Config
+{
+    const char* prefix;
+    const char* datadir;
+    const char* destdir;
+    const char* icondir;
+    const char* appicondir;
+};
+extern const ScorePressGtk_Config scorepress_gtk_config;
+
 void print_library_info();
 void print_directory_info();
+}
 
 #endif
 

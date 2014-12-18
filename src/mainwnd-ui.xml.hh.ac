@@ -18,33 +18,13 @@
   permissions and limitations under the Licence.
 */
 
-#ifndef CMDLINE_OPTIONS_HH
-#define CMDLINE_OPTIONS_HH
+#ifndef MAINWND_UI_HH
+#define MAINWND_UI_HH
 
-#include <string>
-#include <vector>
-
-struct CmdlineOptions
-{
-    struct cLog
-    {
-        bool silent;
-        bool debug;
-        bool verbose;
-        std::string file;
-    } log;
-    
-    struct cStdout
-    {
-        bool silent;
-        bool debug;
-        bool verbose;
-    } stdout;
-    
-    std::vector<std::string> files;
-};
-
-int parse_cmdline(CmdlineOptions& opt, int argn, char* argv[]);
+// XML source for the "Gtk::UIManager" of "MainWnd"
+//   The content of "src/mainwnd-ui.xml" is copied into this
+//   header file by the configure script.
+static const char* mainwnd_ui = @MAINWND_UI_XML@;
 
 #endif
 

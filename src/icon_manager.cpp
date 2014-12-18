@@ -22,44 +22,58 @@
 
 #include "icon_manager.hh"
 #include "i18n.hh"
-#include "config.hh"
+#include "config.hh"    // icondir, appicondir
 
-#include <iostream>
+// throwing function (general error)
+static void mythrow(const char* trns, const std::string& arg) throw(IconManager::Error)
+{
+    char* msg = new char[strlen(trns) + arg.size() + 1];    // allocate memory
+    sprintf(msg, trns, arg.c_str());                        // assemble message
+    std::string s(msg);                                     // convert to string
+    delete[] msg;                                           // delete buffer
+    throw IconManager::Error(s);                            // throw message
+}
 
+// load icon into memory
 void IconManager::load(const std::string iconname, const std::string alias) throw(Error)
 {
+    // prepare search paths
     if (!theme)
     {
-        theme = Gtk::IconTheme::get_default();
-        theme->append_search_path(scorepress_icondir);
-        theme->append_search_path(scorepress_appicondir);
-        theme->rescan_if_needed();
+        theme = Gtk::IconTheme::get_default();                          // use theme for default screen
+        theme->append_search_path(scorepress_gtk_config.icondir);       // add icon directory
+        theme->append_search_path(scorepress_gtk_config.appicondir);    // add appicon directory
+        theme->rescan_if_needed();                                      // scan new directories
     };
     
+    // check for icon existence
     if (!theme->has_icon(iconname))
     {
-        throw Error(_("Unable to load icon \"" + iconname + "\"."));
+        mythrow(_("Unable to load icon \"%s\"."), iconname);
     };
     
+    // load all icon sizes into memory
     Icon& icon = icons[alias] = Icon();
     std::vector<int> sizes = theme->get_icon_sizes(iconname);
     for (std::vector<int>::const_iterator i = sizes.begin(); i != sizes.end(); ++i)
     {
-        try
-        {
+        try // for each available size
+        {   //     load icon into memory
             icon.push_back(theme->load_icon(iconname, *i));
         }
         catch(Gtk::IconThemeError& e)
         {
-            throw IconManager::Error(e.what());
+            throw Error(e.what());
         };
     };
 
 }
 
+// get icon (throws, if not loaded)
 const Icon& IconManager::get(const std::string alias) const throw(Error)
 {
     std::map<std::string, Icon>::const_iterator i = icons.find(alias);
-    if (i == icons.end()) throw Error(_("Icon \"" + alias + "\" has not been loaded."));
+    if (i == icons.end()) mythrow(_("Icon \"%s\" has not been loaded."), alias);
     return i->second;
 }
+

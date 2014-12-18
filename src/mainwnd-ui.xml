@@ -1,0 +1,54 @@
+<ui>
+    <menubar name='MainMnu'>
+        <menu action='FileMnu'>
+            <menu action='NewMnu'>
+                <menuitem action='NewEmptyMnu'/>
+                <menuitem action='NewCustomMnu'/>
+            </menu>
+            <menuitem action='OpenMnu'/>
+            <menuitem action='SaveMnu'/>
+            <separator/>
+            <menuitem action='QuitMnu'/>
+        </menu>
+        <menu action='EditMnu'>
+            <menuitem action='UndoMnu'/>
+            <menuitem action='RedoMnu'/>
+            <separator/>
+            <menuitem action='CutMnu'/>
+            <menuitem action='CopyMnu'/>
+            <menuitem action='PasteMnu'/>
+        </menu>
+        <menu action='ViewMnu'>
+            <menu action='BoundsMnu'>
+                <menuitem action='AttachboundsMnu'/>
+                <menuitem action='NoteboundsMnu'/>
+                <menuitem action='LineboundsMnu'/>
+                <menuitem action='EOVboundsMnu'/>
+                <separator/>
+                <menuitem action='AllboundsMnu'/>
+                <menuitem action='NoboundsMnu'/>
+            </menu>
+        </menu>
+        <menu action='HelpMnu'>
+            <menuitem action='HelpIdxMnu'/>
+            <menuitem action='AboutMnu'/>
+        </menu>
+    </menubar>
+    <toolbar name='MainBar'>
+        <toolitem action='NewEmptyMnu'/>
+        <toolitem action='OpenMnu'/>
+        <toolitem action='SaveMnu'/>
+        <separator/>
+        <toolitem action='UndoMnu'/>
+        <toolitem action='RedoMnu'/>
+        <separator/>
+        <toolitem action='CutMnu'/>
+        <toolitem action='CopyMnu'/>
+        <toolitem action='PasteMnu'/>
+    </toolbar>
+    <toolbar name='NoteBar'>
+    </toolbar>
+    <toolbar name='ViewBar'>
+    </toolbar>
+</ui>
+

@@ -20,8 +20,7 @@
 
 #include "key_map.hh"
 
-KeyMap::KeyMap() : insert_on_name(true), insert_head_hold(false) {}
-
+// key map setup
 void KeyMap::assign(const ActionKey code, const Key key)
 {
     reset(key);
@@ -29,6 +28,7 @@ void KeyMap::assign(const ActionKey code, const Key key)
     codes[key] = code;
 }
 
+// reset all keys for action
 void KeyMap::reset(const ActionKey code)
 {
     for (std::list<Key>::iterator i = keys[code].begin(); i != keys[code].end(); ++i)
@@ -38,9 +38,11 @@ void KeyMap::reset(const ActionKey code)
     keys[code].clear();
 }
 
+// reset key mapping
 void KeyMap::reset(const Key key)
 {
     if (!has_key(key)) return;
     keys[codes[key]].remove(key);
     codes.erase(key);
 }
+

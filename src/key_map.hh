@@ -24,20 +24,30 @@
 #include <list>
 #include <map>
 
+//
+//     class KeyMap
+//    ==============
+//
+// Defines all key-activated actions and maps key-codes to
+// these action-codes.
+//
 class KeyMap
 {
- public:    
+ public:
+    // key definition
     class Key
     {
      public:
-        unsigned int key;
-        bool         ctrl;
+        unsigned int key;   // key code
+        bool         ctrl;  // "ctrl" key flag
         
-        Key(unsigned int _key = 0, bool _ctrl = false) : key(_key), ctrl(_ctrl) {};
-        inline bool operator< (const Key& x) const {return key < x.key || (key <= x.key && ctrl < x.ctrl);};
-        inline bool operator==(const Key& x) const {return key == x.key && ctrl == x.ctrl;};
+        Key(unsigned int _key = 0, bool _ctrl = false); // constructor
+        
+        bool operator <  (const Key& x) const;  // order definition (for use in "std::map")
+        bool operator == (const Key& x) const;  // equality operator (for use in "std::map")
     };
     
+    // action enumeration
     enum ActionKey {// cursor movement
                     KEY_UP, KEY_DOWN, KEY_RIGHT, KEY_LEFT, KEY_HOME, KEY_END,
                     
@@ -71,16 +81,17 @@ class KeyMap
                     KEY_HEAD_MODE,
                     
                     // action count
-                    KEY__COUNT__};
+                    KEY_COUNT};
     
-    enum InsertMethod     {INSERT_ON_NAME, INSERT_ON_VALUE};
-    enum HeadInsertMethod {HEAD_SWITCH, HEAD_HOLD};
+    // input methods
+    enum InsertMethod     {INSERT_ON_NAME, INSERT_ON_VALUE};    // insert method (i.e. what specification inserts the note)
+    enum HeadInsertMethod {HEAD_SWITCH,    HEAD_HOLD};          // head mode method (i.e. switched on press or on press/release)
     
  protected:
-    typedef std::list<Key> KeyList;
-    typedef std::map<Key, ActionKey> ActionMap;
+    typedef std::list<Key>           KeyList;   // key list
+    typedef std::map<Key, ActionKey> ActionMap; // action map (maps action-codes to keys)
     
-    KeyList   keys[KEY__COUNT__];   // map codes to keys
+    KeyList   keys[KEY_COUNT];      // map codes to keys
     ActionMap codes;                // map keys to action codes
     Key       digitkeys[10];        // map digit keys
     
@@ -88,19 +99,25 @@ class KeyMap
     bool insert_head_hold;          // head insertion method (mode-switch / hold-modifier)
     
  public:
+    // constructor
     KeyMap();
     
-    void assign(const ActionKey action, const unsigned int key, const bool ctrl = false);
-    void assign(const ActionKey action, const Key key);
+    // key map setup
+    void assign(const ActionKey    action, const unsigned int key, const bool ctrl = false);
+    void assign(const ActionKey    action, const Key key);
+    void assign(const unsigned int digit,  const unsigned int key, const bool ctrl = false);
+    void assign(const unsigned int digit,  const Key key);
+    
+    // reset methods
     void reset(const ActionKey action);
     void reset(const Key key);
     
-    void set_digit_key(const unsigned int digit, const Key key);
-    
-          bool      has_key(const Key& key)           const;
+    // key mapping access
+          bool      has_key( const Key& key)          const;
           ActionKey get_code(const Key& key)          const;
     const KeyList&  get_keys(const ActionKey& action) const;
-
+    
+    // method flag interface
     void set_insert_method(const InsertMethod method);
     void set_head_insert_method(const HeadInsertMethod mode);
     
@@ -108,27 +125,33 @@ class KeyMap
     HeadInsertMethod get_head_insert_method() const;
 };
 
-inline void KeyMap::assign(const ActionKey action, const unsigned int key, const bool ctrl)
-    {assign(action, Key(key, ctrl));}
+// inline method implementations
+inline KeyMap::Key::Key(unsigned int _key, bool _ctrl) : key(_key), ctrl(_ctrl) {}
 
-inline void KeyMap::set_digit_key(const unsigned int digit, const Key key)
-    {if (digit < 10) digitkeys[digit] = key;}
+inline bool KeyMap::Key::operator <  (const KeyMap::Key& x) const {return key < x.key || (key <= x.key && ctrl < x.ctrl);}
+inline bool KeyMap::Key::operator == (const KeyMap::Key& x) const {return key == x.key && ctrl == x.ctrl;}
 
-inline bool KeyMap::has_key(const Key& key) const
-    {return codes.count(key);}
-inline KeyMap::ActionKey KeyMap::get_code(const Key& key) const
-    {return codes.find(key)->second;}
-inline const KeyMap::KeyList&  KeyMap::get_keys(const ActionKey& action) const
-    {return keys[action];}
+inline KeyMap::KeyMap() : insert_on_name(true), insert_head_hold(false) {}
 
-inline void KeyMap::set_insert_method(const InsertMethod method)
-    {insert_on_name = (method == INSERT_ON_NAME);}
-inline void KeyMap::set_head_insert_method(const HeadInsertMethod mode)
-    {insert_head_hold = (mode == HEAD_HOLD);}
+inline void KeyMap::assign(const ActionKey    action,
+                           const unsigned int key,
+                           const bool         ctrl) {assign(action, Key(key, ctrl));}
 
-inline KeyMap::InsertMethod KeyMap::get_insert_method() const
-    {return (insert_on_name ? INSERT_ON_NAME : INSERT_ON_VALUE);}
-inline KeyMap::HeadInsertMethod KeyMap::get_head_insert_method() const
-    {return (insert_head_hold ? HEAD_HOLD : HEAD_SWITCH);}
- 
+inline void KeyMap::assign(const unsigned int digit,
+                           const unsigned int key,
+                           const bool         ctrl) {if (digit < 10) digitkeys[digit] = Key(key, ctrl);}
+
+inline void KeyMap::assign(const unsigned int digit, const Key key) {if (digit < 10) digitkeys[digit] = key;}
+
+inline       bool              KeyMap::has_key( const Key& key)     const {return codes.count(key);}
+inline       KeyMap::ActionKey KeyMap::get_code(const Key& key)     const {return codes.find(key)->second;}
+inline const KeyMap::KeyList&  KeyMap::get_keys(const ActionKey& a) const {return keys[a];}
+
+inline void KeyMap::set_insert_method(     const InsertMethod     mode)   {insert_on_name   = (mode == INSERT_ON_NAME);}
+inline void KeyMap::set_head_insert_method(const HeadInsertMethod mode)   {insert_head_hold = (mode == HEAD_HOLD);}
+
+inline KeyMap::InsertMethod     KeyMap::get_insert_method()      const    {return (insert_on_name ? INSERT_ON_NAME : INSERT_ON_VALUE);}
+inline KeyMap::HeadInsertMethod KeyMap::get_head_insert_method() const    {return (insert_head_hold ? HEAD_HOLD : HEAD_SWITCH);}
+
 #endif
+

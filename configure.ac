@@ -19,10 +19,10 @@
 
 # initialize package
 AC_PREREQ([2.69])
-AC_INIT([scorepress-gtk], [0.1.1])
+AC_INIT([scorepress-gtk], [0.1.2])
 AC_CONFIG_SRCDIR([src/score_widget.cpp])
-AC_CONFIG_HEADERS([src/config.hh:src/config.hh.ac])
-AC_CONFIG_FILES([Makefile:Makefile.ac])
+AC_CONFIG_HEADERS([config.hh:src/config.hh.ac])
+AC_CONFIG_FILES([Makefile:Makefile.ac mainwnd-ui.xml.hh:src/mainwnd-ui.xml.hh.ac])
 AC_LANG([C++])
 
 AC_SUBST([PACKAGE_VERSION_MAIN], [0])
@@ -31,7 +31,7 @@ AC_DEFINE([SCOREPRESS_PACKAGE_NAME], ["AC_PACKAGE_NAME"])
 AC_DEFINE([SCOREPRESS_VERSION_STRING], ["AC_PACKAGE_VERSION"])
 AC_DEFINE([SCOREPRESS_VERSION_MAJOR], [0])
 AC_DEFINE([SCOREPRESS_VERSION_MINOR], [1])
-AC_DEFINE([SCOREPRESS_VERSION_PATCH], [1])
+AC_DEFINE([SCOREPRESS_VERSION_PATCH], [2])
 
 # save user flags
 CFLAGS_ORI="$CFLAGS"
@@ -111,7 +111,8 @@ if test "x$CXX" = "xgcc" || test "x$CXX" = "xg++"; then
              -Wshadow             \\
              -Wundef              \\
              -Wunreachable-code   \\
-             -Wwrite-strings"])
+             -Wwrite-strings      \\
+             -Wno-unknown-pragmas"])
     AC_SUBST([CTRLFLAGS],  ["-ansi                \\
              -pedantic            \\
              -fno-nonansi-builtins"])
@@ -138,74 +139,9 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PATH_PROG([AR], [ar])
 AC_PATH_PROG([LDCONFIG], [ldconfig])
-AC_PATH_PROG([SED], [sed])
 AC_PATH_PROG([PKGCONFIG], [pkg-config])
 
 # check libraries
-#   libscorepress
-AC_SUBST([LIBSCOREPRESS])
-if test "x$with_libscorepress" != "xauto"; then
-    AC_SUBST([LIBSCOREPRESS_CFLAGS], [-I$with_libscorepress])
-    AC_SUBST([LIBSCOREPRESS_LIBS], [-lscorepress])
-    AC_SUBST([LIBSCOREPRESS], [$with_libscorepress])
-elif test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $scorepress_pkg; echo $?` -eq 0; then
-    AC_SUBST([LIBSCOREPRESS_CFLAGS], [`$PKGCONFIG $scorepress_pkg --cflags`])
-    AC_SUBST([LIBSCOREPRESS_LIBS], [`$PKGCONFIG $scorepress_pkg --libs`])
-else
-    AC_SUBST([LIBSCOREPRESS_CFLAGS], [-I/usr/include/libscorepress])
-    AC_SUBST([LIBSCOREPRESS_LIBS], [-lscorepress])
-fi
-
-CFLAGS="$CFLAGS_ORI $LIBSCOREPRESS_CFLAGS"
-LDFLAGS="$LDFLAGS_ORI $LIBSCOREPRESS_LIBS"
-LIBS="$LIBS_ORI $LIBSCOREPRESS_LIBS"
-AC_CHECK_LIB([scorepress], [libscorepress_autoconf_check],, AC_MSG_ERROR([cannot find library '$scorepress_pkg']))
-
-#   libgtkmm
-AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $gtkmm_pkg; echo $?` -ne 0],
-    AC_MSG_ERROR([pkg-config cannot find library '$gtkmm_pkg']))
-AC_SUBST([LIBGTKMM_CFLAGS], [`$PKGCONFIG $gtkmm_pkg --cflags`])
-AC_SUBST([LIBGTKMM_LIBS], [`$PKGCONFIG $gtkmm_pkg --libs`])
-
-CFLAGS="$CFLAGS_ORI $LIBGTKMM_CFLAGS"
-LDFLAGS="$LDFLAGS_ORI $LIBGTKMM_LIBS"
-LIBS="$LIBS_ORI $LIBGTKMM_LIBS"
-AC_CHECK_LIB([$gtkmm_pkg], [_init],, AC_MSG_ERROR([cannot find library '$gtkmm_pkg']))
-
-#   libcairomm
-AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $cairomm_pkg; echo $?` -ne 0],
-    AC_MSG_ERROR([pkg-config cannot find library '$cairomm_pkg']))
-AC_SUBST([LIBCAIROMM_CFLAGS], [`$PKGCONFIG $cairomm_pkg --cflags`])
-AC_SUBST([LIBCAIROMM_LIBS], [`$PKGCONFIG $cairomm_pkg --libs`])
-
-CFLAGS="$CFLAGS_ORI $LIBCAIROMM_CFLAGS"
-LDFLAGS="$LDFLAGS_ORI $LIBCAIROMM_LIBS"
-LIBS="$LIBS_ORI $LIBCAIROMM_LIBS"
-AC_CHECK_LIB([$cairomm_pkg], [_init],, AC_MSG_ERROR([cannot find library '$cairomm_pkg']))
-
-#   libpango
-AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $pango_pkg; echo $?` -ne 0],
-    AC_MSG_ERROR([pkg-config cannot find library '$pango_pkg']))
-AC_SUBST([LIBPANGO_CFLAGS], [`$PKGCONFIG $pango_pkg --cflags`])
-AC_SUBST([LIBPANGO_LIBS], [`$PKGCONFIG $pango_pkg --libs`])
-
-CFLAGS="$CFLAGS_ORI $LIBPANGO_CFLAGS"
-LDFLAGS="$LDFLAGS_ORI $LIBPANGO_LIBS"
-LIBS="$LIBS_ORI $LIBPANGO_LIBS"
-AC_CHECK_LIB([pango-1.0], [pango_context_new],, AC_MSG_ERROR([cannot find library 'pango-1.0']))
-AC_CHECK_LIB([pangocairo-1.0], [pango_cairo_create_context],, AC_MSG_ERROR([cannot find library 'pangocairo']))
-
-#   librsvg
-AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $rsvg_pkg; echo $?` -ne 0],
-    AC_MSG_ERROR([pkg-config cannot find library '$rsvg_pkg']))
-AC_SUBST([LIBRSVG_CFLAGS], [`$PKGCONFIG $rsvg_pkg --cflags`])
-AC_SUBST([LIBRSVG_LIBS], [`$PKGCONFIG $rsvg_pkg --libs`])
-
-CFLAGS="$CFLAGS_ORI $LIBRSVG_CFLAGS"
-LDFLAGS="$LDFLAGS_ORI $LIBRSVG_LIBS"
-LIBS="$LIBS_ORI $LIBRSVG_LIBS"
-AC_CHECK_LIB([rsvg-2], [rsvg_handle_new],, AC_MSG_ERROR([cannot find library '$rsvg_pkg']))
-
 #   libxml
 AC_SUBST([LIBXML])
 if test "x$with_libxml2" != "xauto"; then
@@ -221,9 +157,67 @@ else
 fi
 
 CFLAGS="$CFLAGS_ORI $LIBXML_CFLAGS"
-LDFLAGS="$LDFLAGS_ORI $LIBXML_LIBS"
 LIBS="$LIBS_ORI $LIBXML_LIBS"
 AC_CHECK_LIB([xml2], [xmlReaderForFile],, AC_MSG_ERROR([cannot find library 'libxml2']))
+
+#   libscorepress
+AC_SUBST([LIBSCOREPRESS])
+if test "x$with_libscorepress" != "xauto"; then
+    AC_SUBST([LIBSCOREPRESS_CFLAGS], [-I$with_libscorepress])
+    AC_SUBST([LIBSCOREPRESS_LIBS], [-lscorepress])
+    AC_SUBST([LIBSCOREPRESS], [$with_libscorepress])
+elif test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $scorepress_pkg; echo $?` -eq 0; then
+    AC_SUBST([LIBSCOREPRESS_CFLAGS], [`$PKGCONFIG $scorepress_pkg --cflags`])
+    AC_SUBST([LIBSCOREPRESS_LIBS], [`$PKGCONFIG $scorepress_pkg --libs`])
+else
+    AC_SUBST([LIBSCOREPRESS_CFLAGS], [-I/usr/include/libscorepress])
+    AC_SUBST([LIBSCOREPRESS_LIBS], [-lscorepress])
+fi
+
+CFLAGS="$CFLAGS_ORI $LIBXML_CFLAGS $LIBSCOREPRESS_CFLAGS"
+LIBS="$LIBS_ORI $LIBXML_LIBS $LIBSCOREPRESS_LIBS"
+AC_CHECK_LIB([scorepress], [libscorepress_autoconf_check],, AC_MSG_ERROR([cannot find library '$scorepress_pkg']))
+
+#   libgtkmm
+AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $gtkmm_pkg; echo $?` -ne 0],
+    AC_MSG_ERROR([pkg-config cannot find library '$gtkmm_pkg']))
+AC_SUBST([LIBGTKMM_CFLAGS], [`$PKGCONFIG $gtkmm_pkg --cflags`])
+AC_SUBST([LIBGTKMM_LIBS], [`$PKGCONFIG $gtkmm_pkg --libs`])
+
+CFLAGS="$CFLAGS_ORI $LIBGTKMM_CFLAGS"
+LIBS="$LIBS_ORI $LIBGTKMM_LIBS"
+AC_CHECK_LIB([$gtkmm_pkg], [_init],, AC_MSG_ERROR([cannot find library '$gtkmm_pkg']))
+
+#   libcairomm
+AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $cairomm_pkg; echo $?` -ne 0],
+    AC_MSG_ERROR([pkg-config cannot find library '$cairomm_pkg']))
+AC_SUBST([LIBCAIROMM_CFLAGS], [`$PKGCONFIG $cairomm_pkg --cflags`])
+AC_SUBST([LIBCAIROMM_LIBS], [`$PKGCONFIG $cairomm_pkg --libs`])
+
+CFLAGS="$CFLAGS_ORI $LIBCAIROMM_CFLAGS"
+LIBS="$LIBS_ORI $LIBCAIROMM_LIBS"
+AC_CHECK_LIB([$cairomm_pkg], [_init],, AC_MSG_ERROR([cannot find library '$cairomm_pkg']))
+
+#   libpango
+AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $pango_pkg; echo $?` -ne 0],
+    AC_MSG_ERROR([pkg-config cannot find library '$pango_pkg']))
+AC_SUBST([LIBPANGO_CFLAGS], [`$PKGCONFIG $pango_pkg --cflags`])
+AC_SUBST([LIBPANGO_LIBS], [`$PKGCONFIG $pango_pkg --libs`])
+
+CFLAGS="$CFLAGS_ORI $LIBPANGO_CFLAGS"
+LIBS="$LIBS_ORI $LIBPANGO_LIBS"
+AC_CHECK_LIB([pango-1.0], [pango_context_new],, AC_MSG_ERROR([cannot find library 'pango-1.0']))
+AC_CHECK_LIB([pangocairo-1.0], [pango_cairo_create_context],, AC_MSG_ERROR([cannot find library 'pangocairo']))
+
+#   librsvg
+AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $rsvg_pkg; echo $?` -ne 0],
+    AC_MSG_ERROR([pkg-config cannot find library '$rsvg_pkg']))
+AC_SUBST([LIBRSVG_CFLAGS], [`$PKGCONFIG $rsvg_pkg --cflags`])
+AC_SUBST([LIBRSVG_LIBS], [`$PKGCONFIG $rsvg_pkg --libs`])
+
+CFLAGS="$CFLAGS_ORI $LIBRSVG_CFLAGS"
+LIBS="$LIBS_ORI $LIBRSVG_LIBS"
+AC_CHECK_LIB([rsvg-2], [rsvg_handle_new],, AC_MSG_ERROR([cannot find library '$rsvg_pkg']))
 
 # check headers
 AC_CHECK_HEADER([cstdlib],,  AC_MSG_ERROR([Failed to find <cstdlib> header.]))
@@ -262,13 +256,11 @@ AC_TYPE_SIZE_T
 
 # check functions
 CFLAGS="$CFLAGS_ORI $LIBRSVG_CFLAGS"
-LDFLAGS="$LDFLAGS_ORI $LIBRSVG_LIBS"
 LIBS="$LIBS_ORI $LIBRSVG_LIBS"
 AC_CHECK_FUNC([rsvg_handle_get_position_sub],, AC_MSG_ERROR([library '$rsvg_pkg' cannot get subpath positions]))
 AC_CHECK_FUNC([rsvg_handle_get_dimensions_sub],, AC_MSG_ERROR([library '$rsvg_pkg' cannot get subpath dimensions]))
 
 CFLAGS="$CFLAGS_ORI $LIBXML_CFLAGS"
-LDFLAGS="$LDFLAGS_ORI $LIBXML_LIBS"
 LIBS="$LIBS_ORI $LIBXML_LIBS"
 AC_CHECK_FUNC([xmlReaderForFile],, AC_MSG_ERROR([library 'libxml2' does not provide the 'xmlReader' interface]))
 AC_CHECK_FUNC([xmlReaderForMemory],, AC_MSG_ERROR([library 'libxml2' does not provide the 'xmlReader' interface]))
@@ -342,6 +334,11 @@ if test -n "$RPATHFLAG"; then
     done
 fi
 AC_SUBST([RPATH], [$RPATH])
+
+# UI substitution
+AC_SUBST([MAINWND_UI_XML], ["\"\\
+`sed 's|\\\"|\\\\\\\"|g;s|$|\\\\|' ${srcdir}/src/mainwnd-ui.xml`
+\""])
 
 # generate output
 AC_SUBST([CFLAGS],[$CFLAGS_ORI])

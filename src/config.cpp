@@ -30,26 +30,34 @@
 
 #include "config.hh"
 
-const char* scorepress_datadir    = DATADIR;
-const char* scorepress_icondir    = ICONDIR;
-const char* scorepress_appicondir = APPICONDIR;
+const ScorePressGtk_Config scorepress_gtk_config =
+{
+    PREFIX,
+    DATADIR,
+    DESTDIR,
+    ICONDIR,
+    APPICONDIR
+};
 
 void print_library_info()
 {
-    std::cout << " - libscorepress " << LIBSCOREPRESS_VERSION_MAJOR << "." << LIBSCOREPRESS_VERSION_MINOR << "." << LIBSCOREPRESS_VERSION_PATCH << "\n";
-    std::cout << " - libgtkmm      " << GTKMM_MAJOR_VERSION         << "." << GTKMM_MINOR_VERSION         << "." << GTKMM_MICRO_VERSION         << "\n";
-    std::cout << " - libcairomm    " << CAIROMM_MAJOR_VERSION       << "." << CAIROMM_MINOR_VERSION       << "." << CAIROMM_MICRO_VERSION       << "\n";
-    std::cout << " - libpango      " << PANGO_VERSION_MAJOR         << "." << PANGO_VERSION_MINOR         << "." << PANGO_VERSION_MICRO         << "\n";
-    std::cout << " - librsvg       " << LIBRSVG_MAJOR_VERSION       << "." << LIBRSVG_MINOR_VERSION       << "." << LIBRSVG_MICRO_VERSION       << "\n";
-    std::cout << " - libxml        " << LIBXML_DOTTED_VERSION << "\n";
+    g_print(" - libscorepress %i.%i.%i\n", LIBSCOREPRESS_VERSION_MAJOR, LIBSCOREPRESS_VERSION_MINOR, LIBSCOREPRESS_VERSION_PATCH);
+    g_print(" - libgtkmm      %i.%i.%i\n", GTKMM_MAJOR_VERSION        , GTKMM_MINOR_VERSION        , GTKMM_MICRO_VERSION);
+    g_print(" - libcairomm    %i.%i.%i\n", CAIROMM_MAJOR_VERSION      , CAIROMM_MINOR_VERSION      , CAIROMM_MICRO_VERSION);
+    g_print(" - libpango      %i.%i.%i\n", PANGO_VERSION_MAJOR        , PANGO_VERSION_MINOR        , PANGO_VERSION_MICRO);
+    g_print(" - librsvg       %i.%i.%i\n", LIBRSVG_MAJOR_VERSION      , LIBRSVG_MINOR_VERSION      , LIBRSVG_MICRO_VERSION);
+    g_print(" - libxml        %s\n",       LIBXML_DOTTED_VERSION);
 #ifndef CAIRO_HAS_IMAGE_SURFACE
-    std::cout << "\nNOTE: libcairomm comes WITHOUT image surface support!\n";
+    g_print("\nNOTE: libcairomm comes WITHOUT image surface support!\n");
 #endif
 }
 
 void print_directory_info()
 {
-    std::cout << " - DATADIR    = " << scorepress_datadir << "\n";
-    std::cout << " - ICONDIR    = " << scorepress_icondir    << "\n";
-    std::cout << " - APPICONDIR = " << scorepress_appicondir << "\n";
+    g_print(" - DATADIR    = %s\n", scorepress_gtk_config.datadir);
+    g_print(" - ICONDIR    = %s\n", scorepress_gtk_config.icondir);
+    g_print(" - APPICONDIR = %s\n", scorepress_gtk_config.appicondir);
+    g_print(" - DESTDIR    = %s\n", scorepress_gtk_config.destdir);
+    g_print(" - PREFIX     = %s\n", scorepress_gtk_config.prefix);
 }
+

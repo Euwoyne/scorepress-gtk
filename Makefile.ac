@@ -28,7 +28,6 @@ CXX             := @CXX@
 INSTALL         := @INSTALL@
 INSTALL_DATA    := @INSTALL_DATA@
 INSTALL_PROGRAM := @INSTALL_PROGRAM@
-SED             := @SED@
 PKGCONFIG       := @PKGCONFIG@
 
 # target filenames
@@ -103,7 +102,12 @@ RELEASE := @RELEASE@
 RPATHFLAG    := @RPATHFLAG@
 RPATH        := @RPATH@
 
-CONFIGFLAGS  := -DDATADIR="\"${datadir_pkg}\"" -DICONDIR="\"${datadir}/icons\"" -DAPPICONDIR="\"${datadir_pkg}/icons\""
+CONFIGFLAGS  := -DPREFIX="\"${PREFIX}\""                \
+                -DDATADIR="\"${datadir_pkg}\""          \
+                -DDESTDIR="\"${DESTDIR}\""              \
+                -DICONDIR="\"${datadir}/icons\""        \
+                -DAPPICONDIR="\"${datadir_pkg}/icons\""
+
 USER_CFLAGS  := @CFLAGS@
 USER_FLAGS   := ${USER_CFLAGS} ${CFLAGS}
 USER_LIBS    := @LIBS@
@@ -113,7 +117,7 @@ USER_RPATH   := @USER_RPATH@
 USER_LIBSCOREPRESS := @LIBSCOREPRESS@
 USER_LIBXML        := @LIBXML@
 
-FLAGS := ${WARNINGS} ${CTRLFLAGS} ${${MODE}} -I${cppsrc} ${SCOREPRESSFLAGS} ${USER_CFLAGS}
+FLAGS := ${WARNINGS} ${CTRLFLAGS} ${${MODE}} -I${cppsrc} -I${srcdir} ${SCOREPRESSFLAGS} ${USER_CFLAGS}
 LIBS  := ${SCOREPRESSLIBS} ${GTKLIBS} ${CAIROLIBS} ${PANGOLIBS} ${RSVGLIBS} ${XMLLIBS} \
          ${USER_LIBS} ${USER_LDFLAGS} ${RPATH} ${RPATHFLAG}${USER_RPATH}
 
@@ -121,24 +125,26 @@ LIBS  := ${SCOREPRESSLIBS} ${GTKLIBS} ${CAIROLIBS} ${PANGOLIBS} ${RSVGLIBS} ${XM
 cfiles := ${cppsrc}/main.cpp            \
           ${cppsrc}/application.cpp     \
           ${cppsrc}/controller.cpp      \
-          ${cppsrc}/cmdline_options.cpp \
           ${cppsrc}/config.cpp          \
           ${cppsrc}/rsvg_renderer.cpp   \
           ${cppsrc}/key_map.cpp         \
           ${cppsrc}/key_listener.cpp    \
           ${cppsrc}/mainwnd.cpp         \
+          ${cppsrc}/about_dialog.cpp    \
+          ${cppsrc}/view.cpp            \
           ${cppsrc}/score_widget.cpp    \
-          ${cppsrc}/icon_manager.cpp    \
-          ${cppsrc}/_testdoc.cpp
+          ${cppsrc}/icon_manager.cpp
 
 hfiles := ${cppsrc}/application.hh      \
           ${cppsrc}/controller.hh       \
-          ${cppsrc}/cmdline_options.hh  \
-          ${cppsrc}/config.hh           \
+          ${srcdir}/config.hh           \
           ${cppsrc}/rsvg_renderer.hh    \
           ${cppsrc}/key_map.hh          \
           ${cppsrc}/key_listener.hh     \
           ${cppsrc}/mainwnd.hh          \
+          ${srcdir}/mainwnd-ui.xml.hh   \
+          ${cppsrc}/about_dialog.hh     \
+          ${cppsrc}/view.hh             \
           ${cppsrc}/score_widget.hh     \
           ${cppsrc}/icon_manager.hh     \
           ${cppsrc}/i18n.hh
@@ -148,12 +154,13 @@ srcfiles := ${cfiles} ${hfiles}
 ofiles := ${builddir}/main.o            \
           ${builddir}/application.o     \
           ${builddir}/controller.o      \
-          ${builddir}/cmdline_options.o \
           ${builddir}/config.o          \
           ${builddir}/rsvg_renderer.o   \
           ${builddir}/key_map.o         \
           ${builddir}/key_listener.o    \
           ${builddir}/mainwnd.o         \
+          ${builddir}/about_dialog.o    \
+          ${builddir}/view.o            \
           ${builddir}/score_widget.o    \
           ${builddir}/icon_manager.o
 
@@ -167,30 +174,32 @@ distfiles := ${srcdir}/AUTHORS     \
              ${srcdir}/src
 
 # header dependency list
-deps_icon_manager_hh     := ${cppsrc}/icon_manager.hh
-deps_rsvg_renderer_hh    := ${cppsrc}/rsvg_renderer.hh
-deps_cmdline_options_hh  := ${cppsrc}/cmdline_options.hh
-deps_config_hh           := ${cppsrc}/config.hh
-deps_i18n_hh             := ${cppsrc}/i18n.hh
-deps_key_map_hh          := ${cppsrc}/key_map.hh
-deps_key_listener_hh     := ${cppsrc}/key_listener.hh ${deps_key_map_hh}
-deps_controller_hh       := ${cppsrc}/controller.hh ${deps_rsvg_renderer_hh} ${deps_key_listener_hh}
-deps_score_widget_hh     := ${cppsrc}/score_widget.hh ${deps_controller_hh}
-deps_mainwnd_hh          := ${cppsrc}/mainwnd.hh ${deps_score_widget_hh} ${deps_icon_manager_hh} ${deps_rsvg_renderer_hh}
-deps_application_hh      := ${cppsrc}/application.hh ${deps_icon_manager_hh} ${deps_key_listener_hh} ${deps_mainwnd_hh}
+deps_config_hh            := ${srcdir}/config.hh
+deps_mainwnd_ui_xml_hh    := ${srcdir}/mainwnd-ui.xml.hh
+deps_about_dialog_hh      := ${cppsrc}/about_dialog.hh
+deps_i18n_hh              := ${cppsrc}/i18n.hh
+deps_score_widget_hh      := ${cppsrc}/score_widget.hh
+deps_icon_manager_hh      := ${cppsrc}/icon_manager.hh
+deps_mainwnd_hh           := ${cppsrc}/mainwnd.hh ${deps_icon_manager_hh} ${deps_about_dialog_hh}
+deps_view_hh              := ${cppsrc}/view.hh ${deps_score_widget_hh} ${deps_mainwnd_hh}
+deps_rsvg_renderer_hh     := ${cppsrc}/rsvg_renderer.hh
+deps_key_map_hh           := ${cppsrc}/key_map.hh
+deps_key_listener_hh      := ${cppsrc}/key_listener.hh ${deps_key_map_hh}
+deps_controller_hh        := ${cppsrc}/controller.hh ${deps_view_hh} ${deps_rsvg_renderer_hh} ${deps_key_listener_hh}
+deps_application_hh       := ${cppsrc}/application.hh ${deps_controller_hh}
 
-deps_main_cpp            := ${cppsrc}/main.cpp ${application_hh}
-deps_application_cpp     := ${cppsrc}/application.cpp ${deps_application_hh} ${deps_cmdline_options_hh} ${deps_controller_hh} ${deps_config_hh} ${deps_i18n_hh}
-deps_controller_cpp      := ${cppsrc}/controller.cpp ${cppsrc}/_testdoc.cpp ${deps_controller_hh} ${deps_mainwnd_hh} ${deps_config_hh}
-deps_cmdline_options_cpp := ${cppsrc}/cmdline_options.cpp ${deps_cmdline_options_hh} ${deps_i18n_hh} ${deps_config_hh}
-deps_config_cpp          := ${cppsrc}/config.cpp ${deps_config_hh} ${deps_config_hh} ${srcdir}/Makefile
-deps_rsvg_renderer_cpp   := ${cppsrc}/rsvg_renderer.cpp ${deps_rsvg_renderer_hh} ${deps_i18n_hh}
-deps_key_map_cpp         := ${cppsrc}/key_map.cpp ${deps_key_map_hh}
-deps_key_listener_cpp    := ${cppsrc}/key_listener.cpp ${deps_key_listener_hh}
-deps_mainwnd_cpp         := ${cppsrc}/mainwnd.cpp ${deps_mainwnd_hh} ${deps_config_hh} ${deps_i18n_hh}
-deps_score_widget_cpp    := ${cppsrc}/score_widget.cpp ${deps_score_widget_hh}
-deps_icon_manager_cpp    := ${cppsrc}/icon_manager.cpp ${deps_icon_manager_hh} ${deps_i18n_hh} ${deps_config_hh}
-
+deps_about_dialog_cpp     := ${cppsrc}/about_dialog.cpp ${deps_about_dialog_hh} ${deps_config_hh} ${deps_i18n_hh}
+deps_application_cpp      := ${cppsrc}/application.cpp ${deps_application_hh} ${deps_config_hh} ${deps_i18n_hh}
+deps_config_cpp           := ${cppsrc}/config.cpp ${deps_config_hh}
+deps_controller_cpp       := ${cppsrc}/controller.cpp ${deps_controller_hh}
+deps_icon_manager_cpp     := ${cppsrc}/icon_manager.cpp ${deps_icon_manager_hh} ${deps_i18n_hh} ${deps_config_hh}
+deps_key_listener_cpp     := ${cppsrc}/key_listener.cpp ${deps_controller_hh}
+deps_key_map_cpp          := ${cppsrc}/key_map.cpp ${deps_key_map_hh}
+deps_main_cpp             := ${cppsrc}/main.cpp ${deps_application_hh}
+deps_mainwnd_cpp          := ${cppsrc}/mainwnd.cpp ${deps_mainwnd_ui_xml_hh} ${deps_controller_hh} ${deps_config_hh} ${deps_i18n_hh}
+deps_rsvg_renderer_cpp    := ${cppsrc}/rsvg_renderer.cpp ${deps_rsvg_renderer_hh} ${deps_i18n_hh}
+deps_score_widget_cpp     := ${cppsrc}/score_widget.cpp ${deps_controller_hh}
+deps_view_cpp             := ${cppsrc}/view.cpp ${deps_controller_hh}
 
 #
 # MAIN TARGETS
@@ -272,19 +281,18 @@ ${builddir}/${desktopfile}: ${desktopac}
 	IFS_ORI=$$IFS;                                      \
 	IFS=:;                                              \
 	for path in $$XDG_DATA_DIRS; do                     \
-	    if test "$(echo $$path | sed --posix 's|\/*$||g')" = "${datarootdir}"; then \
+	    if test "$(echo $$path | sed 's|\/*$||g')" = "${datarootdir}"; then \
 	        _desktop_icon=scorepress;                   \
 	    fi;                                             \
 	done;                                               \
 	for path in $$PATH; do                              \
-	    if test "$(echo $$path | sed --posix 's|\/*$||g')" = "${bindir}"; then \
+	    if test "$(echo $$path | sed 's|\/*$||g')" = "${bindir}"; then \
 	        _desktop_exec=${binfile};                   \
 	    fi;                                             \
 	done;                                               \
 	IFS=$$_IFS;                                         \
-	${SED} -e "s|@DESKTOP_ICON[@]|$$_desktop_icon|g"    \
-	       -e "s|@DESKTOP_EXEC[@]|$$_desktop_exec|g"    \
-	       < ${desktopac} > ${builddir}/${desktopfile}
+	sed "s|@DESKTOP_ICON[@]|$$_desktop_icon|g;s|@DESKTOP_EXEC[@]|$$_desktop_exec|g" \
+	    < ${desktopac} > ${builddir}/${desktopfile}
 
 install-desktop: ${DESTDIR}${desktopdir} ${builddir}/${desktopfile}
 	$(NORMAL_INSTALL)
@@ -330,8 +338,9 @@ clean:
 
 distclean: clean
 	@echo "  Deleting:     configuration..."
-	@-rm -f ${cppsrc}/config.hh
 	@-rm -f ${datasrc}/${desktopfile}
+	@-rm -f ${srcdir}/config.hh
+	@-rm -f ${srcdir}/mainwnd-ui.xml.hh
 	@-rm -f ${srcdir}/config.log
 	@-rm -f ${srcdir}/config.status
 	@-rm -f ${srcdir}/Makefile
@@ -458,10 +467,6 @@ ${builddir}/controller.o:		${deps_controller_cpp}
 								echo "  Compiling:    controller.cpp..."
 								${CXX} -c ${cppsrc}/controller.cpp -o ${builddir}/controller.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
 
-${builddir}/cmdline_options.o:	${deps_cmdline_options_cpp}
-								echo "  Compiling:    cmdline_options.cpp..."
-								${CXX} -c ${cppsrc}/cmdline_options.cpp -o ${builddir}/cmdline_options.o ${FLAGS}
-
 #
 # GRAPHICAL USER INTERFACE
 #
@@ -481,6 +486,14 @@ ${builddir}/key_listener.o:		${deps_key_listener_cpp}
 ${builddir}/mainwnd.o:			${deps_mainwnd_cpp}
 								echo "  Compiling:    mainwnd.cpp..."
 								${CXX} -c ${cppsrc}/mainwnd.cpp -o ${builddir}/mainwnd.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
+
+${builddir}/about_dialog.o:		${deps_about_dialog_cpp}
+								echo "  Compiling:    about_dialog.cpp..."
+								${CXX} -c ${cppsrc}/about_dialog.cpp -o ${builddir}/about_dialog.o ${GTKFLAGS} ${FLAGS}
+
+${builddir}/view.o:				${deps_view_cpp}
+								echo "  Compiling:    view.cpp..."
+								${CXX} -c ${cppsrc}/view.cpp -o ${builddir}/view.o ${GTKFLAGS} ${RSVGFLAGS} ${FLAGS}
 
 ${builddir}/score_widget.o:		${deps_score_widget_cpp}
 								echo "  Compiling:    score_widget.cpp..."

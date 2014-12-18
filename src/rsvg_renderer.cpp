@@ -30,7 +30,7 @@
 #define XML_CAST(xmlstr) reinterpret_cast<const char*>(xmlstr)
 
 // throwing function (general file error)
-void mythrow(const char* trns, const std::string& filename) throw(ScorePress::FileReader::IOException)
+static void mythrow(const char* trns, const std::string& filename) throw(ScorePress::FileReader::IOException)
 {
     char* msg = new char[strlen(trns) + filename.size() + 1];   // allocate memory
     sprintf(msg, trns, filename.c_str());                       // assemble message
@@ -40,7 +40,11 @@ void mythrow(const char* trns, const std::string& filename) throw(ScorePress::Fi
 }
 
 // SVG spriteset parser
-RSVGRenderer::RSVGSpritesetReader::RSVGSpritesetReader() : ScorePress::FileReader("SVG Spriteset", "image/svg+xml", "svg"), ScorePress::SpritesetReader("SVG Spriteset", "image/svg+xml", "svg"), parser(NULL), lib(NULL) {}
+///  SVG Spriteset File Reader
+/// ===========================
+///
+/// File-Type label
+RSVGRenderer::RSVGSpritesetReader::RSVGSpritesetReader() : ScorePress::FileReader(_("SVG Sprites"), "image/svg+xml", "svg"), parser(NULL), lib(NULL) {}
 
 // use memory for reading
 void RSVGRenderer::RSVGSpritesetReader::open(const char* data, const std::string& _filename)
@@ -48,12 +52,12 @@ void RSVGRenderer::RSVGSpritesetReader::open(const char* data, const std::string
     // create XML parser
     if (parser) xmlFreeTextReader(parser);
     parser = xmlReaderForMemory(data, strlen(data), _filename.c_str(), NULL, XML_PARSE_NOBLANKS | XML_PARSE_NOENT | XML_PARSE_NONET);
-    if (parser == NULL) throw ScorePress::FileReader::IOException(_("Unable to read SVG sprite-set from memory"));
+    if (parser == NULL) throw ScorePress::FileReader::IOException("Unable to read SVG sprite-set from memory");
     
     // create SVG handle
     if (lib) g_object_unref(lib);
     lib = rsvg_handle_new_from_data(reinterpret_cast<const guint8*>(data), strlen(data), NULL);
-    if (lib == NULL) throw ScorePress::FileReader::IOException(_("Unable to read SVG sprite-set from memory"));
+    if (lib == NULL) throw ScorePress::FileReader::IOException("Unable to read SVG sprite-set from memory");
     
     // save filename
     filename = _filename;
@@ -62,15 +66,18 @@ void RSVGRenderer::RSVGSpritesetReader::open(const char* data, const std::string
 // open file for reading
 void RSVGRenderer::RSVGSpritesetReader::open(const std::string& _filename)
 {
+    /// Error message (%s is the file, that could not be opened)
+    static const char* message = _("Unable to open SVG sprite-set \"%s\"");
+    
     // create XML parser
     if (parser) xmlFreeTextReader(parser);
     parser = xmlReaderForFile(_filename.c_str(), NULL, XML_PARSE_NOBLANKS | XML_PARSE_NOENT | XML_PARSE_NONET);
-    if (parser == NULL) mythrow(_("Unable to open RSVG sprite-set \"%s\""), _filename);
+    if (parser == NULL) mythrow(message, _filename);
     
     // create SVG handle
     if (lib) g_object_unref(lib);
     lib = rsvg_handle_new_from_file(_filename.c_str(), NULL);
-    if (lib == NULL) mythrow(_("Unable to open RSVG sprite-set \"%s\""), _filename);
+    if (lib == NULL) mythrow(message, _filename);
     
     // save filename
     filename = _filename;
@@ -134,7 +141,7 @@ void RSVGRenderer::RSVGSpritesetReader::parse_spriteset(ScorePress::SpriteSet& t
     if (title == NULL)
     {
         if (desc) xmlFree(desc);
-        mythrow(_("Title missing (in file \"%s\")"), err_file);
+        mythrow("Title missing (in file \"%s\")", err_file);
     };
     
     // push rsvg handle
@@ -260,21 +267,23 @@ void RSVGRenderer::unload_set(const size_t setid)
 }
 
 // erase image cache
+#ifdef CAIRO_HAS_IMAGE_SURFACE
 void RSVGRenderer::clear_cache()
 {
-#ifdef CAIRO_HAS_IMAGE_SURFACE
     for (std::map<CacheKey, cairo_surface_t*>::iterator i = cache.begin(); i != cache.end(); ++i)
     {
         cairo_surface_destroy(i->second);
     };
     cache.clear();
-#endif
 }
+#else
+void RSVGRenderer::clear_cache() {}
+#endif
 
 // erase sprites of given set from cache
+#ifdef CAIRO_HAS_IMAGE_SURFACE
 void RSVGRenderer::clear_cache(const size_t setid)
 {
-#ifdef CAIRO_HAS_IMAGE_SURFACE
     for (std::map<CacheKey, cairo_surface_t*>::iterator i = cache.begin(); i != cache.end(); ++i)
     {
         while (i->first.sprite_id.setid == setid && i != cache.end())
@@ -283,17 +292,21 @@ void RSVGRenderer::clear_cache(const size_t setid)
             cache.erase(i);
         };
     };
-#endif
 }
+#else
+void RSVGRenderer::clear_cache(const size_t) {}
+#endif
 
 // enable/disable caching of image data
+#ifdef CAIRO_HAS_IMAGE_SURFACE
 bool RSVGRenderer::enable_cache(bool enable)
 {
-#ifdef CAIRO_HAS_IMAGE_SURFACE
     use_cache = enable;
-#endif
     return use_cache;
 }
+#else
+bool RSVGRenderer::enable_cache(bool) {return use_cache;}
+#endif
 
 // destructor
 RSVGRenderer::~RSVGRenderer()
@@ -392,7 +405,7 @@ void RSVGRenderer::draw_sprite(const ScorePress::SpriteId sprite_id, double x, d
             cairo_destroy(context);
         };
         
-        cairo_mask_surface(drawingCtx, surface->second, x, y);
+        cairo_mask_surface(drawingCtx, surface->second, static_cast<int>(x+.5), static_cast<int>(y+.5));
     }
     else
 #endif

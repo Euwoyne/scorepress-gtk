@@ -18,13 +18,25 @@
   permissions and limitations under the Licence.
 */
 
-#include "application.hh"
+#ifndef ABOUT_DIALOG_HH
+#define ABOUT_DIALOG_HH
 
-int main(int argn, char* argv[])
+#include <gtkmm/aboutdialog.h>
+
+class AboutDialog : public Gtk::AboutDialog
 {
-    Application app;
-    app.register_application();
-    app.activate();
-    return app.run(argn, argv);
-}
+ private:
+    Glib::ustring              licence;     // licence text (<data_path>/EUPL.txt)
+    Glib::RefPtr<Gdk::Pixbuf>  logo;        // logo         (<data_path>/logo.png)
+    
+ public:
+    std::vector<Glib::ustring> authors;     // authors list
+    std::vector<Glib::ustring> documenters; // documenters list
+    std::vector<Glib::ustring> artists;     // artists list
+    
+ public:
+    void setup();                           // content setup
+};
+
+#endif
 
