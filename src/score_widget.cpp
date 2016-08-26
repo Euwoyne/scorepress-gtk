@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2014 Dominik Lehmann
+  Copyright (C) 2016 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -254,13 +254,23 @@ bool ScoreWidget::on_motion_notify(GdkEventMotion* evnt)
     return true;
 }
 
+void ScoreWidget::translate_key(GdkEventKey* evnt)
+{
+    GdkModifierType consumed_modifiers;
+    gdk_keymap_translate_keyboard_state(this->get_display()->get_keymap(),
+                                        evnt->hardware_keycode, static_cast<GdkModifierType>(evnt->state), evnt->group,
+                                        &evnt->keyval, NULL, NULL, &consumed_modifiers);
+    evnt->state = evnt->state & ~consumed_modifiers & gtk_accelerator_get_default_mod_mask();
+}
+
 bool ScoreWidget::on_key_press(GdkEventKey* evnt)
 {
     PRINT_CLOCK("on_key_press: in  ");
     try
     {
+        translate_key(evnt);
         if (move.rdy && evnt->keyval == GDK_KEY_Escape) move.rdy = false;
-        else if (controller.on_key_press(KeyListener::Key(evnt->keyval, evnt->state & GDK_CONTROL_MASK)));
+        else if (controller.on_key_press(KeyMap::Key(evnt->keyval, evnt->state)));
         else if (evnt->keyval == GDK_KEY_W)
             controller.get_engine().plate_dump();
         else if (evnt->keyval == GDK_KEY_q && controller.has_cursor())
@@ -279,8 +289,8 @@ bool ScoreWidget::on_key_release(GdkEventKey* evnt)
     PRINT_CLOCK("on_key_release: in  ");
     try
     {
-        controller.on_key_release(KeyListener::Key(evnt->keyval, true));
-        controller.on_key_release(KeyListener::Key(evnt->keyval, false));
+        translate_key(evnt);
+        controller.on_key_release(KeyMap::Key(evnt->keyval, evnt->state));
         this->get_window()->invalidate(false);
     }
     CATCH_ERRORS("on_key_release");

@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2014 Dominik Lehmann
+  Copyright (C) 2016 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -64,7 +64,7 @@ Glib::ustring MainWnd::ZoomScale::on_format_value(double value)
     {
         return Glib::ustring::compose("%1%% ", 5.0 * value);
     }
-    catch (std::exception e)
+    catch (std::exception& e)
     {
         std::cerr << "std::exception caught: " << e.what() << "\n";
         return "ERR%";
@@ -169,7 +169,7 @@ void MainWnd::on_close_tab(Gtk::Widget* page, guint)
     try
     {
         // get corresponding view
-        ViewSet::iterator view_it = views.find(page);
+        ViewSet::iterator view_it = this->views.find(page);
         
         // TODO: ask for save
         
@@ -227,7 +227,7 @@ void MainWnd::menu_nobounds()
 }
 
 void MainWnd::menu_help()         {std::cout << "Help (?)\n";}
-void MainWnd::menu_about()        {aboutDlg->run(); aboutDlg->hide();}
+void MainWnd::menu_about()        {aboutDlg->run(*this); aboutDlg->hide();}
 
 // constructor
 MainWnd::MainWnd() : view(views.end())

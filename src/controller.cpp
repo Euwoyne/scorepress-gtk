@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2014 Dominik Lehmann
+  Copyright (C) 2016 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -19,12 +19,12 @@
 */
 
 #include "controller.hh"
-#include "mainwnd.hh"
-#include <scorepress/test.hh>
-#include <scorepress/config.hh>
+#include "mainwnd.hh"           // MainWnd
+#include <scorepress/test.hh>   // ScorePress::Test::get_document
+#include <scorepress/config.hh> // scorepress_config.datadir
 
 // constructor (with target window and key-listener)
-Controller::Controller(MainWnd& window, KeyListener& _keys) : engine(document, renderer.get_sprites()), view(*this, window), keys(_keys)
+Controller::Controller(MainWnd& window, KeyListener& _keys) : engine(document, renderer.get_sprites()), view(*this, window), keys(_keys), changed(false)
 {
     // load default spriteset
     ScorePress::Renderer::ReaderPtr reader = renderer.spriteset_reader();

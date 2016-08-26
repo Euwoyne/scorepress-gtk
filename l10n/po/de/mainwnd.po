@@ -1,0 +1,192 @@
+# German translations for scorepress-gtk package.
+# Copyright (C) 2014 THE scorepress-gtk'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the scorepress-gtk package.
+# Dominik Lehmann <dominik.lehmann-dev@arcor.de>, 2014.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: scorepress-gtk 0.1.2\n"
+"Report-Msgid-Bugs-To: dominik.lehmann-dev@arcor.de\n"
+"POT-Creation-Date: 2014-12-02 04:02+0100\n"
+"PO-Revision-Date: 2014-12-02 02:28+0100\n"
+"Last-Translator: Dominik Lehmann <dominik.lehmann-dev@arcor.de>\n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. /  Window menus in main-window
+#. / =============================
+#: mainwnd.cpp:97
+msgid "_File"
+msgstr "_Datei"
+
+#: mainwnd.cpp:98
+msgid "_New..."
+msgstr "_Neu"
+
+#: mainwnd.cpp:98
+msgid "Create new score"
+msgstr "Eine neue Partitur erstellen"
+
+#: mainwnd.cpp:99
+msgid "_Empty Score"
+msgstr "L_eere Partitur"
+
+#: mainwnd.cpp:99
+msgid "Create empty score"
+msgstr "Eine leere Partitur erstellen"
+
+#: mainwnd.cpp:101
+msgid "_Customized..."
+msgstr "_Vorlage..."
+
+#: mainwnd.cpp:101
+msgid "Create customized empty score"
+msgstr "Neue Partitur aus Vorlage erstellen"
+
+#: mainwnd.cpp:103
+msgid "_Open..."
+msgstr "Ö_f_fnen..."
+
+#: mainwnd.cpp:103
+msgid "Open score file"
+msgstr "Eine Partitur öffnen"
+
+#: mainwnd.cpp:106
+msgid "_Save..."
+msgstr "_Speichern..."
+
+#: mainwnd.cpp:106
+msgid "Save current score"
+msgstr "Die aktuelle Partitur speichern"
+
+#: mainwnd.cpp:109
+msgid "_Quit"
+msgstr "_Beenden"
+
+#: mainwnd.cpp:109
+msgid "Quit program"
+msgstr "Das Programm beenden"
+
+#: mainwnd.cpp:112
+msgid "_Edit"
+msgstr "_Bearbeiten"
+
+#: mainwnd.cpp:113
+msgid "_Undo"
+msgstr "_Rückgängig"
+
+#: mainwnd.cpp:113
+msgid "Undo last action"
+msgstr "Den letzten Corgang rückgängig machen"
+
+#: mainwnd.cpp:116
+msgid "_Redo"
+msgstr "_Wiederholen"
+
+#: mainwnd.cpp:116
+msgid "Redo the last undone action"
+msgstr "Den rückgängig gemachten Vorgang wiederholen"
+
+#: mainwnd.cpp:119
+msgid "Cu_t"
+msgstr "_Ausschneiden"
+
+#: mainwnd.cpp:119
+msgid "Cut highlighted part"
+msgstr "Den markierten Teil ausschneiden"
+
+#: mainwnd.cpp:122
+msgid "_Copy"
+msgstr "_Kopieren"
+
+#: mainwnd.cpp:122
+msgid "Copy highlighted part"
+msgstr "Den markierten Teil kopieren"
+
+#: mainwnd.cpp:125
+msgid "_Paste"
+msgstr "_Einfügen"
+
+#: mainwnd.cpp:125
+msgid "Paste clipboard contents"
+msgstr "Den Inhalt der Zwischenablage einfügen"
+
+#: mainwnd.cpp:128
+msgid "_View"
+msgstr "_Ansicht"
+
+#: mainwnd.cpp:129
+msgid "_Boundaries"
+msgstr "_Umrandungen"
+
+#: mainwnd.cpp:130
+msgid "_Line"
+msgstr "_Zeile"
+
+#: mainwnd.cpp:130
+msgid "Show line boundaries"
+msgstr "Zeichne Zeilen Umrandungen"
+
+#: mainwnd.cpp:132
+msgid "_Attached"
+msgstr "_Objekte"
+
+#: mainwnd.cpp:132
+msgid "Show attachment boundaries"
+msgstr "Zeichne Objekt Umrandungen"
+
+#: mainwnd.cpp:134
+msgid "_Note"
+msgstr "_Noten"
+
+#: mainwnd.cpp:134
+msgid "Show note boundaries"
+msgstr "Zeichne Noten Umrandungen"
+
+#: mainwnd.cpp:136
+msgid "_EOV"
+msgstr "_EOV"
+
+#: mainwnd.cpp:136
+msgid "Show end-of-voice indicators"
+msgstr "Zeichne Stimmen Ende"
+
+#: mainwnd.cpp:138
+msgid "_Show All"
+msgstr "_Alle"
+
+#: mainwnd.cpp:138
+msgid "Show all boundaries"
+msgstr "Zeichne alle Umrandungen"
+
+#: mainwnd.cpp:140
+msgid "_Hide All"
+msgstr "_Keine"
+
+#: mainwnd.cpp:140
+msgid "Show no boundaries"
+msgstr "Zeichne keine Umrandungen"
+
+#: mainwnd.cpp:142
+msgid "_Help"
+msgstr "_Hilfe"
+
+#: mainwnd.cpp:143
+msgid "_Help..."
+msgstr "_Hilfe..."
+
+#: mainwnd.cpp:143
+msgid "Help Index"
+msgstr "Inhaltsverzeichnis"
+
+#: mainwnd.cpp:146
+msgid "_About..."
+msgstr "_Info..."
+
+#: mainwnd.cpp:146
+msgid "Copyright and Credits"
+msgstr "Autoren und Copyright"

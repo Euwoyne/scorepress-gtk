@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2014 Dominik Lehmann
+  Copyright (C) 2016 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -23,7 +23,7 @@
 
 #include "key_map.hh"
 #include <scorepress/basetypes.hh>      // spohh_t, spohw_t
-#include <scorepress/edit_cursor.hh>    // EditCursor
+#include <scorepress/edit_cursor.hh>    // EditCursor::InputMode
 
 class Controller;   // Controller class prototype
 
@@ -35,24 +35,22 @@ class Controller;   // Controller class prototype
 // and triggers the necessary changes in the "Engine" and calls necessary
 // signal-handlers in "Controller" to update the view.
 //
-class KeyListener : public KeyMap
+class KeyListener
 {
- public:
-    // input mode
-    enum Mode {NORMAL, HEAD, NDOT, STEMLENGTH, STEMDIR, CHROMATIC, MOVE, ACCMOVE, STAFFSHIFT};
-    
  private:
+    // key mappings
+    const KeyMap&   keymap;     // associated keymap
+    KeyMap::Context context;    // current context (for keys used in pairs)
+    
     // input note status
     ScorePress::EditCursor::InputNote note;
     
-    // current edit mode and flags
-    Mode mode;              // current mode (for keys used in pairs)
+    // flags
     bool got_home;          // just read    KEY_HOME (consequent home-stoke results in movement to line-front)
     bool got_end;           // just read    KEY_END  (consequent end-stoke results in movement to line-end)
     bool got_8va;           // just pressed KEY_8VA  (wait for release)
     bool got_8vab;          // just pressed KEY_8VAB (wait for release)
     
- private:
     // insert helper functions
     void insert(     Controller& controller);   // insert current input-note
     void insert_rest(Controller& controller);   // insert rest
@@ -64,22 +62,24 @@ class KeyListener : public KeyMap
     ScorePress::spohw_t rest_step;              // step for y-offset modification
     
     // constructor
-    KeyListener();
+    KeyListener(const KeyMap& keymap);
     
     // signal handlers
-    bool press(  const Key key, Controller& controller);    // on key press
-    bool release(const Key key);                            // on key release
+    bool press(  const KeyMap::Key key, Controller& controller);    // on key press
+    bool release(const KeyMap::Key key);                            // on key release
     
     // signal handler helpers (mode dependant)
-    void action_off(        const ActionKey code);                          // key release
+    void action_on(const KeyMap::ActionKey  action, Controller& controller);
+    void action_on(const KeyMap::NDot       action, Controller& controller);
+    void action_on(const KeyMap::StemLength action, Controller& controller);
+    void action_on(const KeyMap::StemDir    action, Controller& controller);
+    void action_on(const KeyMap::Chromatic  action, Controller& controller);
+    void action_on(const KeyMap::Move       action, Controller& controller);
+    void action_on(const KeyMap::AccMove    action, Controller& controller);
+    void action_on(const KeyMap::StaffShift action, Controller& controller);
+    void action_on(const KeyMap::Beam       action, Controller& controller);
     
-    void action_on(         const ActionKey code, Controller& controller);  // mode: NORMAL
-    void action_stemlength( const ActionKey code, Controller& controller);  // mode: STEMLENGTH_INPUT
-    void action_stemdir(    const ActionKey code, Controller& controller);  // mode: STEMDIR_INPUT
-    void action_chromatic(  const ActionKey code, Controller& controller);  // mode: CHROMATIC_INPUT
-    void action_move(       const ActionKey code, Controller& controller);  // mode: MOVE_INPUT
-    void action_accmove(    const ActionKey code, Controller& controller);  // mode: ACCMOVE_INPUT
-    void action_staffshift( const ActionKey code, Controller& controller);  // mode: STAFFSHIFT_INPUT
+    void action_off(const KeyMap::ActionKey action);        // key release
 };
 
 #endif

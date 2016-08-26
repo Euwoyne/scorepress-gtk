@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2014 Dominik Lehmann
+  Copyright (C) 2016 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -76,6 +76,7 @@ class ScoreWidget : public Gtk::DrawingArea
     bool on_button_release(GdkEventButton* event);
     bool on_motion_notify(GdkEventMotion* event);
     
+    void translate_key(GdkEventKey* event);
     bool on_key_press(GdkEventKey* event);
     bool on_key_release(GdkEventKey* event);
 };

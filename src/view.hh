@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2014 Dominik Lehmann
+  Copyright (C) 2016 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -43,7 +43,6 @@ class View
     // constructor/destructor
     View(Controller&, MainWnd&);            // constructor
     View(const View&);                      // copy constructor
-    ~View();                                // destructor
     
     // setup and access
     void     set_window(MainWnd&);          // move to different window

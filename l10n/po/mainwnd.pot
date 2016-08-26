@@ -1,0 +1,192 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Dominik Lehmann
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: scorepress-gtk 0.1.2\n"
+"Report-Msgid-Bugs-To: dominik.lehmann-dev@arcor.de\n"
+"POT-Creation-Date: 2014-12-02 04:02+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. /  Window menus in main-window
+#. / =============================
+#: mainwnd.cpp:97
+msgid "_File"
+msgstr ""
+
+#: mainwnd.cpp:98
+msgid "_New..."
+msgstr ""
+
+#: mainwnd.cpp:98
+msgid "Create new score"
+msgstr ""
+
+#: mainwnd.cpp:99
+msgid "_Empty Score"
+msgstr ""
+
+#: mainwnd.cpp:99
+msgid "Create empty score"
+msgstr ""
+
+#: mainwnd.cpp:101
+msgid "_Customized..."
+msgstr ""
+
+#: mainwnd.cpp:101
+msgid "Create customized empty score"
+msgstr ""
+
+#: mainwnd.cpp:103
+msgid "_Open..."
+msgstr ""
+
+#: mainwnd.cpp:103
+msgid "Open score file"
+msgstr ""
+
+#: mainwnd.cpp:106
+msgid "_Save..."
+msgstr ""
+
+#: mainwnd.cpp:106
+msgid "Save current score"
+msgstr ""
+
+#: mainwnd.cpp:109
+msgid "_Quit"
+msgstr ""
+
+#: mainwnd.cpp:109
+msgid "Quit program"
+msgstr ""
+
+#: mainwnd.cpp:112
+msgid "_Edit"
+msgstr ""
+
+#: mainwnd.cpp:113
+msgid "_Undo"
+msgstr ""
+
+#: mainwnd.cpp:113
+msgid "Undo last action"
+msgstr ""
+
+#: mainwnd.cpp:116
+msgid "_Redo"
+msgstr ""
+
+#: mainwnd.cpp:116
+msgid "Redo the last undone action"
+msgstr ""
+
+#: mainwnd.cpp:119
+msgid "Cu_t"
+msgstr ""
+
+#: mainwnd.cpp:119
+msgid "Cut highlighted part"
+msgstr ""
+
+#: mainwnd.cpp:122
+msgid "_Copy"
+msgstr ""
+
+#: mainwnd.cpp:122
+msgid "Copy highlighted part"
+msgstr ""
+
+#: mainwnd.cpp:125
+msgid "_Paste"
+msgstr ""
+
+#: mainwnd.cpp:125
+msgid "Paste clipboard contents"
+msgstr ""
+
+#: mainwnd.cpp:128
+msgid "_View"
+msgstr ""
+
+#: mainwnd.cpp:129
+msgid "_Boundaries"
+msgstr ""
+
+#: mainwnd.cpp:130
+msgid "_Line"
+msgstr ""
+
+#: mainwnd.cpp:130
+msgid "Show line boundaries"
+msgstr ""
+
+#: mainwnd.cpp:132
+msgid "_Attached"
+msgstr ""
+
+#: mainwnd.cpp:132
+msgid "Show attachment boundaries"
+msgstr ""
+
+#: mainwnd.cpp:134
+msgid "_Note"
+msgstr ""
+
+#: mainwnd.cpp:134
+msgid "Show note boundaries"
+msgstr ""
+
+#: mainwnd.cpp:136
+msgid "_EOV"
+msgstr ""
+
+#: mainwnd.cpp:136
+msgid "Show end-of-voice indicators"
+msgstr ""
+
+#: mainwnd.cpp:138
+msgid "_Show All"
+msgstr ""
+
+#: mainwnd.cpp:138
+msgid "Show all boundaries"
+msgstr ""
+
+#: mainwnd.cpp:140
+msgid "_Hide All"
+msgstr ""
+
+#: mainwnd.cpp:140
+msgid "Show no boundaries"
+msgstr ""
+
+#: mainwnd.cpp:142
+msgid "_Help"
+msgstr ""
+
+#: mainwnd.cpp:143
+msgid "_Help..."
+msgstr ""
+
+#: mainwnd.cpp:143
+msgid "Help Index"
+msgstr ""
+
+#: mainwnd.cpp:146
+msgid "_About..."
+msgstr ""
+
+#: mainwnd.cpp:146
+msgid "Copyright and Credits"
+msgstr ""

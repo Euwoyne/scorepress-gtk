@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2014 Dominik Lehmann
+  Copyright (C) 2016 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -48,6 +48,7 @@ void AboutDialog::setup()
     this->set_comments(comment);
     this->set_license(licence);
     this->set_license_type(Gtk::LICENSE_CUSTOM);
+    this->set_wrap_license(true);
     this->set_website("https://github.com/Euwoyne/scorepress-gtk");
     this->set_website_label(github_link);
     this->set_authors(authors);
@@ -57,6 +58,12 @@ void AboutDialog::setup()
     if (translator != "[name of translator]")
         this->set_translator_credits(translator);
     this->set_logo(logo);
-    this->set_wrap_license(true);
+}
+
+// show dialog
+int AboutDialog::run(Gtk::Window& parent)
+{
+    this->set_transient_for(parent);
+    return Gtk::AboutDialog::run();
 }
 

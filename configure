@@ -2905,8 +2905,9 @@ fi
              -Wconversion         \\
              -Wfloat-equal        \\
              -Winit-self          \\
-             -Wno-long-long       \\
+             -Wold-style-cast     \\
              -Wpointer-arith      \\
+             -Wredundant-decls    \\
              -Wshadow             \\
              -Wundef              \\
              -Wunreachable-code   \\
@@ -2914,6 +2915,7 @@ fi
              -Wno-unknown-pragmas"
 
     CTRLFLAGS="-ansi                \\
+             -std=c++11           \\
              -pedantic            \\
              -fno-nonansi-builtins"
 
@@ -3342,7 +3344,7 @@ fi
 if test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $gtkmm_pkg; echo $?` -ne 0; then :
   as_fn_error $? "pkg-config cannot find library '$gtkmm_pkg'" "$LINENO" 5
 fi
-LIBGTKMM_CFLAGS=`$PKGCONFIG $gtkmm_pkg --cflags`
+LIBGTKMM_CFLAGS=`$PKGCONFIG $gtkmm_pkg --cflags | sed 's|-I/usr|-isystem/usr|g'`
 
 LIBGTKMM_LIBS=`$PKGCONFIG $gtkmm_pkg --libs`
 
@@ -3403,7 +3405,7 @@ fi
 if test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $cairomm_pkg; echo $?` -ne 0; then :
   as_fn_error $? "pkg-config cannot find library '$cairomm_pkg'" "$LINENO" 5
 fi
-LIBCAIROMM_CFLAGS=`$PKGCONFIG $cairomm_pkg --cflags`
+LIBCAIROMM_CFLAGS=`$PKGCONFIG $cairomm_pkg --cflags | sed 's|-I/usr|-isystem/usr|g'`
 
 LIBCAIROMM_LIBS=`$PKGCONFIG $cairomm_pkg --libs`
 
@@ -3464,7 +3466,7 @@ fi
 if test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $pango_pkg; echo $?` -ne 0; then :
   as_fn_error $? "pkg-config cannot find library '$pango_pkg'" "$LINENO" 5
 fi
-LIBPANGO_CFLAGS=`$PKGCONFIG $pango_pkg --cflags`
+LIBPANGO_CFLAGS=`$PKGCONFIG $pango_pkg --cflags | sed 's|-I/usr|-isystem/usr|g'`
 
 LIBPANGO_LIBS=`$PKGCONFIG $pango_pkg --libs`
 

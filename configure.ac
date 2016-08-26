@@ -106,14 +106,16 @@ if test "x$CXX" = "xgcc" || test "x$CXX" = "xg++"; then
              -Wconversion         \\
              -Wfloat-equal        \\
              -Winit-self          \\
-             -Wno-long-long       \\
+             -Wold-style-cast     \\
              -Wpointer-arith      \\
+             -Wredundant-decls    \\
              -Wshadow             \\
              -Wundef              \\
              -Wunreachable-code   \\
              -Wwrite-strings      \\
              -Wno-unknown-pragmas"])
     AC_SUBST([CTRLFLAGS],  ["-ansi                \\
+             -std=c++11           \\
              -pedantic            \\
              -fno-nonansi-builtins"])
     
@@ -181,7 +183,7 @@ AC_CHECK_LIB([scorepress], [libscorepress_autoconf_check],, AC_MSG_ERROR([cannot
 #   libgtkmm
 AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $gtkmm_pkg; echo $?` -ne 0],
     AC_MSG_ERROR([pkg-config cannot find library '$gtkmm_pkg']))
-AC_SUBST([LIBGTKMM_CFLAGS], [`$PKGCONFIG $gtkmm_pkg --cflags`])
+AC_SUBST([LIBGTKMM_CFLAGS], [`$PKGCONFIG $gtkmm_pkg --cflags | sed 's|-I/usr|-isystem/usr|g'`])
 AC_SUBST([LIBGTKMM_LIBS], [`$PKGCONFIG $gtkmm_pkg --libs`])
 
 CFLAGS="$CFLAGS_ORI $LIBGTKMM_CFLAGS"
@@ -191,7 +193,7 @@ AC_CHECK_LIB([$gtkmm_pkg], [_init],, AC_MSG_ERROR([cannot find library '$gtkmm_p
 #   libcairomm
 AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $cairomm_pkg; echo $?` -ne 0],
     AC_MSG_ERROR([pkg-config cannot find library '$cairomm_pkg']))
-AC_SUBST([LIBCAIROMM_CFLAGS], [`$PKGCONFIG $cairomm_pkg --cflags`])
+AC_SUBST([LIBCAIROMM_CFLAGS], [`$PKGCONFIG $cairomm_pkg --cflags | sed 's|-I/usr|-isystem/usr|g'`])
 AC_SUBST([LIBCAIROMM_LIBS], [`$PKGCONFIG $cairomm_pkg --libs`])
 
 CFLAGS="$CFLAGS_ORI $LIBCAIROMM_CFLAGS"
@@ -201,7 +203,7 @@ AC_CHECK_LIB([$cairomm_pkg], [_init],, AC_MSG_ERROR([cannot find library '$cairo
 #   libpango
 AS_IF([test -n "$PKGCONFIG" -a `$PKGCONFIG --exists $pango_pkg; echo $?` -ne 0],
     AC_MSG_ERROR([pkg-config cannot find library '$pango_pkg']))
-AC_SUBST([LIBPANGO_CFLAGS], [`$PKGCONFIG $pango_pkg --cflags`])
+AC_SUBST([LIBPANGO_CFLAGS], [`$PKGCONFIG $pango_pkg --cflags | sed 's|-I/usr|-isystem/usr|g'`])
 AC_SUBST([LIBPANGO_LIBS], [`$PKGCONFIG $pango_pkg --libs`])
 
 CFLAGS="$CFLAGS_ORI $LIBPANGO_CFLAGS"
@@ -344,5 +346,5 @@ AC_SUBST([MAINWND_UI_XML], ["\"\\
 AC_SUBST([CFLAGS],[$CFLAGS_ORI])
 AC_SUBST([LDFLAGS],[$LDFLAGS_ORI])
 AC_SUBST([LIBS],[$LIBS_ORI])
-AC_OUTPUT()
+AC_OUTPUT
 

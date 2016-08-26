@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2014 Dominik Lehmann
+  Copyright (C) 2016 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -23,7 +23,6 @@
 
 #define GTK_DISABLE_DEPRECATED 1
 #include <gtkmm.h>
-#include <scorepress/log.hh>
 #include "controller.hh"
 #include "key_listener.hh"
 #include "icon_manager.hh"
@@ -58,7 +57,8 @@ class Application : public Gtk::Application
     
     // global state
     std::list<Controller*> controllers;     // controllers (one for each open document; owned by the Application)
-    KeyListener            key_listener;    // key listener (globally the same)
+    KeyMap                 key_map;         // key map (globally the same)
+    KeyListener            key_listener;    // key listener (also globally the same)
     IconManager            icon_manager;    // icon manager
     AboutDialog            about_dialog;    // about dialog
     ScorePress::Log        log;             // application log

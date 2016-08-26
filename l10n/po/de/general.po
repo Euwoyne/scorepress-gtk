@@ -1,0 +1,114 @@
+# German translations for scorepress-gtk package.
+# Copyright (C) 2014 THE scorepress-gtk'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the scorepress-gtk package.
+# Dominik Lehmann <dominik.lehmann-dev@arcor.de>, 2014.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: scorepress-gtk 0.1.2\n"
+"Report-Msgid-Bugs-To: dominik.lehmann-dev@arcor.de\n"
+"POT-Creation-Date: 2014-12-02 04:02+0100\n"
+"PO-Revision-Date: 2014-12-02 02:28+0100\n"
+"Last-Translator: Dominik Lehmann <dominik.lehmann-dev@arcor.de>\n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. /  About Dialog
+#. / ==============
+#. /
+#. / program description
+#: about_dialog.cpp:32
+msgid "ScorePress is a WYSIWYG music typesetting program."
+msgstr "ScorePress ist ein WYSIWYG Partitur Editor"
+
+#. / GitHub link
+#: about_dialog.cpp:34
+msgid "GitHub Repository"
+msgstr "GitHub Repository"
+
+#. / your name (as displayed in the about dialog)
+#: about_dialog.cpp:36
+msgid "[name of translator]"
+msgstr "Dominik Lehmann"
+
+#. /  Application
+#. / =============
+#. /
+#. / Tab-title for unsaved files
+#: application.cpp:35
+msgid "Unsaved Score"
+msgstr "Unbenannte Partitur"
+
+#. /  Commandline Options
+#. / =====================
+#. /
+#. / help text
+#: application.cpp:201
+msgid ""
+"    Usage: score [options] [filename]\n"
+"    \n"
+"     Log Options:\n"
+"       --nolog            don't create any log\n"
+"       --debuglog         log debug output\n"
+"       --verboselog       log verbose output\n"
+"       --logfile <file>   write log to file\n"
+"    \n"
+"     General Options:\n"
+"       -s, --silent       emit no output on stdout\n"
+"       -d, --debug        generate debug output\n"
+"       -v, --verbose      generate verbose output\n"
+"       -h, --help         print this help\n"
+"       -V, --version      print program version\n"
+msgstr ""
+"    Aufruf: score [Optionen] [Datei]\n"
+"    \n"
+"     Log Optionen:\n"
+"       --nolog            kein Log\n"
+"       --deguglog         logge Debug Meldungen\n"
+"       --verboselog       logge zusätzliche Meldungen\n"
+"       --logfile <file>   schreibe Log in Datei\n"
+"    \n"
+"     Allgemeine Optionen:\n"
+"       -s, --silent       keine Ausgabe auf stdout\n"
+"       -d, --debug        erzeuge Debug Meldungen\n"
+"       -v, --verbose      erzeuge zusätzliche Meldungen\n"
+"       -h, --help         zeige diesen Hilfetext\n"
+"       -V, --version      zeige Versionsinformationen\n"
+
+#: application.cpp:253
+#, c-format
+msgid "Warning: Unrecognized option \"%s\".\n"
+msgstr "Warnung: Unbekannte Option \"%s\".\n"
+
+#: application.cpp:267
+#, c-format
+msgid "Warning: Unrecognized option \"-%c\".\n"
+msgstr "Warnung: Unbekannte Option \"-%c\".\n"
+
+#. / title line for library version output (argument --version, -V)
+#: application.cpp:287
+msgid "Libraries:"
+msgstr "Bibliotheken:"
+
+#. / title line for directory info output (argument --dirs, -D)
+#: application.cpp:297
+msgid "Directories:"
+msgstr "Pfade:"
+
+#. /  SVG Spriteset File Reader
+#. / ===========================
+#. /
+#. / File-Type label
+#: rsvg_renderer.cpp:47
+msgid "SVG Sprites"
+msgstr "SVG Symbole"
+
+#. / Error message (%s is the file, that could not be opened)
+#: rsvg_renderer.cpp:70
+#, c-format
+msgid "Unable to open SVG sprite-set \"%s\""
+msgstr "Kann SVG sprite-set \"%s\" nicht öffnen"

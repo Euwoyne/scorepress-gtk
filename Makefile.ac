@@ -477,7 +477,7 @@ ${builddir}/rsvg_renderer.o:	${deps_rsvg_renderer_cpp}
 
 ${builddir}/key_map.o:			${deps_key_map_cpp}
 								echo "  Compiling:    key_map.cpp..."
-								${CXX} -c ${cppsrc}/key_map.cpp -o ${builddir}/key_map.o ${FLAGS}
+								${CXX} -c ${cppsrc}/key_map.cpp -o ${builddir}/key_map.o ${GTKFLAGS} ${FLAGS}
 
 ${builddir}/key_listener.o:		${deps_key_listener_cpp}
 								echo "  Compiling:    key_listener.cpp..."

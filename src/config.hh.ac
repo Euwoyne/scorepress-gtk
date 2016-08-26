@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2014 Dominik Lehmann
+  Copyright (C) 2016 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -26,8 +26,8 @@
 #undef SCOREPRESS_DEBUG
 
 #define SCOREPRESS_TITLE         "ScorePress - Music Engraving Software"
-#define SCOREPRESS_COPYRIGHT     "Copyright (C) 2014 Dominik Lehmann"
-#define SCOREPRESS_COPYRIGHT_UTF "Copyright \u00A9 2014 Dominik Lehmann"
+#define SCOREPRESS_COPYRIGHT     "Copyright (C) 2016 Dominik Lehmann"
+#define SCOREPRESS_COPYRIGHT_UTF "Copyright \u00A9 2016 Dominik Lehmann"
 
 extern "C" {
 struct ScorePressGtk_Config

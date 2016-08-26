@@ -1,11 +1,14 @@
-# Code::Blocks files
-scorepress-gtk.depend
-scorepress-gtk.layout
+# Eclipse Project files
+.cproject
+.project
+.settings/
 
 # Configure Output
+autom4te.cache
 config.status
 *.log
-src/config.hh
+config.hh
+Makefile
 
 # Compiled Object files
 build/

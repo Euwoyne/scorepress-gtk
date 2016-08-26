@@ -1,0 +1,28 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Dominik Lehmann
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: scorepress-gtk 0.1.2\n"
+"Report-Msgid-Bugs-To: dominik.lehmann-dev@arcor.de\n"
+"POT-Creation-Date: 2014-12-02 04:02+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../src/icon_manager.cpp:52
+#, c-format
+msgid "Unable to load icon \"%s\"."
+msgstr ""
+
+#: ../src/icon_manager.cpp:76
+#, c-format
+msgid "Icon \"%s\" has not been loaded."
+msgstr ""

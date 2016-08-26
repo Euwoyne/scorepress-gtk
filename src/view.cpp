@@ -1,7 +1,7 @@
 
 /*
   ScorePress - Music Engraving Software  (scorepress-gtk)
-  Copyright (C) 2014 Dominik Lehmann
+  Copyright (C) 2016 Dominik Lehmann
   
   Licensed under the EUPL, Version 1.1 or - as soon they
   will be approved by the European Commission - subsequent
@@ -39,12 +39,6 @@ View::View(const View& view) : controller(view.controller), window(view.window),
     widget.show();
     scrollWnd.show();
     scrollWnd.get_child()->signal_size_allocate().connect(sigc::mem_fun(*this, &View::on_size_changed), false);
-}
-
-// destructor
-View::~View()
-{
-    window->close_view(*this);
 }
 
 // document size changed  (reallocate and redraw cache)
