@@ -35,10 +35,10 @@ class MainWnd : public Gtk::Window, public ScorePress::Logging
     class ZoomScale : public Gtk::HScale
     {
      protected:
-        virtual Glib::ustring on_format_value(double value);    // value formatter
+        virtual Glib::ustring on_format_value(double value); // value formatter
         
      public:
-        ZoomScale();                                            // constructor
+        ZoomScale(); // constructor
     };
     
  private:
@@ -49,23 +49,23 @@ class MainWnd : public Gtk::Window, public ScorePress::Logging
     Glib::RefPtr<Gtk::ActionGroup> actionGrp;   // action groups 
     
     // widgets
-    Gtk::Menu*           mainMnu;           // main menu
-    //Gtk::HandleBox*      mainBarBox;        // toolbar "Main" handle
-    //Gtk::Toolbar*        mainBar;           // toolbar "Main"
-    //Gtk::HandleBox*      viewBarBox;        // toolbar "View" handle
-    //Gtk::Toolbar*        viewBar;           // toolbar "View"
+    Gtk::Menu*           mainMnu;       // main menu
+    //Gtk::HandleBox*      mainBarBox;    // toolbar "Main" handle
+    //Gtk::Toolbar*        mainBar;       // toolbar "Main"
+    //Gtk::HandleBox*      viewBarBox;    // toolbar "View" handle
+    //Gtk::Toolbar*        viewBar;       // toolbar "View"
     
-    Gtk::Toolbar*        noteBar;           // toolbar "Note Properties"
-    Gtk::MenuButton*     noteValueBtn;      // note value button
+    Gtk::Toolbar*        noteBar;       // toolbar "Note Properties"
+    Gtk::MenuButton*     noteValueBtn;  // note value button
     
-         ZoomScale*      zoomScl;           // "Zoom" slider
-    Gtk::ToolItem*       zoomItm;           // toolbar item "Zoom"
-    Gtk::VBox*           mainBox;           // main box (Menu/Toolbar/ScoreBox)
-    Gtk::HBox*           toolBox;           // toolbar box
-    Gtk::HBox*           scoreBox;          // score box (SideMenu/ScoreTabs)
-    Gtk::Notebook*       scoreTabs;         // document notebook (open files tabs)
-    Gtk::Statusbar*      statusBar;         // status bar
-         AboutDialog*    aboutDlg;          // about dialog
+         ZoomScale*      zoomScl;       // "Zoom" slider
+    Gtk::ToolItem*       zoomItm;       // toolbar item "Zoom"
+    Gtk::VBox*           mainBox;       // main box (Menu/Toolbar/ScoreBox)
+    Gtk::HBox*           toolBox;       // toolbar box
+    Gtk::HBox*           scoreBox;      // score box (SideMenu/ScoreTabs)
+    Gtk::Notebook*       scoreTabs;     // document notebook (open files tabs)
+    Gtk::Statusbar*      statusBar;     // status bar
+         AboutDialog*    aboutDlg;      // about dialog
     
     // view management
     ViewSet              views;         // view set
@@ -115,28 +115,46 @@ class MainWnd : public Gtk::Window, public ScorePress::Logging
     
  public:
     // view interface
-    void register_view(View& view, bool select);    // add new tab to show the given view
-    void close_view(View& view);                    // close tab
-    bool update_title(View& view);                  // update title and tab label
-    bool select_view(View& view);                   // show tab with given View
-    bool select_view(int idx);                      // show tab with given index
-    int  get_view_count();                          // return count of views
+    void   register_view(View& view, bool select); // add new tab
+    void   close_view(View& view);                 // close tab
+    bool   update_title(View& view);               // update title and tab label
+    bool   select_view(View& view);                // show tab with given View
+    bool   select_view(int idx);                   // show tab with given index
+    size_t get_view_count();                       // return count of views
     
     // menu interface
     void update_menus();        // update state-dependant menus
     
-    bool get_linebounds();      // return LineboundsMnu status   ("Show line boundaries")
-    bool get_attachbounds();    // return AttachboundsMnu status ("Show attachment boundaries")
-    bool get_notebounds();      // return NoteboundsMnu status   ("Show note boundaries")
-    bool get_eovbounds();       // return EOVboundsMnu status    ("Show end-of-voice indicators")
+    bool get_linebounds();      // "Show line boundaries" menu status
+    bool get_attachbounds();    // "Show attachment boundaries" menu status
+    bool get_notebounds();      // "Show note boundaries" menu status
+    bool get_eovbounds();       // "Show end-of-voice indicators" menu status
 };
 
-inline int  MainWnd::get_view_count()   {return views.size();}
+inline size_t MainWnd::get_view_count() {
+    return views.size();
+}
 
-inline bool MainWnd::get_linebounds()   {return static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/LineboundsMnu"))->get_active();}
-inline bool MainWnd::get_attachbounds() {return static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/AttachboundsMnu"))->get_active();}
-inline bool MainWnd::get_notebounds()   {return static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/NoteboundsMnu"))->get_active();}
-inline bool MainWnd::get_eovbounds()    {return static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/EOVboundsMnu"))->get_active();}
+inline bool   MainWnd::get_linebounds()   {
+    return static_cast<Gtk::CheckMenuItem*>(
+            uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/LineboundsMnu")
+        )->get_active();
+}
+inline bool   MainWnd::get_attachbounds() {
+    return static_cast<Gtk::CheckMenuItem*>(
+            uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/AttachboundsMnu")
+        )->get_active();
+}
+inline bool   MainWnd::get_notebounds()   {
+    return static_cast<Gtk::CheckMenuItem*>(
+            uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/NoteboundsMnu")
+        )->get_active();
+}
+inline bool   MainWnd::get_eovbounds()    {
+    return static_cast<Gtk::CheckMenuItem*>(
+            uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/EOVboundsMnu")
+        )->get_active();
+}
 
 #endif
 

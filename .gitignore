@@ -7,8 +7,9 @@
 autom4te.cache
 config.status
 *.log
-config.hh
 Makefile
+config.hh
+mainwnd-ui.xml.hh
 
 # Compiled Object files
 build/

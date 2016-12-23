@@ -24,7 +24,11 @@
 #include <scorepress/config.hh> // scorepress_config.datadir
 
 // constructor (with target window and key-listener)
-Controller::Controller(MainWnd& window, KeyListener& _keys) : engine(document, renderer.get_sprites()), view(*this, window), keys(_keys), changed(false)
+Controller::Controller(MainWnd& window, KeyListener& _keys)
+    : engine (document, renderer.get_sprites()),
+      view   (*this, window),
+      keys   (_keys),
+      changed(false)
 {
     // load default spriteset
     ScorePress::Renderer::ReaderPtr reader = renderer.spriteset_reader();
@@ -32,8 +36,10 @@ Controller::Controller(MainWnd& window, KeyListener& _keys) : engine(document, r
     renderer.add_spriteset(reader);
     
     // setup engine
-    engine.set_resolution((1000L * Gdk::Screen::get_default()->get_width())  / Gdk::Screen::get_default()->get_width_mm(),
-                          (1000L * Gdk::Screen::get_default()->get_height()) / Gdk::Screen::get_default()->get_height_mm());
+    engine.set_resolution((1000 * Gdk::Screen::get_default()->get_width())
+                                / Gdk::Screen::get_default()->get_width_mm(),
+                          (1000 * Gdk::Screen::get_default()->get_height())
+                                / Gdk::Screen::get_default()->get_height_mm());
     
     // register view
     window.register_view(view, false);

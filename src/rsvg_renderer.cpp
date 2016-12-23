@@ -22,6 +22,7 @@
 #include <libxml/xmlreader.h>           // xmlReaderForMemory, ...
 #include <cstring>                      // strlen
 #include <iostream>
+#include <limits>
 
 #include "rsvg_renderer.hh"             // RsvgRenderer
 #include "i18n.hh"                      // _()
@@ -44,20 +45,38 @@ static void mythrow(const char* trns, const std::string& filename) throw(ScorePr
 /// ===========================
 ///
 /// File-Type label
-RSVGRenderer::RSVGSpritesetReader::RSVGSpritesetReader() : ScorePress::FileReader(_("SVG Sprites"), "image/svg+xml", "svg"), parser(NULL), lib(NULL) {}
+RSVGRenderer::RSVGSpritesetReader::RSVGSpritesetReader()
+    : ScorePress::FileReader(_("SVG Sprites"), "image/svg+xml", "svg"),
+      parser(NULL),
+      lib   (NULL) {}
 
 // use memory for reading
-void RSVGRenderer::RSVGSpritesetReader::open(const char* data, const std::string& _filename)
+void RSVGRenderer::RSVGSpritesetReader::open(const char*        _data,
+                                             const std::string& _filename)
 {
+    // check data length
+    const size_t len = strlen(_data);
+    if (len > std::numeric_limits<int>::max())
+        throw ScorePress::FileReader::IOException(
+                "Unable to read SVG sprite-set from memory");
+    
     // create XML parser
     if (parser) xmlFreeTextReader(parser);
-    parser = xmlReaderForMemory(data, strlen(data), _filename.c_str(), NULL, XML_PARSE_NOBLANKS | XML_PARSE_NOENT | XML_PARSE_NONET);
-    if (parser == NULL) throw ScorePress::FileReader::IOException("Unable to read SVG sprite-set from memory");
+    parser = xmlReaderForMemory(_data, static_cast<int>(len), _filename.c_str(),
+                                NULL,  XML_PARSE_NOBLANKS |
+                                       XML_PARSE_NOENT |
+                                       XML_PARSE_NONET);
+    if (parser == NULL)
+        throw ScorePress::FileReader::IOException(
+                "Unable to read SVG sprite-set from memory");
     
     // create SVG handle
     if (lib) g_object_unref(lib);
-    lib = rsvg_handle_new_from_data(reinterpret_cast<const guint8*>(data), strlen(data), NULL);
-    if (lib == NULL) throw ScorePress::FileReader::IOException("Unable to read SVG sprite-set from memory");
+    lib = rsvg_handle_new_from_data(reinterpret_cast<const guint8*>(_data),
+                                    strlen(_data), NULL);
+    if (lib == NULL)
+        throw ScorePress::FileReader::IOException(
+                "Unable to read SVG sprite-set from memory");
     
     // save filename
     filename = _filename;
@@ -71,7 +90,9 @@ void RSVGRenderer::RSVGSpritesetReader::open(const std::string& _filename)
     
     // create XML parser
     if (parser) xmlFreeTextReader(parser);
-    parser = xmlReaderForFile(_filename.c_str(), NULL, XML_PARSE_NOBLANKS | XML_PARSE_NOENT | XML_PARSE_NONET);
+    parser = xmlReaderForFile(_filename.c_str(), NULL, XML_PARSE_NOBLANKS |
+                                                       XML_PARSE_NOENT    |
+                                                       XML_PARSE_NONET);
     if (parser == NULL) mythrow(message, _filename);
     
     // create SVG handle
@@ -553,19 +574,21 @@ void RSVGRenderer::set_text_justify(const bool justify)
 void RSVGRenderer::add_text(const std::string& utf8)
 {
     if (utf8.empty()) return;
+    if (text.size() + utf8.size() > std::numeric_limits<guint>::max()) return;
     PangoAttribute* attr = pango_attr_font_desc_new(font);
-    attr->start_index = text.size();
-    attr->end_index = text.size() + utf8.size();
+    attr->start_index = static_cast<guint>(text.size());
+    attr->end_index = static_cast<guint>(text.size() + utf8.size());
     pango_attr_list_insert(text_attributes, attr);
-    attr = pango_attr_underline_new((font_underline) ? PANGO_UNDERLINE_SINGLE : PANGO_UNDERLINE_NONE);
-    attr->start_index = text.size();
-    attr->end_index = text.size() + utf8.size();
+    attr = pango_attr_underline_new((font_underline) ? PANGO_UNDERLINE_SINGLE
+                                                     : PANGO_UNDERLINE_NONE);
+    attr->start_index = static_cast<guint>(text.size());
+    attr->end_index = static_cast<guint>(text.size() + utf8.size());
     pango_attr_list_insert(text_attributes, attr);
     attr = pango_attr_foreground_new(static_cast<guint16>(font_color.r << 8),
                                     static_cast<guint16>(font_color.g << 8),
                                     static_cast<guint16>(font_color.b << 8));
-    attr->start_index = text.size();
-    attr->end_index = text.size() + utf8.size();
+    attr->start_index = static_cast<guint>(text.size());
+    attr->end_index = static_cast<guint>(text.size() + utf8.size());
     pango_attr_list_insert(text_attributes, attr);
     text.append(utf8);
 }
@@ -621,7 +644,10 @@ void RSVGRenderer::bezier_slur(double  x1, double  y1,
                                double  x2, double  y2,
                                double  w0, double  w1)
 {
-    const double line_width = cairo_get_line_width(drawingCtx); // save current line-width (for restoring)
+    // save current line-width (for restoring)
+    const double line_width = cairo_get_line_width(drawingCtx);
+    
+    // draw bezier
     if (w0 <= w1 + 0.1 && w0 >= w1 - 0.1)
     {
         cairo_set_line_width(drawingCtx, w0);
@@ -631,6 +657,8 @@ void RSVGRenderer::bezier_slur(double  x1, double  y1,
     {
         Renderer::bezier_slur(x1, y1, cx1, cy1, cx2, cy2, x2, y2, w0, w1);
     };
-    cairo_set_line_width(drawingCtx, line_width);   // restore line-width
+    
+    // restore line-width
+    cairo_set_line_width(drawingCtx, line_width);
 }
 
