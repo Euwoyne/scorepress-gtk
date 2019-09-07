@@ -31,7 +31,7 @@
 #define XML_CAST(xmlstr) reinterpret_cast<const char*>(xmlstr)
 
 // throwing function (general file error)
-static void mythrow(const char* trns, const std::string& filename) throw(ScorePress::FileReader::IOException)
+static void mythrow(const char* trns, const std::string& filename)
 {
     char* msg = new char[strlen(trns) + filename.size() + 1];   // allocate memory
     sprintf(msg, trns, filename.c_str());                       // assemble message

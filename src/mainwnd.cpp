@@ -26,6 +26,7 @@
 #include "i18n.hh"
 #include <vector>
 #include <iostream>
+#include <stdexcept>
 #include <scorepress/engine.hh>
 
 #define CATCH_ERRORS(NAME) \
@@ -79,6 +80,88 @@ MainWnd::ZoomScale::ZoomScale() : Gtk::HScale(2, 61, 1)
     this->set_slider_size_fixed(true);
     this->set_digits(0);
     this->set_increments(1, 2);
+}
+
+MainWnd::ValueButton::ValueButton(KeyMap::ActionKey _key) : key(_key)
+{
+    std::string imagepath = std::string(scorepress_gtk_config.datadir) + "/icons";
+    switch (key)
+    {
+    case KeyMap::KEY_LONGA:   imagepath.append("/note-1.svg"); break;
+    case KeyMap::KEY_BREVE:   imagepath.append("/note0.svg"); break;
+    case KeyMap::KEY_WHOLE:   imagepath.append("/note1.svg"); break;
+    case KeyMap::KEY_HALF:    imagepath.append("/note2.svg"); break;
+    case KeyMap::KEY_QUARTER: imagepath.append("/note4.svg"); break;
+    case KeyMap::KEY_EIGHTH:  imagepath.append("/note8.svg"); break;
+    case KeyMap::KEY_16TH:    imagepath.append("/note16.svg"); break;
+    case KeyMap::KEY_32TH:    imagepath.append("/note32.svg"); break;
+    case KeyMap::KEY_64TH:    imagepath.append("/note64.svg"); break;
+    case KeyMap::KEY_128TH:   imagepath.append("/note128.svg"); break;
+    case KeyMap::KEY_256TH:   imagepath.append("/note256.svg"); break;
+    default:
+        throw std::invalid_argument("MailWnd::ValueButton::ValueButton() got a KeyMap::ActionKey that does not designate a note value.");
+    }
+    
+    Glib::RefPtr<Gdk::Pixbuf> img;
+    //Glib::RefPtr<Gio::MemoryInputStream> is(Gio::MemoryInputStream::create());
+    /*is->add_data(""
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+        "<svg version=\"1.1\"\n"
+        "     xmlns=\"http://www.w3.org/2000/svg\"\n"
+        "     xmlns:xi=\"http://www.w3.org/2001/XInclude\"\n"
+        "     width=\"24\"\n"
+        "     height=\"24\">\n"
+        "  <style type=\"text/css\">\n"
+        "    path {fill: white !important;}\n"
+        "  </style>\n"
+        "  <xi:include href=\"" + imagepath + "\"/>\n"
+        "</svg>");
+    img = Gdk::Pixbuf::create_from_stream(is);*/
+    img = Gdk::Pixbuf::create_from_file(imagepath);
+    icon = Gtk::Image(img);
+    set_image(icon);
+}
+
+// note value selector: constructor
+MainWnd::ValueSelector::ValueSelector(Gtk::ToggleToolButton& relative_to, ViewSet::iterator& _view)
+    : Gtk::Popover(relative_to),
+      view        (_view),
+      valueButtons({ValueButton(KeyMap::KEY_LONGA),
+                    ValueButton(KeyMap::KEY_BREVE),
+                    ValueButton(KeyMap::KEY_WHOLE),
+                    ValueButton(KeyMap::KEY_HALF),
+                    ValueButton(KeyMap::KEY_QUARTER),
+                    ValueButton(KeyMap::KEY_EIGHTH),
+                    ValueButton(KeyMap::KEY_16TH),
+                    ValueButton(KeyMap::KEY_32TH),
+                    ValueButton(KeyMap::KEY_64TH),
+                    ValueButton(KeyMap::KEY_128TH),
+                    ValueButton(KeyMap::KEY_256TH)})
+{
+    icon.set(valueButtons[4].get_icon().get_pixbuf());
+    relative_to.set_icon_widget(icon);
+    grid.set_row_spacing(6);
+    grid.set_column_spacing(6);
+    for (int i = 0; i < 10; ++i) {
+        grid.attach(valueButtons[i], i % 5, i / 5, 1, 1);
+        valueButtons[i].signal_clicked().connect(sigc::bind<const ValueButton&>(sigc::mem_fun(*this, &ValueSelector::on_selected), valueButtons[i]));
+    }
+    add(grid);
+    set_modal(false);
+    show_all_children();
+}
+
+// get icon widget from the ValueButton for the given note value
+void MainWnd::ValueSelector::set_icon(int exp)
+{
+    icon.set(valueButtons[ScorePress::VALUE_BASE + 2 - exp].get_icon().get_pixbuf());
+}
+
+void MainWnd::ValueSelector::on_selected(const ValueButton& source)
+{
+    popdown();
+    static_cast<Gtk::ToggleToolButton*>(get_relative_to())->set_active(false);
+    view->second->controller.on_action(source.get_key());
 }
 
 // setup the "actionGrp" instance (requires properly set up menus)
@@ -229,13 +312,16 @@ void MainWnd::menu_nobounds()
 void MainWnd::menu_help()         {std::cout << "Help (?)\n";}
 void MainWnd::menu_about()        {aboutDlg->run(*this); aboutDlg->hide();}
 
+void MainWnd::tool_valueselect()
+{
+    bool active = valueBtn->get_active();
+    valueSelect->set_visible(active);
+}
+
 // constructor
 MainWnd::MainWnd() : view(views.end())
 {
-    //mainBarBox = NULL;
-    //viewBarBox = NULL;
-    //toolBox = NULL;
-    noteValueBtn = NULL;
+    toolBox = NULL;
     zoomScl = NULL;
     zoomItm = NULL;
     mainBox = NULL;
@@ -264,27 +350,29 @@ void MainWnd::setup(const Icon& icon, AboutDialog& aboutdlg)
     uiManager->add_ui_from_string(mainwnd_ui);
     this->add_accel_group(uiManager->get_accel_group());
     
-    noteBar = static_cast<Gtk::Toolbar*>(uiManager->get_widget("/NoteBar"));
-    noteValueBtn = new Gtk::MenuButton();
-    
     mainMnu = static_cast<Gtk::Menu*>(uiManager->get_widget("/MainMnu"));
-    /*
+    
     mainBar = static_cast<Gtk::Toolbar*>(uiManager->get_widget("/MainBar"));
-    mainBar->unset_toolbar_style();
+    //mainBar->unset_toolbar_style();
     mainBar->set_can_default(false);
     mainBar->set_can_focus(false);
+    
     viewBar = static_cast<Gtk::Toolbar*>(uiManager->get_widget("/ViewBar"));
-    viewBar->unset_toolbar_style();
+    //viewBar->unset_toolbar_style();
     viewBar->set_can_default(false);
     viewBar->set_can_focus(false);
-    */
+    
+    noteBar = static_cast<Gtk::Toolbar*>(uiManager->get_widget("/NoteBar"));
+    noteBar->set_can_default(false);
+    noteBar->set_can_focus(false);
+    valueBtn = new Gtk::ToggleToolButton();
+    valueSelect = new ValueSelector(*valueBtn, view);
+    noteBar->add(*valueBtn);
     
     // setup controls
     log_debug("setup controls...");
-    //mainBarBox = new Gtk::HandleBox();
     zoomScl = new ZoomScale();
     zoomItm = new Gtk::ToolItem();
-    //viewBarBox = new Gtk::HandleBox();
     mainBox = new Gtk::VBox(false, 0);
     toolBox = new Gtk::HBox(false, 0);
     scoreBox = new Gtk::HBox(false, 0);
@@ -292,11 +380,9 @@ void MainWnd::setup(const Icon& icon, AboutDialog& aboutdlg)
     statusBar = new Gtk::Statusbar();
     scoreTabs->set_scrollable(true);
     
-    //mainBarBox->add(*mainBar);
-    //viewBarBox->add(*viewBar);
-    toolBox->pack_start(*noteBar, Gtk::PACK_EXPAND_WIDGET);
-    //toolBox->pack_start(*mainBarBox, Gtk::PACK_EXPAND_WIDGET);
-    //toolBox->pack_start(*viewBarBox, Gtk::PACK_EXPAND_WIDGET);
+    toolBox->pack_start(*noteBar, Gtk::PACK_SHRINK);
+    toolBox->pack_start(*mainBar, Gtk::PACK_SHRINK);
+    toolBox->pack_start(*viewBar, Gtk::PACK_SHRINK);
     scoreTabs->set_can_focus(false);
     scoreBox->pack_start(*scoreTabs);
     zoomScl->set_can_focus(false);
@@ -310,6 +396,7 @@ void MainWnd::setup(const Icon& icon, AboutDialog& aboutdlg)
     this->add(*mainBox);
     
     // setup signal handlers
+    valueBtn->signal_toggled().connect(sigc::mem_fun(*this, &MainWnd::tool_valueselect), false);
     scoreTabs->signal_switch_page().connect(sigc::mem_fun(*this, &MainWnd::on_switch_tab), false);
     scoreTabs->signal_page_removed().connect(sigc::mem_fun(*this, &MainWnd::on_close_tab), false);
     zoomScl->signal_value_changed().connect(sigc::mem_fun(*this, &MainWnd::on_zoom_changed), false);
@@ -344,10 +431,9 @@ MainWnd::~MainWnd()
     delete mainBox;
     delete zoomItm;
     delete zoomScl;
-    //delete mainBarBox;
-    //delete viewBarBox;
-    //delete toolBox;
-    delete noteValueBtn;
+    delete toolBox;
+    delete valueBtn;
+    delete valueSelect;
     for (ViewSet::iterator i = views.begin(); i != views.end(); ++i)
         delete i->second;
 }
@@ -441,5 +527,17 @@ void MainWnd::update_menus()
         engine.get_press_parameters().draw_notebounds);
     static_cast<Gtk::CheckMenuItem*>(uiManager->get_widget("/MainMnu/ViewMnu/BoundsMnu/EOVboundsMnu"))->set_active(
         engine.get_press_parameters().draw_eov);
+}
+
+// update value image in toolbar
+void MainWnd::select_value(unsigned char exp)
+{
+    valueSelect->set_icon(exp);
+}
+
+// update note name in statusbar
+void MainWnd::select_note(ScorePress::EditCursor::NoteName)
+{
+    // TODO: Note name in status bar (if in "insert on value"-mode)
 }
 

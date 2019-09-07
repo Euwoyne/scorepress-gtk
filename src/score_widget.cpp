@@ -157,6 +157,7 @@ bool ScoreWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& drawingCtx)
         drawingCtx->restore();
         controller.get_renderer().begin(drawingCtx->cobj());
         controller.render_edit_cursor(offset);
+        controller.render_object_cursors(offset);
         //drawingCtx->set_antialias(Cairo::ANTIALIAS_SUBPIXEL);
         //if (move.ack)
         //    controller.render_selected(offset, move.offset);
@@ -190,7 +191,10 @@ bool ScoreWidget::on_button_press(GdkEventButton* evnt)
     PRINT_CLOCK("on_button_press: in  ");
     try
     {
-        controller.on_mouse_press(Controller::Position(static_cast<ScorePress::mpx_t>(evnt->x * 1000 - offset.x + .5), static_cast<ScorePress::mpx_t>(evnt->y * 1000 - offset.y + .5)));
+        grab_focus();
+        controller.on_mouse_press(
+                Controller::Position(static_cast<ScorePress::mpx_t>(evnt->x * 1000 - offset.x + .5),
+                                     static_cast<ScorePress::mpx_t>(evnt->y * 1000 - offset.y + .5)));
         /*
         if (controller.on_mouse_press(Controller::Position(evnt->x * 1000 - offset.x, evnt->y * 1000 - offset.y)))
         {
@@ -207,13 +211,15 @@ bool ScoreWidget::on_button_press(GdkEventButton* evnt)
     return true;
 }
 
-bool ScoreWidget::on_button_release(GdkEventButton*)
+bool ScoreWidget::on_button_release(GdkEventButton* evnt)
 {
-    /*
     PRINT_CLOCK("on_button_release: in  ");
     try
     {
-        controller.mouse_off(evnt->x * 1000 - offset.x, evnt->y * 1000 - offset.y);
+        controller.on_mouse_release(
+                Controller::Position(static_cast<ScorePress::mpx_t>(evnt->x * 1000 - offset.x + .5),
+                                     static_cast<ScorePress::mpx_t>(evnt->y * 1000 - offset.y + .5)));
+        /*
         if (move.ack)
         {
             move.offset.x = _round((evnt->x - move.x) * 1000);
@@ -227,10 +233,10 @@ bool ScoreWidget::on_button_release(GdkEventButton*)
             cache_valid = false;
             this->get_window()->invalidate(false);
         };
+        */
     }
     CATCH_ERRORS("on_button_release");
     PRINT_CLOCK("on_button_release: out ");
-    */
     return true;
 }
 

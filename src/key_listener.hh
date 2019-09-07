@@ -80,7 +80,12 @@ class KeyListener
     void action_on(const KeyMap::Beam       action, Controller& controller);
     
     void action_off(const KeyMap::ActionKey action);        // key release
+    
+    // current input note access
+    ScorePress::EditCursor::InputNote& get_note();
 };
+
+inline ScorePress::EditCursor::InputNote& KeyListener::get_note() {return note;}
 
 #endif
 

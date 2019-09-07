@@ -25,7 +25,7 @@
 #include "config.hh"    // icondir, appicondir
 
 // throwing function (general error)
-static void mythrow(const char* trns, const std::string& arg) throw(IconManager::Error)
+static void mythrow(const char* trns, const std::string& arg)
 {
     char* msg = new char[strlen(trns) + arg.size() + 1];    // allocate memory
     sprintf(msg, trns, arg.c_str());                        // assemble message
@@ -35,14 +35,13 @@ static void mythrow(const char* trns, const std::string& arg) throw(IconManager:
 }
 
 // load icon into memory
-void IconManager::load(const std::string iconname, const std::string alias) throw(Error)
+void IconManager::load(const std::string iconname, const std::string alias)
 {
     // prepare search paths
     if (!theme)
     {
         theme = Gtk::IconTheme::get_default();                          // use theme for default screen
         theme->append_search_path(scorepress_gtk_config.icondir);       // add icon directory
-        theme->append_search_path(scorepress_gtk_config.appicondir);    // add appicon directory
         theme->rescan_if_needed();                                      // scan new directories
     };
     
@@ -70,7 +69,7 @@ void IconManager::load(const std::string iconname, const std::string alias) thro
 }
 
 // get icon (throws, if not loaded)
-const Icon& IconManager::get(const std::string alias) const throw(Error)
+const Icon& IconManager::get(const std::string alias) const
 {
     std::map<std::string, Icon>::const_iterator i = icons.find(alias);
     if (i == icons.end()) mythrow(_("Icon \"%s\" has not been loaded."), alias);

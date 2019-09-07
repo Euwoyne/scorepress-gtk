@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<!--
+  ScorePress - Music Engraving Software - Symbol Library
+  Copyright (C) 2014 Dominik Lehmann
+  
+  This work is licensed under the Creative Commons
+  Attribution-ShareAlike 3.0 International License.
+  To view a copy of this license, visit
+  http://creativecommons.org/licenses/by-sa/3.0/.
+-->
+
+<svg xmlns="http://www.w3.org/2000/svg"
+     id="ScorepressSymbolLibrary"
+     version="1.1"
+     viewBox="-20 -5 80 80" width="24" height="24">
+  
+  <title>ScorePress - Symbol Library</title>
+  <desc>file://default.xml</desc>
+  
+  <!-- HEAD -->
+  <g id="head_half">
+    <path d="M  0 13
+             C  0  5 10  0 17  0
+             C 22  0 25  3 25  7
+             C 25 15 15 20  8 20
+             C  3 20  0 17  0 13
+             M 21  4
+             C 18  1  1 13  4 16
+             C  7 19 24  7 21  4
+             Z"
+          transform="translate(0 50)"
+    />
+  </g>
+  
+  <!-- STEM -->
+  <g id="stem">
+    <path d="M 24 0 L 24 57" stroke="black" stroke-width="2"/>
+  </g>
+</svg>

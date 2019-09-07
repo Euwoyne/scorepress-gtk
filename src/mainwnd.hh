@@ -23,14 +23,22 @@
 
 #define GTK_DISABLE_DEPRECATED 1
 #include <gtkmm.h>
+#include "key_map.hh"
 #include "icon_manager.hh"
 #include "about_dialog.hh"
+#include <scorepress/edit_cursor.hh>
 #include <scorepress/log.hh>
 
 class View;
 class MainWnd : public Gtk::Window, public ScorePress::Logging
 {
  private:
+    friend class ValueButton;
+    friend class ValueSelector;
+    
+    // type to map view widgets to their interface instances
+    typedef std::map<Gtk::Widget*, View*> ViewSet;
+     
     // zoom slider widget
     class ZoomScale : public Gtk::HScale
     {
@@ -41,35 +49,61 @@ class MainWnd : public Gtk::Window, public ScorePress::Logging
         ZoomScale(); // constructor
     };
     
- private:
-    typedef std::map<Gtk::Widget*, View*> ViewSet;
+    // note value button
+    class ValueButton : public Gtk::Button
+    {
+     private:
+        const KeyMap::ActionKey key;
+        Gtk::Image              icon;
+        
+     public:
+        ValueButton(KeyMap::ActionKey);
+        
+        KeyMap::ActionKey get_key() const;
+        Gtk::Image&       get_icon();
+    };
     
+    // note value selector
+    class ValueSelector : public Gtk::Popover
+    {
+     private:
+        ViewSet::iterator& view;
+        Gtk::Grid          grid;
+        ValueButton        valueButtons[11];
+        Gtk::Image         icon;
+        
+     public:
+        ValueSelector(Gtk::ToggleToolButton&, ViewSet::iterator&);
+        void set_icon(int exp);
+        void on_selected(const ValueButton&);
+    };
+    
+ private:
     // menu and toolbar manager
     Glib::RefPtr<Gtk::UIManager>   uiManager;   // UI manager
-    Glib::RefPtr<Gtk::ActionGroup> actionGrp;   // action groups 
+    Glib::RefPtr<Gtk::ActionGroup> actionGrp;   // action groups
     
     // widgets
-    Gtk::Menu*           mainMnu;       // main menu
-    //Gtk::HandleBox*      mainBarBox;    // toolbar "Main" handle
-    //Gtk::Toolbar*        mainBar;       // toolbar "Main"
-    //Gtk::HandleBox*      viewBarBox;    // toolbar "View" handle
-    //Gtk::Toolbar*        viewBar;       // toolbar "View"
+    Gtk::Menu*             mainMnu;     // main menu
+    Gtk::Toolbar*          mainBar;     // toolbar "Main"
+    Gtk::Toolbar*          viewBar;     // toolbar "View"
+    Gtk::Toolbar*          noteBar;     // toolbar "Note Properties"
     
-    Gtk::Toolbar*        noteBar;       // toolbar "Note Properties"
-    Gtk::MenuButton*     noteValueBtn;  // note value button
+    Gtk::ToggleToolButton* valueBtn;    // value button
+         ValueSelector*    valueSelect;
     
-         ZoomScale*      zoomScl;       // "Zoom" slider
-    Gtk::ToolItem*       zoomItm;       // toolbar item "Zoom"
-    Gtk::VBox*           mainBox;       // main box (Menu/Toolbar/ScoreBox)
-    Gtk::HBox*           toolBox;       // toolbar box
-    Gtk::HBox*           scoreBox;      // score box (SideMenu/ScoreTabs)
-    Gtk::Notebook*       scoreTabs;     // document notebook (open files tabs)
-    Gtk::Statusbar*      statusBar;     // status bar
-         AboutDialog*    aboutDlg;      // about dialog
+         ZoomScale*        zoomScl;     // "Zoom" slider
+    Gtk::ToolItem*         zoomItm;     // toolbar item "Zoom"
+    Gtk::VBox*             mainBox;     // main box (Menu/Toolbar/ScoreBox)
+    Gtk::HBox*             toolBox;     // toolbar box
+    Gtk::HBox*             scoreBox;    // score box (SideMenu/ScoreTabs)
+    Gtk::Notebook*         scoreTabs;   // document notebook (open files tabs)
+    Gtk::Statusbar*        statusBar;   // status bar
+         AboutDialog*      aboutDlg;    // about dialog
     
     // view management
-    ViewSet              views;         // view set
-    ViewSet::iterator    view;          // current view
+    ViewSet                views;       // view set
+    ViewSet::iterator      view;        // current view
     
     // private copy constructor
     MainWnd(MainWnd&);
@@ -106,6 +140,9 @@ class MainWnd : public Gtk::Window, public ScorePress::Logging
     void menu_help();
     void menu_about();
     
+    // toolbar handlers
+    void tool_valueselect();
+    
  public:
     // main interface
     MainWnd();                  // constructor
@@ -129,7 +166,19 @@ class MainWnd : public Gtk::Window, public ScorePress::Logging
     bool get_attachbounds();    // "Show attachment boundaries" menu status
     bool get_notebounds();      // "Show note boundaries" menu status
     bool get_eovbounds();       // "Show end-of-voice indicators" menu status
+    
+    // status interface
+    void select_value(unsigned char exp);
+    void select_note (ScorePress::EditCursor::NoteName name);
 };
+
+inline KeyMap::ActionKey MainWnd::ValueButton::get_key() const {
+    return key;
+}
+
+inline Gtk::Image& MainWnd::ValueButton::get_icon() {
+    return icon;
+}
 
 inline size_t MainWnd::get_view_count() {
     return views.size();
@@ -157,4 +206,3 @@ inline bool   MainWnd::get_eovbounds()    {
 }
 
 #endif
-

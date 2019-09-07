@@ -65,9 +65,8 @@ iconctx      := apps
 icondir      := ${datadir}/icons/${icontheme}
 iconfiles    := scorepress.png scorepress-sm.png
 iconsizes    := 16 24 32 48 64 128
-appicondir   := ${datadir_pkg}/icons/${icontheme}
-appiconfiles := 
-appiconsizes := 
+appicondir   := ${datadir_pkg}/icons
+appiconfiles := note-1.svg note0.svg note1.svg note2.svg note4.svg note8.svg note16.svg note32.svg note64.svg note128.svg note256.svg
 
 # desktop file
 desktopfile     := ${PACKAGE_TARNAME}.desktop
@@ -238,33 +237,28 @@ install-basedata: ${DESTDIR}${datadir_pkg}
 install-icons: ${DESTDIR}${icondir}
 	$(NORMAL_INSTALL)
 	@echo "  Installing:   Icons (systemwide)"
-	@for size in ${iconsizes}; do                                              \
-	    if test ! -e ${DESTDIR}${icondir}/$${size}x$${size}; then              \
-	        mkdir ${DESTDIR}${icondir}/$${size}x$${size};                      \
-	        mkdir ${DESTDIR}${icondir}/$${size}x$${size}/${iconctx};           \
-	    elif test ! -e ${DESTDIR}${icondir}/$${size}x$${size}/${iconctx}; then \
-	        mkdir ${DESTDIR}${icondir}/$${size}x$${size}/${iconctx};           \
-	    fi;                                                                    \
-	    for file in ${iconfiles}; do                                           \
-	        ${INSTALL_DATA} -t ${DESTDIR}${icondir}/$${size}x$${size}/${iconctx} \
-	                           ${iconsrc}/$${size}x$${size}/$${file};          \
-	    done;                                                                  \
+	@for size in ${iconsizes}; do                                       \
+	    if test "$${size}" != "scalable"; then                          \
+	        size=$${size}x$${size};                                     \
+	    fi;                                                             \
+	    if test ! -e ${DESTDIR}${icondir}/$${size}; then                \
+	        mkdir ${DESTDIR}${icondir}/$${size};                        \
+	        mkdir ${DESTDIR}${icondir}/$${size}/${iconctx};             \
+	    elif test ! -e ${DESTDIR}${icondir}/$${size}/${iconctx}; then   \
+	        mkdir ${DESTDIR}${icondir}/$${size}/${iconctx};             \
+	    fi;                                                             \
+	    for file in ${iconfiles}; do                                    \
+	        ${INSTALL_DATA} -t ${DESTDIR}${icondir}/$${size}/${iconctx} \
+	                           ${iconsrc}/$${size}/$${file};            \
+	    done;                                                           \
 	 done
 
 install-appicons: ${DESTDIR}${appicondir}
 	$(NORMAL_INSTALL)
 	@echo "  Installing:   Icons (application specific)"
-	@for size in ${appiconsizes}; do                                                \
-	    if test ! -e ${DESTDIR}${appicondir}/$${size}x$${size}; then                \
-	        mkdir ${DESTDIR}${appicondir}/$${size}x$${size};                        \
-	        mkdir ${DESTDIR}${appicondir}/$${size}x$${size}/${iconctx};             \
-	    elif test ! -e ${DESTDIR}${appicondir}/$${size}x$${size}/${iconctx}; then   \
-	        mkdir ${DESTDIR}${appicondir}/$${size}x$${size}/${iconctx};             \
-	    fi;                                                                         \
-	    for file in ${appiconfiles}; do                                             \
-	        ${INSTALL_DATA} -t ${DESTDIR}${appicondir}/$${size}x$${size}/${iconctx} \
-	                           ${iconsrc}/$${size}x$${size}/$${file};               \
-	    done;                                                                       \
+	@for file in ${appiconfiles}; do                 \
+	    ${INSTALL_DATA} -t ${DESTDIR}${appicondir}   \
+	                       ${appiconsrc}/$${file};   \
 	 done
 
 update-icon-cache:

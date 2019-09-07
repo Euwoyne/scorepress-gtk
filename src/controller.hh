@@ -55,11 +55,11 @@ class Controller : public ScorePress::Logging
     ScorePress::MultipageLayout  layout;        // multipage layout for rendering
     
     // rendering/controlling instances
-    CursorPtr    edit_cursor;       // edit cursor
-    ObjectList   object_cursors;    // object cursor
-    View         view;              // view instance (target widget)
-    RSVGRenderer renderer;          // renderer
-    KeyListener& keys;              // key listener (normally hosted by Application instance)
+    CursorPtr      edit_cursor;     // edit cursor
+    ObjectList     object_cursors;  // object cursor
+    View           view;            // view instance (target widget)
+    RSVGRenderer   renderer;        // renderer
+    KeyListener&   keys;            // key listener (normally hosted by Application instance)
     
     // file information
     std::string  basename;          // the file's basename
@@ -98,26 +98,29 @@ class Controller : public ScorePress::Logging
     
     // signal handler
         // (from KeyListener)
-    void on_resize();   // the document size changed  (-> allocate cache, engrave and render)
-    void reengrave();   // the document data changed  (->                 engrave and render)
-    void rerender();    // the plate instance changed (->                             render)
-    void redraw();      // the cursors changed        (-> only refresh view)
+    void on_resize();           // the document size changed  (-> allocate cache, engrave and render)
+    void reengrave();           // the document data changed  (->                 engrave and render)
+    void rerender();            // the plate instance changed (->                             render)
+    void redraw();              // the cursors changed        (-> only refresh view)
+    void on_note_changed();     // the insertion note changed (-> update status and tool bar)
     
         // (from MainWnd)
-    void on_zoom_changed(const unsigned int);   // the zoom changed (-> redraw)
+    void on_zoom_changed(const unsigned int);       // the zoom changed (-> redraw)
+    void on_action      (const KeyMap::ActionKey);  // code generated action
     
         // (from ScoreWidget)
-    bool on_key_press(  const KeyMap::Key);     // key press signal
-    bool on_key_release(const KeyMap::Key);     // key release signal
-    bool on_mouse_press(const Position&);       // mouse click signal
+    bool on_key_press    (const KeyMap::Key);   // key press signal
+    bool on_key_release  (const KeyMap::Key);   // key release signal
+    bool on_mouse_press  (const Position&);     // mouse click signal
+    bool on_mouse_release(const Position&);     // mouse key release signal
     
     // page layout
     ScorePress::mpx_t layout_width()  const;    // width of complete layout
     ScorePress::mpx_t layout_height() const;    // height of complete layout
     
     // rendering
-    void render_document(      const Offset& offset, bool decor = true);    // all pages (with layout)
-    void render_edit_cursor(   const Offset& offset);                       // edit cursor
+    void render_document      (const Offset& offset, bool decor = true);    // all pages (with layout)
+    void render_edit_cursor   (const Offset& offset);                       // edit cursor
     void render_object_cursors(const Offset& offset);                       // object cursors
     
     // logging control
@@ -149,11 +152,12 @@ inline void Controller::set_filepath(const std::string& s)  {filepath = s;}
 inline void Controller::change(bool b)                      {changed  = b; view.on_title_changed();}
 
 // inline methods (signal handler)
-inline void Controller::rerender()                          {view.rerender();}
-inline void Controller::redraw()                            {view.redraw();}
-inline bool Controller::on_key_press(  const KeyMap::Key k) {return keys.press(k, *this);}
-inline bool Controller::on_key_release(const KeyMap::Key k) {return keys.release(k);}
-inline bool Controller::on_mouse_press(const Position& pos) {engine.set_cursor(edit_cursor, pos, layout); redraw(); return false;}
+inline void Controller::rerender()        {view.rerender();}
+inline void Controller::redraw()          {view.redraw();}
+inline void Controller::on_note_changed() {view.on_note_changed(keys.get_note());}
+inline void Controller::on_action     (const KeyMap::ActionKey k) {return keys.action_on(k, *this);}
+inline bool Controller::on_key_press  (const KeyMap::Key k)       {return keys.press(k, *this);}
+inline bool Controller::on_key_release(const KeyMap::Key k)       {return keys.release(k);}
 
 // inline methods (page layout)
 inline ScorePress::mpx_t Controller::layout_width()  const  {return engine.layout_width(layout);}

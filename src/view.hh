@@ -61,6 +61,8 @@ class View
     
     void on_title_changed();                // title and/or filename changed (refresh title and tab label)
     void on_status_changed();               // status bar content changed    (refresh status bar)
+    void on_note_changed(const ScorePress::EditCursor::InputNote&);
+                                            // selected note value changed   (refresh tool and status bar)
     
     // signals from view
     void on_size_changed(Gtk::Allocation&); // resize signal handler (like a score-resize)

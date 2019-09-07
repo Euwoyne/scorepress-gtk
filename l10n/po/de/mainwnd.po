@@ -61,7 +61,7 @@ msgstr "_Speichern..."
 
 #: mainwnd.cpp:106
 msgid "Save current score"
-msgstr "Die aktuelle Partitur speichern"
+msgstr "Aktuelle Partitur speichern"
 
 #: mainwnd.cpp:109
 msgid "_Quit"
@@ -69,7 +69,7 @@ msgstr "_Beenden"
 
 #: mainwnd.cpp:109
 msgid "Quit program"
-msgstr "Das Programm beenden"
+msgstr "Programm beenden"
 
 #: mainwnd.cpp:112
 msgid "_Edit"
@@ -81,7 +81,7 @@ msgstr "_Rückgängig"
 
 #: mainwnd.cpp:113
 msgid "Undo last action"
-msgstr "Den letzten Corgang rückgängig machen"
+msgstr "Letzten Vorgang rückgängig machen"
 
 #: mainwnd.cpp:116
 msgid "_Redo"
@@ -89,7 +89,7 @@ msgstr "_Wiederholen"
 
 #: mainwnd.cpp:116
 msgid "Redo the last undone action"
-msgstr "Den rückgängig gemachten Vorgang wiederholen"
+msgstr "Rückgängig gemachten Vorgang wiederholen"
 
 #: mainwnd.cpp:119
 msgid "Cu_t"
@@ -97,7 +97,7 @@ msgstr "_Ausschneiden"
 
 #: mainwnd.cpp:119
 msgid "Cut highlighted part"
-msgstr "Den markierten Teil ausschneiden"
+msgstr "Markierten Teil ausschneiden"
 
 #: mainwnd.cpp:122
 msgid "_Copy"
@@ -105,7 +105,7 @@ msgstr "_Kopieren"
 
 #: mainwnd.cpp:122
 msgid "Copy highlighted part"
-msgstr "Den markierten Teil kopieren"
+msgstr "Markierten Teil kopieren"
 
 #: mainwnd.cpp:125
 msgid "_Paste"
@@ -113,7 +113,7 @@ msgstr "_Einfügen"
 
 #: mainwnd.cpp:125
 msgid "Paste clipboard contents"
-msgstr "Den Inhalt der Zwischenablage einfügen"
+msgstr "Inhalt der Zwischenablage einfügen"
 
 #: mainwnd.cpp:128
 msgid "_View"
@@ -129,7 +129,7 @@ msgstr "_Zeile"
 
 #: mainwnd.cpp:130
 msgid "Show line boundaries"
-msgstr "Zeichne Zeilen Umrandungen"
+msgstr "Zeige Zeilen Umrandungen"
 
 #: mainwnd.cpp:132
 msgid "_Attached"
@@ -137,7 +137,7 @@ msgstr "_Objekte"
 
 #: mainwnd.cpp:132
 msgid "Show attachment boundaries"
-msgstr "Zeichne Objekt Umrandungen"
+msgstr "Zeige Objekt Umrandungen"
 
 #: mainwnd.cpp:134
 msgid "_Note"
@@ -145,7 +145,7 @@ msgstr "_Noten"
 
 #: mainwnd.cpp:134
 msgid "Show note boundaries"
-msgstr "Zeichne Noten Umrandungen"
+msgstr "Zeige Noten Umrandungen"
 
 #: mainwnd.cpp:136
 msgid "_EOV"
@@ -153,7 +153,7 @@ msgstr "_EOV"
 
 #: mainwnd.cpp:136
 msgid "Show end-of-voice indicators"
-msgstr "Zeichne Stimmen Ende"
+msgstr "Zeige Stimmen Ende"
 
 #: mainwnd.cpp:138
 msgid "_Show All"
@@ -161,7 +161,7 @@ msgstr "_Alle"
 
 #: mainwnd.cpp:138
 msgid "Show all boundaries"
-msgstr "Zeichne alle Umrandungen"
+msgstr "Zeige alle Umrandungen"
 
 #: mainwnd.cpp:140
 msgid "_Hide All"
@@ -169,7 +169,7 @@ msgstr "_Keine"
 
 #: mainwnd.cpp:140
 msgid "Show no boundaries"
-msgstr "Zeichne keine Umrandungen"
+msgstr "Zeige keine Umrandungen"
 
 #: mainwnd.cpp:142
 msgid "_Help"

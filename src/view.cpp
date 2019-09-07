@@ -67,6 +67,13 @@ void View::on_status_changed()
     // TODO: update status bar (in MainWnd)
 }
 
+// selected note value changed (refresh tool and status bar)
+void View::on_note_changed(const ScorePress::EditCursor::InputNote& note)
+{
+    window->select_value(note.exp);
+    window->select_note (note.name);
+}
+
 // resize signal handler
 void View::on_size_changed(Gtk::Allocation& alloc)
 {

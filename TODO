@@ -3,4 +3,7 @@ scorepress-gtk - TODO List
 
   controller.cpp    file parsing
   mainwnd.cpp       ask for save
+  mainwnd.cpp       show note name in status bar when in "insert on value"-mode
+  mailwnd.cpp       show cursor information in status bar
   score_widget.cpp  automatic scrolling on cursor movement
+  about_dialog.cpp  need word wrap on licence text (window scales now)

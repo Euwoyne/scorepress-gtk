@@ -39,13 +39,13 @@ class IconManager
     Glib::RefPtr<Gtk::IconTheme> theme;     // used icon theme (i.e. default theme)
     
  public:
-    void        load(const std::string icon, const std::string alias) throw(Error); // load icon into memory
-    void        load(const std::string icon) throw(Error);                          // load icon into memory
-    const Icon& get(const std::string alias) const throw(Error);                    // get icon (throws, if not loaded)
+    void        load(const std::string icon, const std::string alias); // load icon into memory
+    void        load(const std::string icon);                          // load icon into memory
+    const Icon& get (const std::string alias) const;                   // get icon (throws, if not loaded)
 };
 
 // inline method implementation
-inline void IconManager::load(const std::string iconname) throw(Error) {load(iconname, iconname);}
+inline void IconManager::load(const std::string iconname) {load(iconname, iconname);}
 
 #endif
 

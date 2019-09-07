@@ -191,29 +191,66 @@ void KeyListener::action_on(const KeyMap::ActionKey action, Controller& controll
         break;
     
     // note value
-    case KeyMap::KEY_LONGA:   note.exp = ScorePress::VALUE_BASE + 2; if (keymap.inserts_on_value()) insert(controller); break;
-    case KeyMap::KEY_BREVE:   note.exp = ScorePress::VALUE_BASE + 1; if (keymap.inserts_on_value()) insert(controller); break;
-    case KeyMap::KEY_WHOLE:   note.exp = ScorePress::VALUE_BASE;     if (keymap.inserts_on_value()) insert(controller); break;
-    case KeyMap::KEY_HALF:    note.exp = ScorePress::VALUE_BASE - 1; if (keymap.inserts_on_value()) insert(controller); break;
-    case KeyMap::KEY_QUARTER: note.exp = ScorePress::VALUE_BASE - 2; if (keymap.inserts_on_value()) insert(controller); break;
-    case KeyMap::KEY_EIGHTH:  note.exp = ScorePress::VALUE_BASE - 3; if (keymap.inserts_on_value()) insert(controller); break;
-    case KeyMap::KEY_16TH:    note.exp = ScorePress::VALUE_BASE - 4; if (keymap.inserts_on_value()) insert(controller); break;
-    case KeyMap::KEY_32TH:    note.exp = ScorePress::VALUE_BASE - 5; if (keymap.inserts_on_value()) insert(controller); break;
-    case KeyMap::KEY_64TH:    note.exp = ScorePress::VALUE_BASE - 6; if (keymap.inserts_on_value()) insert(controller); break;
-    case KeyMap::KEY_128TH:   note.exp = ScorePress::VALUE_BASE - 7; if (keymap.inserts_on_value()) insert(controller); break;
+    case KeyMap::KEY_LONGA:
+    case KeyMap::KEY_BREVE:
+    case KeyMap::KEY_WHOLE:
+    case KeyMap::KEY_HALF:
+    case KeyMap::KEY_QUARTER:
+    case KeyMap::KEY_EIGHTH:
+    case KeyMap::KEY_16TH:
+    case KeyMap::KEY_32TH:
+    case KeyMap::KEY_64TH:
+    case KeyMap::KEY_128TH:
+    case KeyMap::KEY_256TH:
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch"
+        switch (action)
+        {
+        case KeyMap::KEY_LONGA:   note.exp = ScorePress::VALUE_BASE + 2; break;
+        case KeyMap::KEY_BREVE:   note.exp = ScorePress::VALUE_BASE + 1; break;
+        case KeyMap::KEY_WHOLE:   note.exp = ScorePress::VALUE_BASE;     break;
+        case KeyMap::KEY_HALF:    note.exp = ScorePress::VALUE_BASE - 1; break;
+        case KeyMap::KEY_QUARTER: note.exp = ScorePress::VALUE_BASE - 2; break;
+        case KeyMap::KEY_EIGHTH:  note.exp = ScorePress::VALUE_BASE - 3; break;
+        case KeyMap::KEY_16TH:    note.exp = ScorePress::VALUE_BASE - 4; break;
+        case KeyMap::KEY_32TH:    note.exp = ScorePress::VALUE_BASE - 5; break;
+        case KeyMap::KEY_64TH:    note.exp = ScorePress::VALUE_BASE - 6; break;
+        case KeyMap::KEY_128TH:   note.exp = ScorePress::VALUE_BASE - 7; break;
+        case KeyMap::KEY_256TH:   note.exp = ScorePress::VALUE_BASE - 8; break;
+        }
+#pragma GCC diagnostic pop
+        if (keymap.inserts_on_value()) insert(controller);
+        else controller.on_note_changed();
+        break;
     
     case KeyMap::KEY_REST:
         insert_rest(controller);
         break;
     
     // note name
-    case KeyMap::KEY_C: note.name = ScorePress::EditCursor::C; if (keymap.inserts_on_name()) insert(controller); break;
-    case KeyMap::KEY_D: note.name = ScorePress::EditCursor::D; if (keymap.inserts_on_name()) insert(controller); break;
-    case KeyMap::KEY_E: note.name = ScorePress::EditCursor::E; if (keymap.inserts_on_name()) insert(controller); break;
-    case KeyMap::KEY_F: note.name = ScorePress::EditCursor::F; if (keymap.inserts_on_name()) insert(controller); break;
-    case KeyMap::KEY_G: note.name = ScorePress::EditCursor::G; if (keymap.inserts_on_name()) insert(controller); break;
-    case KeyMap::KEY_A: note.name = ScorePress::EditCursor::A; if (keymap.inserts_on_name()) insert(controller); break;
-    case KeyMap::KEY_B: note.name = ScorePress::EditCursor::B; if (keymap.inserts_on_name()) insert(controller); break;
+    case KeyMap::KEY_C:
+    case KeyMap::KEY_D:
+    case KeyMap::KEY_E:
+    case KeyMap::KEY_F:
+    case KeyMap::KEY_G:
+    case KeyMap::KEY_A:
+    case KeyMap::KEY_B:
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch"
+        switch (action)
+        {
+        case KeyMap::KEY_C: note.name = ScorePress::EditCursor::C; break;
+        case KeyMap::KEY_D: note.name = ScorePress::EditCursor::D; break;
+        case KeyMap::KEY_E: note.name = ScorePress::EditCursor::E; break;
+        case KeyMap::KEY_F: note.name = ScorePress::EditCursor::F; break;
+        case KeyMap::KEY_G: note.name = ScorePress::EditCursor::G; break;
+        case KeyMap::KEY_A: note.name = ScorePress::EditCursor::A; break;
+        case KeyMap::KEY_B: note.name = ScorePress::EditCursor::B; break;
+        }
+#pragma GCC diagnostic pop
+        if (keymap.inserts_on_name()) insert(controller);
+        else controller.on_note_changed();
+        break;
     
     // accidentals
     case KeyMap::KEY_SHARP:         note.accidental = ScorePress::Accidental::sharp;         break;
@@ -226,11 +263,11 @@ void KeyListener::action_on(const KeyMap::ActionKey action, Controller& controll
     case KeyMap::KEY_FLATANDAHALF:  note.accidental = ScorePress::Accidental::flat_andahalf; break;
     
     // octave modification
-    case KeyMap::KEY_8VA:      got_8va = true;      // continue with OCTAVEUP
+    case KeyMap::KEY_8VA:      got_8va = true;      // fallthrough
     case KeyMap::KEY_OCTAVEUP: ++note.octave;
                                break;
     
-    case KeyMap::KEY_8VAB:       got_8vab = true;   // continue with OCTAVEDOWN
+    case KeyMap::KEY_8VAB:       got_8vab = true;   // fallthrough
     case KeyMap::KEY_OCTAVEDOWN: --note.octave;
                                  break;
     
@@ -567,8 +604,8 @@ void KeyListener::action_off(const KeyMap::ActionKey action)
     case KeyMap::KEY_ACCMOVE:    if (context == KeyMap::CTX_ACCMOVE)    context = KeyMap::CTX_DEFAULT; break;
     case KeyMap::KEY_STAFFSHIFT: if (context == KeyMap::CTX_STAFFSHIFT) context = KeyMap::CTX_DEFAULT; break;
     case KeyMap::KEY_BEAM:       if (context == KeyMap::CTX_BEAM)       context = KeyMap::CTX_DEFAULT; break;
-    case KeyMap::KEY_HEAD_MODE:  if (context == KeyMap::CTX_HEAD && keymap.head_on_hold())
-                                                                        context = KeyMap::CTX_DEFAULT; break;
+    case KeyMap::KEY_HEAD_MODE:  if (context == KeyMap::CTX_HEAD && keymap.head_on_hold()) {
+                                                                        context = KeyMap::CTX_DEFAULT;}break;
     // ignore other codes
     default: break;
     };

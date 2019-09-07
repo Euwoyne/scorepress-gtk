@@ -45,7 +45,7 @@ class KeyMap
                 
                     // note value
                     KEY_LONGA, KEY_BREVE, KEY_WHOLE, KEY_HALF, KEY_QUARTER, KEY_EIGHTH,
-                               KEY_16TH, KEY_32TH,  KEY_64TH, KEY_128TH,
+                               KEY_16TH, KEY_32TH,  KEY_64TH, KEY_128TH, KEY_256TH,
                     
                     // note name
                     KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_A, KEY_B, KEY_REST, 

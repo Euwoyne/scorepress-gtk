@@ -85,6 +85,24 @@ void Controller::on_zoom_changed(const unsigned int zoom)
     view.on_resize();                           // re-center view
 }
 
+// mouse signal handlers
+bool Controller::on_mouse_press(const Position& pos)
+{
+    ScorePress::RefPtr<ScorePress::ObjectCursor> cursor = engine.select_object(pos, layout);
+    object_cursors.clear();
+    if (cursor != NULL)
+        object_cursors.push_back(cursor);
+    else
+        engine.set_cursor(edit_cursor, pos, layout);
+    view.redraw();
+    return false;
+}
+
+bool Controller::on_mouse_release(const Position&)
+{
+    return false;
+}
+
 // render edit cursor
 void Controller::render_edit_cursor(const Offset& offset)
 {
